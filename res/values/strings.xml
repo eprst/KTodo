@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="hello">Hello World, Lop!</string>
+	<string name="app_name">KTodo</string>
+	<string name="edit_tags">Edit tags</string>
+	<string name="add_tag">Add</string>
+	<string name="del_tag">Delete</string>
+	<string name="ren_tag">Rename</string>
+</resources>
