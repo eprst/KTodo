@@ -1,11 +1,11 @@
 package com.kos.ktodo;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-import java.util.List;
 
 public class TagsStorage {
 	private static final String TAG = "TagsStorage";
@@ -13,40 +13,51 @@ public class TagsStorage {
 	private static final String TABLE_NAME = "tag";
 	private static final int DB_VERSION = 1;
 
-	public static final String KEY_ID = "_id";
-
+	public static final String ID_NAME = "_id";
 	public static final String TAG_NAME = "tag";
-	public static final int TAG_COLUMN = 1;
 
 	private static final String DB_CREATE = "create table " + TABLE_NAME +
-	                                        " (" + KEY_ID + " integer primary key autoincrement, " +
+	                                        " (" + ID_NAME + " integer primary key autoincrement, " +
 	                                        TAG_NAME + " text not null);";
 
 	private SQLiteDatabase db;
-	private final Context context;
+	private final boolean readOnly;
 	private DBHelper helper;
 
-	public TagsStorage(final Context context) {
-		this.context = context;
+	public TagsStorage(final Context context, final boolean readOnly) {
+		this.readOnly = readOnly;
 		helper = new DBHelper(context, DB_NAME, null, DB_VERSION);
 	}
 
-	public 
-
-	public List<String> getTags() {
-		return null;
+	public void open() {
+		if (readOnly)
+			db = helper.getWritableDatabase();
+		else
+			db = helper.getReadableDatabase();
 	}
 
-	public void addTag(final String tag) {
-
+	public void close() {
+		helper.close();
 	}
 
-	public void renameTag(final String oldName, final String newName) {
-
+	public long addTag(final String tag) {
+		final ContentValues cv = new ContentValues();
+		cv.put(TAG_NAME, tag);
+		return db.insert(TABLE_NAME, null, cv);
 	}
 
-	public void deleteTag(final String tag) {
+	public boolean renameTag(final String oldName, final String newName) {
+		final ContentValues cv = new ContentValues();
+		cv.put(TAG_NAME, newName);
+		return db.update(TABLE_NAME, cv, TAG_NAME + "=" + oldName, null) > 0;
+	}
 
+	public boolean deleteTag(final String tag) {
+		return db.delete(TABLE_NAME, TAG_NAME + "=" + tag, null) > 0;
+	}
+
+	public Cursor getAllTagsCursor() {
+		return db.query(TABLE_NAME, new String[]{ID_NAME, TAG_NAME}, null, null, null, null, null);
 	}
 
 	private static class DBHelper extends SQLiteOpenHelper {

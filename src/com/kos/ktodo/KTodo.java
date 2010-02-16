@@ -6,23 +6,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class KTodo extends Activity {
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
-	private List<String> allTags;
 
-	public KTodo() {
-		allTags = new ArrayList<String>();
-		allTags.add("tag1");
-		allTags.add("tag2");
-		allTags.add("tag3");
-	}
+	private TagsStorage tagsStorage;
+	private SimpleCursorAdapter tagsAdapter;
 
 	/**
 	 * Called when the activity is first created.
@@ -31,19 +23,30 @@ public class KTodo extends Activity {
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		final ArrayAdapter<String> tagsAdapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, getAllTags());
+
+		tagsStorage = new TagsStorage(this, true);
+		tagsStorage.open();
+
+		tagsAdapter = new SimpleCursorAdapter(this, android.R.id.text1,
+				tagsStorage.getAllTagsCursor(),
+				new String[] {TagsStorage.TAG_NAME}, new int[] {android.R.layout.simple_spinner_dropdown_item});
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		getTagsWidget().setAdapter(tagsAdapter);
 
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-		getTagsWidget().setSelection(preferences.getInt("currentTag", 0));
+		setCurrentTag(preferences.getInt("currentTag", 0));
 	}
 
 	@Override
 	protected void onPause() {
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		preferences.edit().putInt("currentTag", getTagsWidget().getSelectedItemPosition()).commit();
+		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		tagsStorage.close();
 		super.onDestroy();
 	}
 
@@ -60,7 +63,7 @@ public class KTodo extends Activity {
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		getTagsWidget().setSelection(savedInstanceState.getInt("currentTag"));
+		setCurrentTag(savedInstanceState.getInt("currentTag"));
 		final String addTaskText = savedInstanceState.getString("addTaskText");
 		if (addTaskText != null) {
 			final EditText taskWidget = getAddTaskWidget();
@@ -68,6 +71,11 @@ public class KTodo extends Activity {
 			taskWidget.setSelection(savedInstanceState.getInt("addTaskSelStart"), savedInstanceState.getInt("addTaskSelEnd"));
 		}
 		loadList();
+	}
+
+	private void setCurrentTag(final int idx) {
+		if (idx < tagsAdapter.getCount())
+			getTagsWidget().setSelection(idx);
 	}
 
 	@Override
@@ -78,22 +86,12 @@ public class KTodo extends Activity {
 		return true;
 	}
 
-	private List<String> getAllTags() {
-		return allTags;
-	}
-
 	private EditText getAddTaskWidget() {
 		return (EditText) findViewById(R.id.add_task);
 	}
 
 	private Spinner getTagsWidget() {
 		return (Spinner) findViewById(R.id.tags);
-	}
-
-	private String getCurrentTag() {
-		final Object selectedItem = getTagsWidget().getSelectedItem();
-		if (selectedItem == null) return null;
-		return selectedItem.toString();
 	}
 
 	private void loadList() {
