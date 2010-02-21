@@ -1,8 +1,8 @@
 package com.kos.ktodo;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,53 +24,55 @@ public class KTodo extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		tagsStorage = new TagsStorage(this, true);
-		tagsStorage.open();
-
-		tagsAdapter = new SimpleCursorAdapter(this, android.R.id.text1,
-				tagsStorage.getAllTagsCursor(),
-				new String[] {TagsStorage.TAG_NAME}, new int[] {android.R.layout.simple_spinner_dropdown_item});
-		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		getTagsWidget().setAdapter(tagsAdapter);
-
-		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-		setCurrentTag(preferences.getInt("currentTag", 0));
+//		tagsStorage = new TagsStorage(this, true);
+//		tagsStorage.open();
+//
+//		final Cursor allTagsCursor = tagsStorage.getAllTagsCursor();
+//		startManagingCursor(allTagsCursor);
+//		tagsAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1,
+//				allTagsCursor,
+//				new String[]{TagsStorage.TAG_NAME}, new int[]{android.R.layout.simple_spinner_dropdown_item});
+//		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//		getTagsWidget().setAdapter(tagsAdapter);
+//
+//		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+//		setCurrentTag(preferences.getInt("currentTag", 0));
 	}
 
 	@Override
 	protected void onPause() {
-		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-		preferences.edit().putInt("currentTag", getTagsWidget().getSelectedItemPosition()).commit();
+//		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
+//		preferences.edit().putInt("currentTag", getTagsWidget().getSelectedItemPosition()).commit();
 		super.onPause();
 	}
 
 	@Override
 	protected void onDestroy() {
-		tagsStorage.close();
+//		tagsStorage.close();
 		super.onDestroy();
 	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt("currentTag", getTagsWidget().getSelectedItemPosition());
-		final EditText addTask = getAddTaskWidget();
-		outState.putString("addTaskText", addTask.getText().toString());
-		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
-		outState.putInt("addTaskSelEnd", addTask.getSelectionEnd());
+//		outState.putInt("currentTag", getTagsWidget().getSelectedItemPosition());
+//		final EditText addTask = getAddTaskWidget();
+//		outState.putString("addTaskText", addTask.getText().toString());
+//		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
+//		outState.putInt("addTaskSelEnd", addTask.getSelectionEnd());
 	}
 
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		setCurrentTag(savedInstanceState.getInt("currentTag"));
-		final String addTaskText = savedInstanceState.getString("addTaskText");
-		if (addTaskText != null) {
-			final EditText taskWidget = getAddTaskWidget();
-			taskWidget.setText(addTaskText);
-			taskWidget.setSelection(savedInstanceState.getInt("addTaskSelStart"), savedInstanceState.getInt("addTaskSelEnd"));
-		}
-		loadList();
+//		setCurrentTag(savedInstanceState.getInt("currentTag"));
+//		final String addTaskText = savedInstanceState.getString("addTaskText");
+//		if (addTaskText != null) {
+//			final EditText taskWidget = getAddTaskWidget();
+//			taskWidget.setText(addTaskText);
+//			taskWidget.setSelection(savedInstanceState.getInt("addTaskSelStart"), savedInstanceState.getInt("addTaskSelEnd"));
+//		}
+//		loadList();
 	}
 
 	private void setCurrentTag(final int idx) {
@@ -82,7 +84,7 @@ public class KTodo extends Activity {
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
-		item.setIntent(new Intent(this, EditTags.class));
+		//item.setIntent(new Intent(this, EditTags.class));
 		return true;
 	}
 

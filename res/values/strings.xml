@@ -6,4 +6,6 @@
 	<string name="add_tag">Add</string>
 	<string name="del_tag">Delete</string>
 	<string name="ren_tag">Rename</string>
+	<string name="add_tag_title">Add Tag</string>
+	<string name="add_tag_msg">New tag name</string>
 </resources>
