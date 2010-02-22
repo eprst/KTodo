@@ -3,9 +3,10 @@
 	<string name="hello">Hello World, Lop!</string>
 	<string name="app_name">KTodo</string>
 	<string name="edit_tags">Edit tags</string>
-	<string name="add_tag">Add</string>
-	<string name="del_tag">Delete</string>
-	<string name="ren_tag">Rename</string>
-	<string name="add_tag_title">Add Tag</string>
-	<string name="add_tag_msg">New tag name</string>
+	<string name="add">Add</string>
+	<string name="rename">Rename</string>
+	<string name="delete">Delete</string>
+	<string name="rename_title">Rename tag</string>
+	<string name="new_tag_name_text">New tag name</string>
+	<string name="tag_already_exists">Such tag already exists</string>
 </resources>

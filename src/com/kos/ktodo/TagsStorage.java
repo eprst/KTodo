@@ -52,12 +52,36 @@ public class TagsStorage {
 		return db.update(TABLE_NAME, cv, TAG_NAME + "=" + oldName, null) > 0;
 	}
 
+	public boolean renameTag(final long id, final String newName) {
+		final ContentValues cv = new ContentValues();
+		cv.put(TAG_NAME, newName);
+		return db.update(TABLE_NAME, cv, ID_NAME + "=" + id, null) > 0;
+	}
+
 	public boolean deleteTag(final String tag) {
 		return db.delete(TABLE_NAME, TAG_NAME + "=" + tag, null) > 0;
 	}
 
+	public boolean deleteTag(final long id) {
+		return db.delete(TABLE_NAME, ID_NAME + "=" + id, null) > 0;
+	}
+
 	public Cursor getAllTagsCursor() {
 		return db.query(TABLE_NAME, new String[]{ID_NAME, TAG_NAME}, null, null, null, null, null);
+	}
+
+	public boolean hasTag(final String tag) {
+		final Cursor cursor = db.query(TABLE_NAME, new String[]{ID_NAME}, TAG_NAME + "=\"" + tag + "\"", null, null, null, null);
+		final boolean res = cursor.getCount() > 0;
+		cursor.close();
+		return res;
+	}
+
+	public String getTag(final long id) {
+		final Cursor cursor = db.query(TABLE_NAME, new String[]{TAG_NAME}, ID_NAME + "=" + id, null, null, null, null);
+		final String res = cursor.moveToFirst() ? cursor.getString(0) : null;
+		cursor.close();
+		return res;
 	}
 
 	private static class DBHelper extends SQLiteOpenHelper {

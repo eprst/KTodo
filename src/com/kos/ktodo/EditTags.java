@@ -5,14 +5,20 @@ import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.view.*;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 
 public class EditTags extends ListActivity {
+	private static final String TAG = "EditTags";
+
+	private final int RENAME_TAG_MENU_ITEM = Menu.FIRST;
+	private final int DELETE_TAG_MENU_ITEM = RENAME_TAG_MENU_ITEM + 1;
+	
 	private TagsStorage tagsStorage;
+	private Cursor allTagsCursor;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -21,44 +27,111 @@ public class EditTags extends ListActivity {
 
 		tagsStorage = new TagsStorage(this, false);
 		tagsStorage.open();
-		final Cursor allTagsCursor = tagsStorage.getAllTagsCursor();
+		allTagsCursor = tagsStorage.getAllTagsCursor();
 		startManagingCursor(allTagsCursor);
 		final ListAdapter tagsAdapter = new SimpleCursorAdapter(
 				this, android.R.layout.simple_list_item_1,
 				allTagsCursor,
-				new String[]{TagsStorage.TAG_NAME}, new int[]{android.R.layout.simple_list_item_1});
+				new String[]{TagsStorage.TAG_NAME}, new int[]{android.R.id.text1});
 
 		setListAdapter(tagsAdapter);
 
-		findViewById(R.id.add_tag).setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.add_tag_text).setOnKeyListener(new View.OnKeyListener() {
+			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER)
+					addTag();
+				return false;
+			}
+		});
+		findViewById(R.id.add_tag_button).setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
 				addTag();
 			}
 		});
+
+		registerForContextMenu(getListView());
+	}
+
+	@Override
+	public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.add(0, RENAME_TAG_MENU_ITEM, Menu.NONE, R.string.rename);
+		menu.add(0, DELETE_TAG_MENU_ITEM, Menu.NONE, R.string.delete);
+	}
+
+	@Override
+	public boolean onContextItemSelected(final MenuItem item) {
+		super.onContextItemSelected(item);
+		final AdapterView.AdapterContextMenuInfo info;
+		final long id;
+		switch (item.getItemId()) {
+			case RENAME_TAG_MENU_ITEM:
+				info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+				id = getListAdapter().getItemId(info.position);
+				renameTag(id);
+				return true;
+			case DELETE_TAG_MENU_ITEM:
+				info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+				id = getListAdapter().getItemId(info.position);
+				tagsStorage.deleteTag(id);
+				updateView();
+				return true;
+		}
+		return false;
 	}
 
 	private void addTag() {
+		final EditText et = (EditText) findViewById(R.id.add_tag_text);
+		final String st = et.getText().toString();
+		if (st.length() > 0) {
+			if (tagsStorage.hasTag(st)) {
+				warnTagExists();
+			} else {
+				tagsStorage.addTag(st);
+				et.setText("");
+				et.requestFocus();
+				updateView();
+			}
+		}
+	}
+
+	private void warnTagExists() {
+		final AlertDialog.Builder b = new AlertDialog.Builder(this);
+		b.setTitle(android.R.string.dialog_alert_title);
+		b.setMessage(R.string.tag_already_exists);
+		b.show();
+	}
+
+	private void renameTag(final long id) {
 		final LayoutInflater inf = LayoutInflater.from(this);
 		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
+		final String currentName = tagsStorage.getTag(id);
+		((EditText)textEntryView.findViewById(R.id.text_entry)).setText(currentName);
 
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
-		b.setTitle(getString(R.string.add_tag));
-		b.setMessage(getString(R.string.add_tag_msg));
+		b.setTitle(R.string.rename_title);
+		b.setMessage(R.string.new_tag_name_text);
 		b.setCancelable(true);
 		b.setView(textEntryView);
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
 				final EditText et = (EditText) textEntryView.findViewById(R.id.text_entry);
 				final String st = et.getText().toString();
-				tagsStorage.addTag(st);
-				updateView();
+				if (st.length() > 0 && !currentName.equals(st)) {
+					if (tagsStorage.hasTag(st))
+						warnTagExists();
+					else {
+						tagsStorage.renameTag(id, st);
+						updateView();
+					}
+				}
 			}
 		});
 		b.show();
 	}
 
 	private void updateView() {
-		//getListView().re
+		allTagsCursor.requery();
 	}
 
 	@Override

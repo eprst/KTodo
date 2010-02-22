@@ -13,10 +13,17 @@
 			android:layout_height="0dip"
 			android:layout_weight="1.0"
 			android:text="@string/hello"/>
-	<EditText
-			android:id="@+id/add_task"
-			android:maxLines="1"
-			android:inputType="text"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"/>
+	<LinearLayout android:layout_height="wrap_content"
+	              android:layout_width="fill_parent">
+		<EditText
+				android:id="@+id/add_task"
+				android:maxLines="1"
+				android:inputType="text"
+				android:layout_weight="1.0"
+				android:layout_width="0dip"
+				android:layout_height="wrap_content"/>
+		<Button android:text="@string/add" android:id="@+id/add_task_button"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"/>
+	</LinearLayout>
 </LinearLayout>

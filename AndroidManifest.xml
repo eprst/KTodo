@@ -8,6 +8,8 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-		<activity android:name=".EditTags" android:label="@string/edit_tags"/>
+		<activity android:name=".EditTags"
+		          android:label="@string/edit_tags"
+                  android:windowSoftInputMode="stateVisible|adjustResize"/>
 	</application>
 </manifest>
