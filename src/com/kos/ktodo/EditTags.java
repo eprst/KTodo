@@ -16,7 +16,7 @@ public class EditTags extends ListActivity {
 
 	private final int RENAME_TAG_MENU_ITEM = Menu.FIRST;
 	private final int DELETE_TAG_MENU_ITEM = RENAME_TAG_MENU_ITEM + 1;
-	
+
 	private TagsStorage tagsStorage;
 	private Cursor allTagsCursor;
 
@@ -62,17 +62,14 @@ public class EditTags extends ListActivity {
 	@Override
 	public boolean onContextItemSelected(final MenuItem item) {
 		super.onContextItemSelected(item);
-		final AdapterView.AdapterContextMenuInfo info;
-		final long id;
+		final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		if (info == null) return false;
+		final long id = getListAdapter().getItemId(info.position);
 		switch (item.getItemId()) {
 			case RENAME_TAG_MENU_ITEM:
-				info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-				id = getListAdapter().getItemId(info.position);
 				renameTag(id);
 				return true;
 			case DELETE_TAG_MENU_ITEM:
-				info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-				id = getListAdapter().getItemId(info.position);
 				tagsStorage.deleteTag(id);
 				updateView();
 				return true;
@@ -106,7 +103,9 @@ public class EditTags extends ListActivity {
 		final LayoutInflater inf = LayoutInflater.from(this);
 		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
 		final String currentName = tagsStorage.getTag(id);
-		((EditText)textEntryView.findViewById(R.id.text_entry)).setText(currentName);
+		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
+		editText.setMaxLines(1);
+		editText.setText(currentName);
 
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string.rename_title);
@@ -115,8 +114,7 @@ public class EditTags extends ListActivity {
 		b.setView(textEntryView);
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
-				final EditText et = (EditText) textEntryView.findViewById(R.id.text_entry);
-				final String st = et.getText().toString();
+				final String st = editText.getText().toString();
 				if (st.length() > 0 && !currentName.equals(st)) {
 					if (tagsStorage.hasTag(st))
 						warnTagExists();
@@ -127,7 +125,18 @@ public class EditTags extends ListActivity {
 				}
 			}
 		});
-		b.show();
+
+		final AlertDialog dialog = b.create();
+		editText.setOnKeyListener(new View.OnKeyListener() {
+			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+					dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+					return true;
+				}
+				return false;
+			}
+		});
+		dialog.show();
 	}
 
 	private void updateView() {
