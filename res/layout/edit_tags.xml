@@ -9,6 +9,7 @@
 	          android:layout_width="fill_parent"
 	          android:layout_weight="1.0"
 	          android:choiceMode="singleChoice"
+	          android:layoutAnimation="@anim/list_slide_left"
 	          android:id="@id/android:list"/>
 	<LinearLayout android:layout_height="wrap_content"
 	              android:layout_width="fill_parent">
