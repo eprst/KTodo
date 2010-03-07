@@ -6,7 +6,6 @@ import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.*;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -24,16 +23,15 @@ public class MyListView extends ListView {
 
 	private final int[] xy = new int[2];
 
-	private ImageView mDragView;
-	private WindowManager mWindowManager;
-	private WindowManager.LayoutParams mWindowParams;
-	private Bitmap mDragBitmap;
+	private ImageView dragView;
+	private WindowManager windowManager;
+	private WindowManager.LayoutParams windowParams;
+	private Bitmap dragBitmap;
 	private int dragItemNum;      // which item is being dragged
 	private int lastDragX;
-	//private int mDragItemY;
-	private int mDragStartX, mDragStartY;
-	private int /*mDragPointY,*/ mDragPointX;    // at what offset inside the item did the user grab it
-	private int mCoordOffsetY, mCoordOffsetX;  // the difference between screen coordinates and coordinates in this view
+	private int dragStartX, dragStartY;
+	private int dragPointX;    // at what offset inside the item did the user grab it
+	private int coordOffsetY, coordOffsetX;  // the difference between screen coordinates and coordinates in this view
 	private int scaledTouchSlop;
 	private int scaledTouchSlopSquared;
 	private boolean isLongPress = false;
@@ -83,7 +81,7 @@ public class MyListView extends ListView {
 					stopPreDragging();
 				break;
 
-			case MotionEvent.ACTION_DOWN:
+			case MotionEvent.ACTION_DOWN: //todo: highlight the item
 				startPreDragging(ev);
 				//intercepted.add(ev);
 				msgHandler.removeMessages(MSG_LONG_PRESS);
@@ -99,10 +97,10 @@ public class MyListView extends ListView {
 				final int x = (int) ev.getX();
 				final int y = (int) ev.getY();
 
-				Log.i(TAG, "move: hasMoved=" + hasMoved + ", isDragging:" + isDragging());
+//				Log.i(TAG, "move: hasMoved=" + hasMoved + ", isDragging:" + isDragging());
 				if (!hasMoved) {
-					final int deltaXFromDown = x - mDragStartX;
-					final int deltaYFromDown = y - mDragStartY;
+					final int deltaXFromDown = x - dragStartX;
+					final int deltaYFromDown = y - dragStartY;
 					final int distance = (deltaXFromDown * deltaXFromDown)
 					                     + (deltaYFromDown * deltaYFromDown);
 					if (distance > scaledTouchSlopSquared)
@@ -119,8 +117,9 @@ public class MyListView extends ListView {
 				break;
 		}
 		if (processed) {
-			Log.i(TAG, "[" + intercepted.size() + "] ev: " + ev);
-			intercepted.add(ev);
+//			Log.i(TAG, "[" + intercepted.size() + "] ev: " + ev);
+			if (!isDragging())
+				intercepted.add(ev);
 			return true;
 		} else if (intercepted.size() > 0) {
 			replaying = true;
@@ -139,7 +138,7 @@ public class MyListView extends ListView {
 	}
 
 	private boolean isDragging() {
-		return isPreDragging() && mDragView != null;
+		return isPreDragging() && dragView != null;
 	}
 
 	private boolean startPreDragging(final MotionEvent ev) {
@@ -150,13 +149,13 @@ public class MyListView extends ListView {
 		final int itemnum = pointToPosition(x, y);
 		if (itemnum == AdapterView.INVALID_POSITION) return false;
 		dragItemNum = itemnum;
-		mDragStartX = x;
-		mDragStartY = y;
+		dragStartX = x;
+		dragStartY = y;
 		final View item = getChildAt(itemnum - getFirstVisiblePosition());
 		//mDragPointY = y - item.getTop();
-		mDragPointX = x - item.getLeft();
-		mCoordOffsetY = ((int) ev.getRawY()) - y;
-		mCoordOffsetX = ((int) ev.getRawX()) - x;
+		dragPointX = x - item.getLeft();
+		coordOffsetY = ((int) ev.getRawY()) - y;
+		coordOffsetX = ((int) ev.getRawX()) - x;
 
 		return true;
 	}
@@ -168,21 +167,21 @@ public class MyListView extends ListView {
 		if (item == null) return false;
 		item.setDrawingCacheEnabled(true);
 		final Bitmap bm = Bitmap.createBitmap(item.getDrawingCache());
-		mWindowParams = new WindowManager.LayoutParams();
-		mWindowParams.gravity = Gravity.TOP;
+		windowParams = new WindowManager.LayoutParams();
+		windowParams.gravity = Gravity.TOP;
 		//mWindowParams.x = 0;
-		mWindowParams.x = mDragStartX - mDragPointX + mCoordOffsetX;
+		windowParams.x = dragStartX - dragPointX + coordOffsetX;
 		//mWindowParams.y = y - mDragPointY + mCoordOffsetY;
-		mWindowParams.y = getDragItemY();
+		windowParams.y = getDragItemY();
 
-		mWindowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-		mWindowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-		mWindowParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-		                      | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-		                      | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-		                      | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-		mWindowParams.format = PixelFormat.TRANSLUCENT;
-		mWindowParams.windowAnimations = 0;
+		windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+		windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+		windowParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+		                     | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+		                     | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+		                     | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
+		windowParams.format = PixelFormat.TRANSLUCENT;
+		windowParams.windowAnimations = 0;
 
 		final Context mContext = getContext();
 		final ImageView v = new ImageView(mContext);
@@ -191,11 +190,11 @@ public class MyListView extends ListView {
 		v.setImageBitmap(bm);
 		v.setVisibility(View.VISIBLE);
 		item.setVisibility(View.INVISIBLE);
-		mDragBitmap = bm;
+		dragBitmap = bm;
 
-		mWindowManager = (WindowManager) mContext.getSystemService("window");
-		mWindowManager.addView(v, mWindowParams);
-		mDragView = v;
+		windowManager = (WindowManager) mContext.getSystemService("window");
+		windowManager.addView(v, windowParams);
+		dragView = v;
 		return true;
 	}
 
@@ -204,7 +203,7 @@ public class MyListView extends ListView {
 		if (view == null)
 			return -1;
 		view.getLocationOnScreen(xy);
-		return xy[1] - mCoordOffsetY / 2;
+		return xy[1] - coordOffsetY / 2;
 	}
 
 	private void dragView() {
@@ -213,15 +212,15 @@ public class MyListView extends ListView {
 
 	private void dragView(final int x) {
 		if (isDragging()) {
-			mWindowParams.x = x - mDragPointX + mCoordOffsetX;
-			if (mWindowParams.x < 0)
-				mWindowParams.x = 0;
+			windowParams.x = x - dragPointX + coordOffsetX;
+			if (windowParams.x < 0)
+				windowParams.x = 0;
 			final int dragItemY = getDragItemY();
-			if (dragItemY < getTop() || dragItemY + mDragView.getHeight() > getBottom())
+			if (dragItemY < getTop() || dragItemY + dragView.getHeight() > getBottom())
 				stopDragging(); //we're out of screen
 			else {
-				mWindowParams.y = dragItemY;
-				mWindowManager.updateViewLayout(mDragView, mWindowParams);
+				windowParams.y = dragItemY;
+				windowManager.updateViewLayout(dragView, windowParams);
 				lastDragX = x;
 			}
 		}
@@ -234,16 +233,16 @@ public class MyListView extends ListView {
 	private void stopDragging() {
 		stopPreDragging();
 		intercepted.clear();
-		if (mDragView != null) {
+		if (dragView != null) {
 			final Context mContext = getContext();
 			final WindowManager wm = (WindowManager) mContext.getSystemService("window");
-			wm.removeView(mDragView);
-			mDragView.setImageDrawable(null);
-			mDragView = null;
+			wm.removeView(dragView);
+			dragView.setImageDrawable(null);
+			dragView = null;
 		}
-		if (mDragBitmap != null) {
-			mDragBitmap.recycle();
-			mDragBitmap = null;
+		if (dragBitmap != null) {
+			dragBitmap.recycle();
+			dragBitmap = null;
 		}
 		hasMoved = false;
 		msgHandler.removeMessages(MSG_LONG_PRESS);
