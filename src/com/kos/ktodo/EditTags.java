@@ -5,7 +5,6 @@ import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -53,21 +52,21 @@ public class EditTags extends ListActivity {
 		registerForContextMenu(getListView());
 	}
 
-	@Override
-	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-//		Log.i(TAG, "onKeyDown: " + event);
-		final SlidingView sv = (SlidingView) findViewById(R.id.sliding_view);
-		if (event.getAction() == KeyEvent.ACTION_DOWN) {
-			if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-				sv.switchLeft();
-				return true;
-			} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-				sv.switchRight();
-				return true;
-			}
-		}
-		return super.onKeyDown(keyCode, event);
-	}
+//	@Override
+//	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+////		Log.i(TAG, "onKeyDown: " + event);
+//		final SlidingView sv = (SlidingView) findViewById(R.id.sliding_view);
+//		if (event.getAction() == KeyEvent.ACTION_DOWN) {
+//			if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+//				sv.switchLeft();
+//				return true;
+//			} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+//				sv.switchRight();
+//				return true;
+//			}
+//		}
+//		return super.onKeyDown(keyCode, event);
+//	}
 
 	@Override
 	public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenu.ContextMenuInfo menuInfo) {

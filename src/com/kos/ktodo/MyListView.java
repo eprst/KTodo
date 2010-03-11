@@ -6,11 +6,13 @@ import android.graphics.PixelFormat;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.*;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import com.sun.istack.internal.NotNull;
 
 import java.util.ArrayList;
 
@@ -36,6 +38,9 @@ public class MyListView extends ListView {
 	private int scaledTouchSlopSquared;
 	private boolean isLongPress = false;
 	private boolean hasMoved = false;
+	private VelocityTracker dragVelocityTracker;
+	@NotNull
+	private State state = State.NORMAL;
 
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private boolean replaying;
@@ -48,6 +53,10 @@ public class MyListView extends ListView {
 			} else throw new RuntimeException("unknown msg: " + msg);
 		}
 	};
+
+	private static enum State {
+		NORMAL, PRESSED_ON_ITEM, DRAGGING
+	}
 
 	public MyListView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
@@ -65,6 +74,42 @@ public class MyListView extends ListView {
 		});
 	}
 
+	private void setState(@NotNull final State newState) {
+		if (state == newState) return;
+		final IllegalStateException impossibleTransition = new IllegalStateException("impossible transition from " + state + " to " + newState);
+		switch (state) {
+			case NORMAL:
+				if (newState == State.PRESSED_ON_ITEM) break;
+				throw impossibleTransition;
+			case PRESSED_ON_ITEM:
+				break;
+			case DRAGGING:
+				if (newState == State.NORMAL) break;
+				throw impossibleTransition;
+			default:
+				throw impossibleTransition;
+		}
+		final State prevState = state;
+		state = newState;
+		onStateChange(prevState);
+	}
+
+	private void onStateChange(@NotNull final State prevState) {
+		switch (state) {
+			case NORMAL:
+				if (prevState == State.DRAGGING)
+					stopDragging();
+				dragItemNum = -1;
+				if (dragVelocityTracker != null)
+					dragVelocityTracker.clear();
+				break;
+			case DRAGGING:
+				if (!startDragging())
+					state = prevState;
+				break;
+		}
+	}
+
 	@Override
 	public boolean onTouchEvent(final MotionEvent ev) {
 		if (replaying) return super.onTouchEvent(ev);
@@ -73,22 +118,25 @@ public class MyListView extends ListView {
 		switch (action) {
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
-				if (isDragging()) {
-					stopDragging();
+				if (state == State.DRAGGING) {
+					dragVelocityTracker.computeCurrentVelocity(1, Float.MAX_VALUE);
+					final float xVelocity = dragVelocityTracker.getXVelocity();
+					Log.i(TAG, "x velocity: " + xVelocity);
+					setState(State.NORMAL);
 					processed = true;
 				}
-				if (isPreDragging())
-					stopPreDragging();
+				if (state == State.PRESSED_ON_ITEM)
+					setState(State.NORMAL);
 				break;
 
-			case MotionEvent.ACTION_DOWN: //todo: highlight the item
-				startPreDragging(ev);
-				//intercepted.add(ev);
-				msgHandler.removeMessages(MSG_LONG_PRESS);
-				msgHandler.sendEmptyMessageAtTime(MSG_LONG_PRESS,
-						ev.getDownTime() + tapTime + longPressTime);
-				isLongPress = false;
-				processed = true;
+			case MotionEvent.ACTION_DOWN:
+				if (startPreDragging(ev)) {
+					msgHandler.removeMessages(MSG_LONG_PRESS);
+					msgHandler.sendEmptyMessageAtTime(MSG_LONG_PRESS,
+							ev.getDownTime() + tapTime + longPressTime);
+					isLongPress = false;
+					processed = true;
+				}
 				break;
 
 			case MotionEvent.ACTION_MOVE:
@@ -97,7 +145,9 @@ public class MyListView extends ListView {
 				final int x = (int) ev.getX();
 				final int y = (int) ev.getY();
 
-//				Log.i(TAG, "move: hasMoved=" + hasMoved + ", isDragging:" + isDragging());
+				if (state == State.DRAGGING)
+					dragVelocityTracker.addMovement(ev);
+
 				if (!hasMoved) {
 					final int deltaXFromDown = x - dragStartX;
 					final int deltaYFromDown = y - dragStartY;
@@ -105,45 +155,33 @@ public class MyListView extends ListView {
 					                     + (deltaYFromDown * deltaYFromDown);
 					if (distance > scaledTouchSlopSquared)
 						msgHandler.removeMessages(MSG_LONG_PRESS);
-					if (deltaXFromDown > scaledTouchSlop && isPreDragging()) {
+					if (deltaXFromDown > scaledTouchSlop && state == State.PRESSED_ON_ITEM) {
 						hasMoved = true;
-						startDragging();
+						setState(State.DRAGGING);
 						processed = true;
 					}
-				} else if (isDragging()) {
+				} else if (state == State.DRAGGING) {
 					dragView(x);
 					processed = true;
 				}
 				break;
 		}
 		if (processed) {
-//			Log.i(TAG, "[" + intercepted.size() + "] ev: " + ev);
-			if (!isDragging())
+			if (!(state == State.DRAGGING))
 				intercepted.add(ev);
 			return true;
-		} else if (intercepted.size() > 0) {
+		} else if (!isLongPress && intercepted.size() > 0) {
 			replaying = true;
 			for (final MotionEvent event : intercepted) {
 				super.dispatchTouchEvent(event);
 			}
 			replaying = false;
-			//stopPreDragging();
 			intercepted.clear();
 		}
 		return super.onTouchEvent(ev);
 	}
 
-	private boolean isPreDragging() {
-		return dragItemNum != -1;
-	}
-
-	private boolean isDragging() {
-		return isPreDragging() && dragView != null;
-	}
-
 	private boolean startPreDragging(final MotionEvent ev) {
-		stopDragging();
-
 		final int x = (int) ev.getX();
 		final int y = (int) ev.getY();
 		final int itemnum = pointToPosition(x, y);
@@ -152,17 +190,14 @@ public class MyListView extends ListView {
 		dragStartX = x;
 		dragStartY = y;
 		final View item = getChildAt(itemnum - getFirstVisiblePosition());
-		//mDragPointY = y - item.getTop();
 		dragPointX = x - item.getLeft();
 		coordOffsetY = ((int) ev.getRawY()) - y;
 		coordOffsetX = ((int) ev.getRawX()) - x;
-
+		setState(State.PRESSED_ON_ITEM);
 		return true;
 	}
 
 	private boolean startDragging() {
-		if (!isPreDragging()) return false;
-
 		final View item = getChildAt(dragItemNum - getFirstVisiblePosition());
 		if (item == null) return false;
 		item.setDrawingCacheEnabled(true);
@@ -195,6 +230,10 @@ public class MyListView extends ListView {
 		windowManager = (WindowManager) mContext.getSystemService("window");
 		windowManager.addView(v, windowParams);
 		dragView = v;
+
+		if (dragVelocityTracker == null)
+			dragVelocityTracker = VelocityTracker.obtain();
+		setState(State.DRAGGING);
 		return true;
 	}
 
@@ -211,13 +250,13 @@ public class MyListView extends ListView {
 	}
 
 	private void dragView(final int x) {
-		if (isDragging()) {
+		if (state == State.DRAGGING) {
 			windowParams.x = x - dragPointX + coordOffsetX;
 			if (windowParams.x < 0)
 				windowParams.x = 0;
 			final int dragItemY = getDragItemY();
 			if (dragItemY < getTop() || dragItemY + dragView.getHeight() > getBottom())
-				stopDragging(); //we're out of screen
+				setState(State.NORMAL); //we're out of screen
 			else {
 				windowParams.y = dragItemY;
 				windowManager.updateViewLayout(dragView, windowParams);
@@ -226,12 +265,7 @@ public class MyListView extends ListView {
 		}
 	}
 
-	private void stopPreDragging() {
-		dragItemNum = -1;
-	}
-
 	private void stopDragging() {
-		stopPreDragging();
 		intercepted.clear();
 		if (dragView != null) {
 			final Context mContext = getContext();
@@ -249,8 +283,7 @@ public class MyListView extends ListView {
 		unExpandViews(true);
 	}
 
-
-	private void unExpandViews(final boolean deletion) {
+	private void unExpandViews(final boolean deletion) { //todo: remove unnecessary stuff
 		for (int i = 0; ; i++) {
 			View v = getChildAt(i);
 			if (v == null) {
@@ -274,7 +307,7 @@ public class MyListView extends ListView {
 	}
 
 	private void handleLongPress() {
-		if (dragItemNum == -1) return;
+		if (state != State.PRESSED_ON_ITEM) return;
 		final View view = getChildAt(dragItemNum - getFirstVisiblePosition());
 		if (view == null) return;
 		isLongPress = true;
