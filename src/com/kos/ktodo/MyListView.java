@@ -3,6 +3,7 @@ package com.kos.ktodo;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -39,8 +40,9 @@ public class MyListView extends ListView {
 	private boolean isLongPress = false;
 	private boolean hasMoved = false;
 	private VelocityTracker dragVelocityTracker;
-	@NotNull
+	private MyScroller flightScroller;
 	private State state = State.NORMAL;
+	private DeleteItemListener deleteItemListener;
 
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private boolean replaying;
@@ -53,9 +55,43 @@ public class MyListView extends ListView {
 			} else throw new RuntimeException("unknown msg: " + msg);
 		}
 	};
+	private Runnable itemFlinger = new Runnable() {
+		public void run() {
+			if (state != State.ITEM_FLYING) return;
+			if (flightScroller.isFinished()) {
+				final int distToEdge = getWidth() - flightScroller.getCurrX();
+//				Log.i(TAG, "distToEdge: " + distToEdge);
+				if (distToEdge == 0) {
+					if (deleteItemListener != null) {
+						final long id = getItemIdAtPosition(dragItemNum);
+						deleteItemListener.deleteItem(id);
+					}
+					setState(State.NORMAL);
+				} else { //slide back
+					final int lastLeft = lastDragX - dragPointX + coordOffsetX;
+					flightScroller.fling(lastLeft, 0, -1, 0, 0, getWidth(), 0, 0, true);
+					post(itemFlinger);
+				}
+			} else {
+				flightScroller.computeScrollOffset();
+				final int currLeft = flightScroller.getCurrX();
+				dragView(currLeft + dragPointX - coordOffsetX);
+				invalidate();
+				if (currLeft == 0) {
+					flightScroller.abortAnimation();
+					setState(State.NORMAL);
+				} else
+					post(itemFlinger);
+			}
+		}
+	};
+
+	public interface DeleteItemListener {
+		void deleteItem(final long id);
+	}
 
 	private static enum State {
-		NORMAL, PRESSED_ON_ITEM, DRAGGING
+		NORMAL, PRESSED_ON_ITEM, DRAGGING_ITEM, ITEM_FLYING, DRAGGING_VIEW_LEFT
 	}
 
 	public MyListView(final Context context, final AttributeSet attrs) {
@@ -74,6 +110,10 @@ public class MyListView extends ListView {
 		});
 	}
 
+	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {
+		this.deleteItemListener = deleteItemListener;
+	}
+
 	private void setState(@NotNull final State newState) {
 		if (state == newState) return;
 		final IllegalStateException impossibleTransition = new IllegalStateException("impossible transition from " + state + " to " + newState);
@@ -83,8 +123,13 @@ public class MyListView extends ListView {
 				throw impossibleTransition;
 			case PRESSED_ON_ITEM:
 				break;
-			case DRAGGING:
+			case DRAGGING_ITEM:
 				if (newState == State.NORMAL) break;
+				if (newState == State.ITEM_FLYING) break;
+				throw impossibleTransition;
+			case ITEM_FLYING:
+				if (newState == State.NORMAL) break;
+				if (newState == State.DRAGGING_ITEM) break;
 				throw impossibleTransition;
 			default:
 				throw impossibleTransition;
@@ -97,14 +142,17 @@ public class MyListView extends ListView {
 	private void onStateChange(@NotNull final State prevState) {
 		switch (state) {
 			case NORMAL:
-				if (prevState == State.DRAGGING)
+				if (prevState == State.DRAGGING_ITEM || prevState == State.ITEM_FLYING)
 					stopDragging();
 				dragItemNum = -1;
 				if (dragVelocityTracker != null)
 					dragVelocityTracker.clear();
 				break;
-			case DRAGGING:
-				if (!startDragging())
+			case DRAGGING_ITEM:
+				if (prevState == State.ITEM_FLYING) {
+					flightScroller.forceFinished(true);
+					dragVelocityTracker.clear();
+				} else if (!startDragging())
 					state = prevState;
 				break;
 		}
@@ -112,17 +160,24 @@ public class MyListView extends ListView {
 
 	@Override
 	public boolean onTouchEvent(final MotionEvent ev) {
-		if (replaying) return super.onTouchEvent(ev);
+		if (replaying || deleteItemListener == null) return super.onTouchEvent(ev);
 		boolean processed = false;
 		final int action = ev.getAction();
 		switch (action) {
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
-				if (state == State.DRAGGING) {
-					dragVelocityTracker.computeCurrentVelocity(1, Float.MAX_VALUE);
+				if (state == State.DRAGGING_ITEM) {
+					final int lastLeft = lastDragX - dragPointX + coordOffsetX;
+					if (lastLeft <= scaledTouchSlop) {
+						setState(State.NORMAL);
+						break;
+					}
+					dragVelocityTracker.computeCurrentVelocity(1000, Float.MAX_VALUE); //todo: set good max value here
 					final float xVelocity = dragVelocityTracker.getXVelocity();
-					Log.i(TAG, "x velocity: " + xVelocity);
-					setState(State.NORMAL);
+					if (flightScroller == null) flightScroller = new MyScroller(getContext());
+					flightScroller.fling(lastLeft, 0, (int) xVelocity, 0, 0, getWidth(), 0, 0, false);
+					setState(State.ITEM_FLYING);
+					post(itemFlinger);
 					processed = true;
 				}
 				if (state == State.PRESSED_ON_ITEM)
@@ -130,7 +185,18 @@ public class MyListView extends ListView {
 				break;
 
 			case MotionEvent.ACTION_DOWN:
-				if (startPreDragging(ev)) {
+				if (state == State.ITEM_FLYING) {
+					final int x = (int) ev.getX();
+					final int y = (int) ev.getY();
+					final int itemnum = pointToPositionWithInvisible(x, y);
+					if (itemnum == AdapterView.INVALID_POSITION) break;
+					final int lastLeft = lastDragX - dragPointX + coordOffsetX;
+					if (lastLeft <= x && itemnum == dragItemNum) {
+						dragPointX = x - lastLeft;
+						setState(State.DRAGGING_ITEM);
+						processed = true;
+					}
+				} else if (startPreDragging(ev)) {
 					msgHandler.removeMessages(MSG_LONG_PRESS);
 					msgHandler.sendEmptyMessageAtTime(MSG_LONG_PRESS,
 							ev.getDownTime() + tapTime + longPressTime);
@@ -145,7 +211,7 @@ public class MyListView extends ListView {
 				final int x = (int) ev.getX();
 				final int y = (int) ev.getY();
 
-				if (state == State.DRAGGING)
+				if (state == State.DRAGGING_ITEM)
 					dragVelocityTracker.addMovement(ev);
 
 				if (!hasMoved) {
@@ -157,17 +223,17 @@ public class MyListView extends ListView {
 						msgHandler.removeMessages(MSG_LONG_PRESS);
 					if (deltaXFromDown > scaledTouchSlop && state == State.PRESSED_ON_ITEM) {
 						hasMoved = true;
-						setState(State.DRAGGING);
+						setState(State.DRAGGING_ITEM);
 						processed = true;
 					}
-				} else if (state == State.DRAGGING) {
+				} else if (state == State.DRAGGING_ITEM) {
 					dragView(x);
 					processed = true;
 				}
 				break;
 		}
 		if (processed) {
-			if (!(state == State.DRAGGING))
+			if (!(state == State.DRAGGING_ITEM))
 				intercepted.add(ev);
 			return true;
 		} else if (!isLongPress && intercepted.size() > 0) {
@@ -181,7 +247,22 @@ public class MyListView extends ListView {
 		return super.onTouchEvent(ev);
 	}
 
+	public int pointToPositionWithInvisible(final int x, final int y) {
+		final Rect frame = new Rect();
+
+		final int count = getChildCount();
+		for (int i = count - 1; i >= 0; i--) {
+			final View child = getChildAt(i);
+			child.getHitRect(frame);
+			if (frame.contains(x, y)) {
+				return getFirstVisiblePosition() + i;
+			}
+		}
+		return INVALID_POSITION;
+	}
+
 	private boolean startPreDragging(final MotionEvent ev) {
+		if (state == State.ITEM_FLYING) return false; //todo
 		final int x = (int) ev.getX();
 		final int y = (int) ev.getY();
 		final int itemnum = pointToPosition(x, y);
@@ -223,8 +304,8 @@ public class MyListView extends ListView {
 		final int backGroundColor = mContext.getResources().getColor(R.color.dragndrop_background);
 		v.setBackgroundColor(backGroundColor);
 		v.setImageBitmap(bm);
-		v.setVisibility(View.VISIBLE);
 		item.setVisibility(View.INVISIBLE);
+		v.setVisibility(View.VISIBLE);
 		dragBitmap = bm;
 
 		windowManager = (WindowManager) mContext.getSystemService("window");
@@ -233,7 +314,7 @@ public class MyListView extends ListView {
 
 		if (dragVelocityTracker == null)
 			dragVelocityTracker = VelocityTracker.obtain();
-		setState(State.DRAGGING);
+		setState(State.DRAGGING_ITEM);
 		return true;
 	}
 
@@ -250,13 +331,13 @@ public class MyListView extends ListView {
 	}
 
 	private void dragView(final int x) {
-		if (state == State.DRAGGING) {
+		if (state == State.DRAGGING_ITEM || state == State.ITEM_FLYING) {
 			windowParams.x = x - dragPointX + coordOffsetX;
 			if (windowParams.x < 0)
 				windowParams.x = 0;
 			final int dragItemY = getDragItemY();
 			if (dragItemY < getTop() || dragItemY + dragView.getHeight() > getBottom())
-				setState(State.NORMAL); //we're out of screen
+				setState(State.NORMAL); //we're out of screen; todo: this could be a flight
 			else {
 				windowParams.y = dragItemY;
 				windowManager.updateViewLayout(dragView, windowParams);
@@ -270,6 +351,7 @@ public class MyListView extends ListView {
 		if (dragView != null) {
 			final Context mContext = getContext();
 			final WindowManager wm = (WindowManager) mContext.getSystemService("window");
+			dragView.setVisibility(View.INVISIBLE);
 			wm.removeView(dragView);
 			dragView.setImageDrawable(null);
 			dragView = null;
@@ -287,7 +369,6 @@ public class MyListView extends ListView {
 		for (int i = 0; ; i++) {
 			View v = getChildAt(i);
 			if (v == null) {
-//				Log.i(TAG, "v=null for " + i);
 				if (deletion) {
 					// HACK force update of mItemCount
 					final int position = getFirstVisiblePosition();

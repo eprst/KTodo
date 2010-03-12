@@ -48,6 +48,12 @@ public class EditTags extends ListActivity {
 				addTag();
 			}
 		});
+		final MyListView mlv = (MyListView) findViewById(android.R.id.list);
+		mlv.setDeleteItemListener(new MyListView.DeleteItemListener() {
+			public void deleteItem(final long id) {
+				deleteTag(id);
+			}
+		});
 
 		registerForContextMenu(getListView());
 	}
@@ -86,11 +92,15 @@ public class EditTags extends ListActivity {
 				renameTag(id);
 				return true;
 			case DELETE_TAG_MENU_ITEM:
-				tagsStorage.deleteTag(id);
-				updateView();
+				deleteTag(id);
 				return true;
 		}
 		return false;
+	}
+
+	private void deleteTag(final long id) {
+		tagsStorage.deleteTag(id);
+		updateView();
 	}
 
 	private void addTag() {
