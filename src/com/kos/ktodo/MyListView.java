@@ -6,6 +6,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.*;
@@ -61,13 +62,9 @@ public class MyListView extends ListView {
 			if (flightScroller.isFinished()) {
 				final int distToEdge = getWidth() - flightScroller.getCurrX();
 //				Log.i(TAG, "distToEdge: " + distToEdge);
-				if (distToEdge == 0) {
-					if (deleteItemListener != null) {
-						final long id = getItemIdAtPosition(dragItemNum);
-						deleteItemListener.deleteItem(id);
-					}
-					setState(State.NORMAL);
-				} else { //slide back
+				if (distToEdge == 0)
+					deleteFlyingAndStop();
+				else { //slide back
 					final int lastLeft = lastDragX - dragPointX + coordOffsetX;
 					flightScroller.fling(lastLeft, 0, -1, 0, 0, getWidth(), 0, 0, true);
 					post(itemFlinger);
@@ -75,16 +72,33 @@ public class MyListView extends ListView {
 			} else {
 				flightScroller.computeScrollOffset();
 				final int currLeft = flightScroller.getCurrX();
-				dragView(currLeft + dragPointX - coordOffsetX);
-				invalidate();
 				if (currLeft == 0) {
 					flightScroller.abortAnimation();
 					setState(State.NORMAL);
-				} else
+				} else if (currLeft >= getWidth())
+					deleteFlyingAndStop();
+				else {
+					dragView(currLeft + dragPointX - coordOffsetX);
+					invalidate();
 					post(itemFlinger);
+				}
 			}
 		}
+
+		private void deleteFlyingAndStop() {
+			if (deleteItemListener != null) {
+				final long id = getItemIdAtPosition(dragItemNum);
+				deleteItemListener.deleteItem(id);
+			}
+			setState(State.NORMAL);
+		}
 	};
+
+	@Override
+	protected void onDetachedFromWindow() {
+		setState(State.NORMAL);
+		super.onDetachedFromWindow();
+	}
 
 	public interface DeleteItemListener {
 		void deleteItem(final long id);
@@ -172,10 +186,11 @@ public class MyListView extends ListView {
 						setState(State.NORMAL);
 						break;
 					}
-					dragVelocityTracker.computeCurrentVelocity(1000, Float.MAX_VALUE); //todo: set good max value here
+					dragVelocityTracker.computeCurrentVelocity(1000, 2000); //todo: make max speed configurable
 					final float xVelocity = dragVelocityTracker.getXVelocity();
+					Log.i(TAG, "x velocity: " + xVelocity);
 					if (flightScroller == null) flightScroller = new MyScroller(getContext());
-					flightScroller.fling(lastLeft, 0, (int) xVelocity, 0, 0, getWidth(), 0, 0, false);
+					flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity <= 0);
 					setState(State.ITEM_FLYING);
 					post(itemFlinger);
 					processed = true;
@@ -267,6 +282,7 @@ public class MyListView extends ListView {
 		final int y = (int) ev.getY();
 		final int itemnum = pointToPosition(x, y);
 		if (itemnum == AdapterView.INVALID_POSITION) return false;
+		if (!itemInBounds(itemnum)) return false;
 		dragItemNum = itemnum;
 		dragStartX = x;
 		dragStartY = y;
@@ -324,6 +340,7 @@ public class MyListView extends ListView {
 			return -1;
 		view.getLocationOnScreen(xy);
 		return xy[1] - coordOffsetY / 2;
+//		return view.getTop();
 	}
 
 	private void dragView() {
@@ -333,17 +350,26 @@ public class MyListView extends ListView {
 	private void dragView(final int x) {
 		if (state == State.DRAGGING_ITEM || state == State.ITEM_FLYING) {
 			windowParams.x = x - dragPointX + coordOffsetX;
+			if (windowParams.x > getWidth()) {
+				//setState(State.NORMAL);
+				return;
+			}
 			if (windowParams.x < 0)
 				windowParams.x = 0;
-			final int dragItemY = getDragItemY();
-			if (dragItemY < getTop() || dragItemY + dragView.getHeight() > getBottom())
+			if (!itemInBounds(dragItemNum))
 				setState(State.NORMAL); //we're out of screen; todo: this could be a flight
 			else {
-				windowParams.y = dragItemY;
+				windowParams.y = getDragItemY();
 				windowManager.updateViewLayout(dragView, windowParams);
 				lastDragX = x;
 			}
 		}
+	}
+
+	private boolean itemInBounds(final int itemPosition) {
+		final View item = getChildAt(itemPosition - getFirstVisiblePosition());
+		if (item == null) return false;
+		return item.getTop() >= 0 && item.getBottom() <= getHeight();
 	}
 
 	private void stopDragging() {

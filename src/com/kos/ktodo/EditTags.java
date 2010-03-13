@@ -19,6 +19,7 @@ public class EditTags extends ListActivity {
 
 	private TagsStorage tagsStorage;
 	private Cursor allTagsCursor;
+	private AlertDialog dialog;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -73,6 +74,14 @@ public class EditTags extends ListActivity {
 //		}
 //		return super.onKeyDown(keyCode, event);
 //	}
+
+
+	@Override
+	public void onDetachedFromWindow() {
+		if (dialog != null && dialog.isShowing())
+			dialog.cancel();
+		super.onDetachedFromWindow();
+	}
 
 	@Override
 	public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenu.ContextMenuInfo menuInfo) {
@@ -152,7 +161,7 @@ public class EditTags extends ListActivity {
 			}
 		});
 
-		final AlertDialog dialog = b.create();
+		dialog = b.create();
 		editText.setOnKeyListener(new View.OnKeyListener() {
 			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER) {
