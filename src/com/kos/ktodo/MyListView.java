@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.*;
@@ -14,16 +12,11 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import com.sun.istack.internal.NotNull;
 
 import java.util.ArrayList;
 
 public class MyListView extends ListView {
 	private static final String TAG = "MyListView";
-	private static final int MSG_LONG_PRESS = 1;
-
-	private static final long tapTime = ViewConfiguration.getTapTimeout();
-	private static final long longPressTime = ViewConfiguration.getLongPressTimeout();
 
 	private final int[] xy = new int[2];
 
@@ -37,9 +30,8 @@ public class MyListView extends ListView {
 	private int dragPointX;    // at what offset inside the item did the user grab it
 	private int coordOffsetY, coordOffsetX;  // the difference between screen coordinates and coordinates in this view
 	private int scaledTouchSlop;
-	private int scaledTouchSlopSquared;
-	private boolean isLongPress = false;
 	private boolean hasMoved = false;
+	private boolean scrolling;
 	private VelocityTracker dragVelocityTracker;
 	private MyScroller flightScroller;
 	private State state = State.NORMAL;
@@ -48,14 +40,14 @@ public class MyListView extends ListView {
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private boolean replaying;
 
-	private Handler msgHandler = new Handler() {
-		@Override
-		public void handleMessage(final Message msg) {
-			if (msg.what == MSG_LONG_PRESS) {
-				handleLongPress();
-			} else throw new RuntimeException("unknown msg: " + msg);
-		}
-	};
+//	private Handler msgHandler = new Handler() {
+//		@Override
+//		public void handleMessage(final Message msg) {
+	//			if (msg.what == MSG_LONG_PRESS) {
+	//				handleLongPress();
+//			} else throw new RuntimeException("unknown msg: " + msg);
+//		}
+//	};
 	private Runnable itemFlinger = new Runnable() {
 		public void run() {
 			if (state != State.ITEM_FLYING) return;
@@ -100,6 +92,15 @@ public class MyListView extends ListView {
 		super.onDetachedFromWindow();
 	}
 
+	@Override
+	public void onWindowFocusChanged(final boolean hasWindowFocus) {
+		super.onWindowFocusChanged(hasWindowFocus);
+		if (hasWindowFocus) {
+			setState(State.NORMAL);
+//			msgHandler.removeMessages(MSG_LONG_PRESS);
+		}
+	}
+
 	public interface DeleteItemListener {
 		void deleteItem(final long id);
 	}
@@ -112,10 +113,10 @@ public class MyListView extends ListView {
 		super(context, attrs);
 		final ViewConfiguration viewConfiguration = ViewConfiguration.get(context);
 		scaledTouchSlop = viewConfiguration.getScaledTouchSlop();
-		scaledTouchSlopSquared = scaledTouchSlop * scaledTouchSlop;
 		setOnScrollListener(new OnScrollListener() {
 			public void onScrollStateChanged(final AbsListView view, final int scrollState) {
 				dragView();
+				scrolling = scrollState == OnScrollListener.SCROLL_STATE_FLING;
 			}
 
 			public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount, final int totalItemCount) {
@@ -128,7 +129,7 @@ public class MyListView extends ListView {
 		this.deleteItemListener = deleteItemListener;
 	}
 
-	private void setState(@NotNull final State newState) {
+	private void setState(final State newState) {
 		if (state == newState) return;
 		final IllegalStateException impossibleTransition = new IllegalStateException("impossible transition from " + state + " to " + newState);
 		switch (state) {
@@ -153,7 +154,12 @@ public class MyListView extends ListView {
 		onStateChange(prevState);
 	}
 
-	private void onStateChange(@NotNull final State prevState) {
+	private void superCancel() {
+		final long now = SystemClock.uptimeMillis();
+		super.onTouchEvent(MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0, 0, 0));
+	}
+
+	private void onStateChange(final State prevState) {
 		switch (state) {
 			case NORMAL:
 				if (prevState == State.DRAGGING_ITEM || prevState == State.ITEM_FLYING)
@@ -163,6 +169,7 @@ public class MyListView extends ListView {
 					dragVelocityTracker.clear();
 				break;
 			case DRAGGING_ITEM:
+				superCancel();
 				if (prevState == State.ITEM_FLYING) {
 					flightScroller.forceFinished(true);
 					dragVelocityTracker.clear();
@@ -186,7 +193,7 @@ public class MyListView extends ListView {
 						setState(State.NORMAL);
 						break;
 					}
-					dragVelocityTracker.computeCurrentVelocity(1000, 2000); //todo: make max speed configurable
+					dragVelocityTracker.computeCurrentVelocity(1000, 1500); //todo: make max speed configurable
 					final float xVelocity = dragVelocityTracker.getXVelocity();
 					Log.i(TAG, "x velocity: " + xVelocity);
 					if (flightScroller == null) flightScroller = new MyScroller(getContext());
@@ -200,6 +207,7 @@ public class MyListView extends ListView {
 				break;
 
 			case MotionEvent.ACTION_DOWN:
+				if (scrolling) break;
 				if (state == State.ITEM_FLYING) {
 					final int x = (int) ev.getX();
 					final int y = (int) ev.getY();
@@ -211,18 +219,10 @@ public class MyListView extends ListView {
 						setState(State.DRAGGING_ITEM);
 						processed = true;
 					}
-				} else if (startPreDragging(ev)) {
-					msgHandler.removeMessages(MSG_LONG_PRESS);
-					msgHandler.sendEmptyMessageAtTime(MSG_LONG_PRESS,
-							ev.getDownTime() + tapTime + longPressTime);
-					isLongPress = false;
-					processed = true;
-				}
+				} else startPreDragging(ev);
 				break;
 
 			case MotionEvent.ACTION_MOVE:
-				if (isLongPress)
-					break;
 				final int x = (int) ev.getX();
 				final int y = (int) ev.getY();
 
@@ -232,11 +232,7 @@ public class MyListView extends ListView {
 				if (!hasMoved) {
 					final int deltaXFromDown = x - dragStartX;
 					final int deltaYFromDown = y - dragStartY;
-					final int distance = (deltaXFromDown * deltaXFromDown)
-					                     + (deltaYFromDown * deltaYFromDown);
-					if (distance > scaledTouchSlopSquared)
-						msgHandler.removeMessages(MSG_LONG_PRESS);
-					if (deltaXFromDown > scaledTouchSlop && state == State.PRESSED_ON_ITEM) {
+					if (deltaXFromDown > scaledTouchSlop && deltaYFromDown < scaledTouchSlop && state == State.PRESSED_ON_ITEM) {
 						hasMoved = true;
 						setState(State.DRAGGING_ITEM);
 						processed = true;
@@ -251,7 +247,7 @@ public class MyListView extends ListView {
 			if (!(state == State.DRAGGING_ITEM))
 				intercepted.add(ev);
 			return true;
-		} else if (!isLongPress && intercepted.size() > 0) {
+		} else if (intercepted.size() > 0) {
 			replaying = true;
 			for (final MotionEvent event : intercepted) {
 				super.dispatchTouchEvent(event);
@@ -295,7 +291,7 @@ public class MyListView extends ListView {
 	}
 
 	private boolean startDragging() {
-		final View item = getChildAt(dragItemNum - getFirstVisiblePosition());
+		final View item = getDragItem();
 		if (item == null) return false;
 		item.setDrawingCacheEnabled(true);
 		final Bitmap bm = Bitmap.createBitmap(item.getDrawingCache());
@@ -320,8 +316,6 @@ public class MyListView extends ListView {
 		final int backGroundColor = mContext.getResources().getColor(R.color.dragndrop_background);
 		v.setBackgroundColor(backGroundColor);
 		v.setImageBitmap(bm);
-		item.setVisibility(View.INVISIBLE);
-		v.setVisibility(View.VISIBLE);
 		dragBitmap = bm;
 
 		windowManager = (WindowManager) mContext.getSystemService("window");
@@ -334,13 +328,17 @@ public class MyListView extends ListView {
 		return true;
 	}
 
+	private View getDragItem() {
+		if (dragItemNum == -1) return null;
+		return getChildAt(dragItemNum - getFirstVisiblePosition());
+	}
+
 	private int getDragItemY() {
-		final View view = getChildAt(dragItemNum - getFirstVisiblePosition());
+		final View view = getDragItem();
 		if (view == null)
 			return -1;
 		view.getLocationOnScreen(xy);
 		return xy[1] - coordOffsetY / 2;
-//		return view.getTop();
 	}
 
 	private void dragView() {
@@ -359,6 +357,9 @@ public class MyListView extends ListView {
 			if (!itemInBounds(dragItemNum))
 				setState(State.NORMAL); //we're out of screen; todo: this could be a flight
 			else {
+				final View item = getDragItem();
+				if (item != null) item.setVisibility(View.INVISIBLE);
+				dragView.setVisibility(View.VISIBLE);
 				windowParams.y = getDragItemY();
 				windowManager.updateViewLayout(dragView, windowParams);
 				lastDragX = x;
@@ -387,7 +388,6 @@ public class MyListView extends ListView {
 			dragBitmap = null;
 		}
 		hasMoved = false;
-		msgHandler.removeMessages(MSG_LONG_PRESS);
 		unExpandViews(true);
 	}
 
@@ -413,11 +413,9 @@ public class MyListView extends ListView {
 		}
 	}
 
-	private void handleLongPress() {
-		if (state != State.PRESSED_ON_ITEM) return;
-		final View view = getChildAt(dragItemNum - getFirstVisiblePosition());
-		if (view == null) return;
-		isLongPress = true;
-		view.performLongClick();
+	@Override
+	public void createContextMenu(final ContextMenu menu) { //I don't know a better way to stop our animation when context menu is being shown...
+		setState(State.NORMAL);
+		super.createContextMenu(menu);
 	}
 }
