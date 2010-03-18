@@ -19,6 +19,8 @@ public class TagsStorage {
 	private static final String DB_CREATE = "create table " + TABLE_NAME +
 	                                        " (" + ID_NAME + " integer primary key autoincrement, " +
 	                                        TAG_NAME + " text not null);";
+	private static final String CREATE_DEFAULT_TAG = "insert into " + TABLE_NAME +
+	                                                 " (TAG_NAME) values (\"default\");";
 
 	private SQLiteDatabase db;
 	private final boolean readOnly;
@@ -58,9 +60,9 @@ public class TagsStorage {
 		return db.update(TABLE_NAME, cv, ID_NAME + "=" + id, null) > 0;
 	}
 
-	public boolean deleteTag(final String tag) {
-		return db.delete(TABLE_NAME, TAG_NAME + "=" + tag, null) > 0;
-	}
+//	public boolean deleteTag(final String tag) {
+//		return db.delete(TABLE_NAME, TAG_NAME + "=" + tag, null) > 0;
+//	}
 
 	public boolean deleteTag(final long id) {
 		return db.delete(TABLE_NAME, ID_NAME + "=" + id, null) > 0;
@@ -92,6 +94,7 @@ public class TagsStorage {
 		@Override
 		public void onCreate(final SQLiteDatabase sqLiteDatabase) {
 			sqLiteDatabase.execSQL(DB_CREATE);
+			sqLiteDatabase.execSQL(CREATE_DEFAULT_TAG);
 		}
 
 		@Override

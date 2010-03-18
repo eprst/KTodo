@@ -1,0 +1,5 @@
+<resources>
+	<declare-styleable name="MyListView">
+		<attr name="maxThrowVelocity" format="integer"/>
+	</declare-styleable>
+</resources>
