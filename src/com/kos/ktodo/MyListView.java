@@ -1,6 +1,7 @@
 package com.kos.ktodo;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -20,6 +21,7 @@ public class MyListView extends ListView {
 
 	private final int[] xy = new int[2];
 
+	private int maxThrowVelocity;
 	private ImageView dragView;
 	private WindowManager windowManager;
 	private WindowManager.LayoutParams windowParams;
@@ -40,20 +42,11 @@ public class MyListView extends ListView {
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private boolean replaying;
 
-//	private Handler msgHandler = new Handler() {
-//		@Override
-//		public void handleMessage(final Message msg) {
-	//			if (msg.what == MSG_LONG_PRESS) {
-	//				handleLongPress();
-//			} else throw new RuntimeException("unknown msg: " + msg);
-//		}
-//	};
 	private Runnable itemFlinger = new Runnable() {
 		public void run() {
 			if (state != State.ITEM_FLYING) return;
 			if (flightScroller.isFinished()) {
 				final int distToEdge = getWidth() - flightScroller.getCurrX();
-//				Log.i(TAG, "distToEdge: " + distToEdge);
 				if (distToEdge == 0)
 					deleteFlyingAndStop();
 				else { //slide back
@@ -97,7 +90,6 @@ public class MyListView extends ListView {
 		super.onWindowFocusChanged(hasWindowFocus);
 		if (hasWindowFocus) {
 			setState(State.NORMAL);
-//			msgHandler.removeMessages(MSG_LONG_PRESS);
 		}
 	}
 
@@ -123,6 +115,9 @@ public class MyListView extends ListView {
 				dragView();
 			}
 		});
+		
+		final TypedArray ta = context.obtainStyledAttributes(R.styleable.MyListView);
+		maxThrowVelocity = ta.getInt(R.styleable.MyListView_maxThrowVelocity, 1500);
 	}
 
 	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {
@@ -193,7 +188,7 @@ public class MyListView extends ListView {
 						setState(State.NORMAL);
 						break;
 					}
-					dragVelocityTracker.computeCurrentVelocity(1000, 1500); //todo: make max speed configurable
+					dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
 					final float xVelocity = dragVelocityTracker.getXVelocity();
 					Log.i(TAG, "x velocity: " + xVelocity);
 					if (flightScroller == null) flightScroller = new MyScroller(getContext());
@@ -273,7 +268,7 @@ public class MyListView extends ListView {
 	}
 
 	private boolean startPreDragging(final MotionEvent ev) {
-		if (state == State.ITEM_FLYING) return false; //todo
+		if (state == State.ITEM_FLYING) return false;
 		final int x = (int) ev.getX();
 		final int y = (int) ev.getY();
 		final int itemnum = pointToPosition(x, y);
