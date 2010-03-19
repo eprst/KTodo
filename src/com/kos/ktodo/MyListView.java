@@ -32,7 +32,6 @@ public class MyListView extends ListView {
 	private int dragPointX;    // at what offset inside the item did the user grab it
 	private int coordOffsetY, coordOffsetX;  // the difference between screen coordinates and coordinates in this view
 	private int scaledTouchSlop;
-	private boolean hasMoved = false;
 	private boolean scrolling;
 	private VelocityTracker dragVelocityTracker;
 	private MyScroller flightScroller;
@@ -108,14 +107,14 @@ public class MyListView extends ListView {
 		setOnScrollListener(new OnScrollListener() {
 			public void onScrollStateChanged(final AbsListView view, final int scrollState) {
 				dragView();
-				scrolling = scrollState == OnScrollListener.SCROLL_STATE_FLING;
+				scrolling = scrollState != OnScrollListener.SCROLL_STATE_IDLE;
 			}
 
 			public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount, final int totalItemCount) {
 				dragView();
 			}
 		});
-		
+
 		final TypedArray ta = context.obtainStyledAttributes(R.styleable.MyListView);
 		maxThrowVelocity = ta.getInt(R.styleable.MyListView_maxThrowVelocity, 1500);
 	}
@@ -160,6 +159,7 @@ public class MyListView extends ListView {
 				if (prevState == State.DRAGGING_ITEM || prevState == State.ITEM_FLYING)
 					stopDragging();
 				dragItemNum = -1;
+				scrolling = false;
 				if (dragVelocityTracker != null)
 					dragVelocityTracker.clear();
 				break;
@@ -190,7 +190,7 @@ public class MyListView extends ListView {
 					}
 					dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
 					final float xVelocity = dragVelocityTracker.getXVelocity();
-					Log.i(TAG, "x velocity: " + xVelocity);
+//					Log.i(TAG, "x velocity: " + xVelocity);
 					if (flightScroller == null) flightScroller = new MyScroller(getContext());
 					flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity <= 0);
 					setState(State.ITEM_FLYING);
@@ -199,6 +199,7 @@ public class MyListView extends ListView {
 				}
 				if (state == State.PRESSED_ON_ITEM)
 					setState(State.NORMAL);
+				scrolling = false;
 				break;
 
 			case MotionEvent.ACTION_DOWN:
@@ -218,23 +219,23 @@ public class MyListView extends ListView {
 				break;
 
 			case MotionEvent.ACTION_MOVE:
+				if (scrolling) break;
 				final int x = (int) ev.getX();
 				final int y = (int) ev.getY();
 
-				if (state == State.DRAGGING_ITEM)
+				if (state == State.DRAGGING_ITEM) {
 					dragVelocityTracker.addMovement(ev);
-
-				if (!hasMoved) {
+					dragView(x);
+					processed = true;
+				} else {
 					final int deltaXFromDown = x - dragStartX;
 					final int deltaYFromDown = y - dragStartY;
-					if (deltaXFromDown > scaledTouchSlop && deltaYFromDown < scaledTouchSlop && state == State.PRESSED_ON_ITEM) {
-						hasMoved = true;
+					if (deltaYFromDown >= scaledTouchSlop)
+						scrolling = true;
+					if (deltaXFromDown > scaledTouchSlop && !scrolling && state == State.PRESSED_ON_ITEM) {
 						setState(State.DRAGGING_ITEM);
 						processed = true;
 					}
-				} else if (state == State.DRAGGING_ITEM) {
-					dragView(x);
-					processed = true;
 				}
 				break;
 		}
@@ -382,7 +383,6 @@ public class MyListView extends ListView {
 			dragBitmap.recycle();
 			dragBitmap = null;
 		}
-		hasMoved = false;
 		unExpandViews(true);
 	}
 
