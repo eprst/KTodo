@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:kos="http://schemas.android.com/apk/res/com.kos.ktodo"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
@@ -8,11 +9,13 @@
 			android:id="@+id/tags"
 			android:layout_height="wrap_content"
 			android:layout_width="fill_parent"/>
-	<TextView
-			android:layout_width="fill_parent"
-			android:layout_height="0dip"
-			android:layout_weight="1.0"
-			android:text="@string/hello"/>
+	<com.kos.ktodo.MyListView android:layout_height="0dip"
+	                          android:layout_width="fill_parent"
+	                          android:layout_weight="1.0"
+	                          android:choiceMode="multipleChoice"
+	                          android:layoutAnimation="@anim/list_slide_left"
+	                          android:id="@id/android:list"
+	                          kos:maxThrowVelocity="1500"/>
 	<LinearLayout android:layout_height="wrap_content"
 	              android:layout_width="fill_parent">
 		<EditText
