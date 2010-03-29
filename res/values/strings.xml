@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="hello">Hello World, Lop!</string>
+	<string name="intro">Add some tags using menu -> Edit tags</string>
 	<string name="app_name">KTodo</string>
 	<string name="edit_tags">Edit tags</string>
 	<string name="add">Add</string>
 	<string name="rename">Rename</string>
 	<string name="delete">Delete</string>
-	<string name="rename_title">Rename tag</string>
+	<string name="rename_tag_title">Rename tag</string>
 	<string name="new_tag_name_text">New tag name</string>
 	<string name="tag_already_exists">Such tag already exists</string>
+	<string name="delete_tag_title">Delete tag</string>
+	<string name="items_depend_on_tag">There are %d items with this tag. What to do with them?</string>
+	<string name="move">Move</string>
+	<string name="select_tag_title">Select tag</string>
 </resources>

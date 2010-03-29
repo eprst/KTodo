@@ -1,7 +1,9 @@
 package com.kos.ktodo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -9,12 +11,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ListAdapter;
-import android.widget.SimpleCursorAdapter;
-import android.widget.Spinner;
+import android.view.ViewGroup;
+import android.widget.*;
 
 public class KTodo extends ListActivity {
+	private static final String TAG = "KTodo";
+	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 
 	private TodoItemsStorage todoItemsStorage;
@@ -30,29 +32,55 @@ public class KTodo extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		todoItemsStorage = new TodoItemsStorage(this, false);
+		todoItemsStorage = new TodoItemsStorage(this);
 		todoItemsStorage.open();
-		tagsStorage = new TagsStorage(this, true);
+		tagsStorage = new TagsStorage(this);
 		tagsStorage.open();
 
 		final Cursor allTagsCursor = tagsStorage.getAllTagsCursor();
 		startManagingCursor(allTagsCursor);
 		tagsAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
 				allTagsCursor,
-				new String[]{TagsStorage.TAG_NAME}, new int[]{android.R.id.text1});
+				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1});
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		getTagsWidget().setAdapter(tagsAdapter);
 
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		setCurrentTag(preferences.getInt("currentTag", 0));
 
-		findViewById(R.id.add_task_button).setOnClickListener(new View.OnClickListener() {
+		getAddTaskButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
 				addTodoItem();
 			}
 		});
 
 		onTagSelected();
+
+		getTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
+				onTagSelected();
+			}
+
+			public void onNothingSelected(final AdapterView<?> parent) {
+				onTagSelected();
+			}
+		});
+
+		getMyListView().setDeleteItemListener(new MyListView.DeleteItemListener() {
+			public void deleteItem(final long id) {
+				todoItemsStorage.deleteTodoItem(id);
+				updateView();
+			}
+		});
+
+		getMyListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+				todoItem.done = !todoItem.done;
+				todoItemsStorage.saveTodoItem(todoItem);
+				updateView();
+			}
+		});
 	}
 
 	private void onTagSelected() {
@@ -61,13 +89,32 @@ public class KTodo extends ListActivity {
 			currentTagItemsCursor.close();
 		}
 		currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID());
+		final int doneIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DONE);
 		startManagingCursor(currentTagItemsCursor);
-		final ListAdapter tagsAdapter = new SimpleCursorAdapter(
-				this, android.R.layout.simple_list_item_1,
+		final ListAdapter todoAdapter = new SimpleCursorAdapter(
+				this, android.R.layout.simple_list_item_checked,
 				currentTagItemsCursor,
-				new String[]{TodoItemsStorage.SUMMARY_NAME}, new int[]{android.R.id.text1});
+				new String[]{DBHelper.TODO_SUMMARY}, new int[]{android.R.id.text1}) {
+			@Override
+			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
+				final View view = super.newView(context, cursor, parent);
+				final CheckedTextView ctv = (CheckedTextView) view;
+				ctv.setChecked(cursor.getInt(doneIndex) != 0);
+				return view;
+			}
 
-		setListAdapter(tagsAdapter);
+			@Override
+			public void bindView(final View view, final Context context, final Cursor cursor) {
+				super.bindView(view, context, cursor);
+				view.getId();
+				final CheckedTextView ctv = (CheckedTextView) view;
+				ctv.setChecked(cursor.getInt(doneIndex) != 0);
+
+			}
+		};
+
+		setListAdapter(todoAdapter);
+		updateView();
 	}
 
 	@Override
@@ -108,19 +155,28 @@ public class KTodo extends ListActivity {
 	}
 
 	private void addTodoItem() {
-		final EditText et = getAddTaskWidget();
-		final String st = et.getText().toString();
-		if (st.length() > 0) {
-			todoItemsStorage.addTodoItem(new TodoItem(
-					0, getCurrentTagID(), false, st, null));
-			et.setText("");
-			et.requestFocus();
-			updateView();
+		final long currentTagID = getCurrentTagID();
+		if (currentTagID == AdapterView.INVALID_ROW_ID) {
+			final AlertDialog.Builder b = new AlertDialog.Builder(this);
+			b.setMessage(R.string.intro);
+			b.show();
+		} else {
+			final EditText et = getAddTaskWidget();
+			final String st = et.getText().toString();
+			if (st.length() > 0) {
+				todoItemsStorage.addTodoItem(new TodoItem(
+						0, currentTagID, false, st, null));
+				et.setText("");
+				et.requestFocus();
+				updateView();
+			}
 		}
 	}
 
 	private void updateView() {
 		currentTagItemsCursor.requery();
+		final boolean b = tagsAdapter.getCount() > 0;
+//		getAddTaskButton().setEnabled(b);
 	}
 
 	private void setCurrentTag(final int idx) {
@@ -146,5 +202,13 @@ public class KTodo extends ListActivity {
 
 	private Spinner getTagsWidget() {
 		return (Spinner) findViewById(R.id.tags);
+	}
+
+	private Button getAddTaskButton() {
+		return (Button) findViewById(R.id.add_task_button);
+	}
+
+	private MyListView getMyListView() {
+		return (MyListView) findViewById(android.R.id.list);
 	}
 }

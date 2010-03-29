@@ -26,14 +26,14 @@ public class EditTags extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.edit_tags);
 
-		tagsStorage = new TagsStorage(this, false);
+		tagsStorage = new TagsStorage(this);
 		tagsStorage.open();
 		allTagsCursor = tagsStorage.getAllTagsCursor();
 		startManagingCursor(allTagsCursor);
 		final ListAdapter tagsAdapter = new SimpleCursorAdapter(
 				this, android.R.layout.simple_list_item_1,
 				allTagsCursor,
-				new String[]{TagsStorage.TAG_NAME}, new int[]{android.R.id.text1});
+				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1});
 
 		setListAdapter(tagsAdapter);
 
@@ -49,7 +49,7 @@ public class EditTags extends ListActivity {
 				addTag();
 			}
 		});
-		final MyListView mlv = (MyListView) findViewById(android.R.id.list);
+		final MyListView mlv = getMyListView();
 		mlv.setDeleteItemListener(new MyListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
 				deleteTag(id);
@@ -57,6 +57,10 @@ public class EditTags extends ListActivity {
 		});
 
 		registerForContextMenu(getListView());
+	}
+
+	private MyListView getMyListView() {
+		return (MyListView) findViewById(android.R.id.list);
 	}
 
 //	@Override
@@ -108,8 +112,70 @@ public class EditTags extends ListActivity {
 	}
 
 	private void deleteTag(final long id) {
-		tagsStorage.deleteTag(id);
+		final TodoItemsStorage todoStorage = new TodoItemsStorage(this);
+		todoStorage.open();
+		try {
+			final int byTag = todoStorage.getByTagCursor(id).getCount();
+			if (byTag == 0) {
+				tagsStorage.deleteTag(id);
+			} else {
+				final AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b.setTitle(R.string.delete_tag_title);
+				b.setMessage(getString(R.string.items_depend_on_tag, byTag));
+				if (allTagsCursor.getCount() > 1)
+					b.setNeutralButton(R.string.move, new DialogInterface.OnClickListener() {
+						public void onClick(final DialogInterface dialog, final int which) {
+							moveItemsAndDeleteTag(id);
+						}
+					});
+				b.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+					public void onClick(final DialogInterface dialog, final int which) {
+						deleteItemsAndDeleteTag(id);
+					}
+				});
+				b.show();
+			}
+		} finally {
+			todoStorage.close();
+		}
 		updateView();
+	}
+
+	private void deleteItemsAndDeleteTag(final long id) {
+		final TodoItemsStorage todoStorage = new TodoItemsStorage(EditTags.this);
+		todoStorage.open();
+		try {
+			todoStorage.deleteByTag(id);
+			tagsStorage.deleteTag(id);
+			updateView();
+		} finally {
+			todoStorage.close();
+		}
+
+	}
+
+	private void moveItemsAndDeleteTag(final long id) {
+		final AlertDialog.Builder b = new AlertDialog.Builder(this);
+		b.setTitle(R.string.select_tag_title);
+		final Cursor c = tagsStorage.getAllExceptOneCursor(id);
+		final ListAdapter adapter = new SimpleCursorAdapter(
+				this, android.R.layout.select_dialog_item,
+				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1});
+		b.setAdapter(adapter, new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialog, final int which) {
+				final long newID = adapter.getItemId(which);
+				final TodoItemsStorage todoStorage = new TodoItemsStorage(EditTags.this);
+				todoStorage.open();
+				try {
+					todoStorage.moveTodoItems(id, newID);
+					tagsStorage.deleteTag(id);
+					updateView();
+				} finally {
+					todoStorage.close();
+				}
+			}
+		});
+		b.show();
 	}
 
 	private void addTag() {
@@ -143,7 +209,7 @@ public class EditTags extends ListActivity {
 		editText.setText(currentName);
 
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
-		b.setTitle(R.string.rename_title);
+		b.setTitle(R.string.rename_tag_title);
 		b.setMessage(R.string.new_tag_name_text);
 		b.setCancelable(true);
 		b.setView(textEntryView);

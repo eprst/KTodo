@@ -7,19 +7,13 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.*;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.*;
 
 import java.util.ArrayList;
 
 public class MyListView extends ListView {
 	private static final String TAG = "MyListView";
-
-	private final int[] xy = new int[2];
 
 	private int maxThrowVelocity;
 	private ImageView dragView;
@@ -37,6 +31,7 @@ public class MyListView extends ListView {
 	private MyScroller flightScroller;
 	private State state = State.NORMAL;
 	private DeleteItemListener deleteItemListener;
+	private int dragItemY = -1;
 
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private boolean replaying;
@@ -106,11 +101,13 @@ public class MyListView extends ListView {
 		scaledTouchSlop = viewConfiguration.getScaledTouchSlop();
 		setOnScrollListener(new OnScrollListener() {
 			public void onScrollStateChanged(final AbsListView view, final int scrollState) {
+				dragItemY = -1;
 				dragView();
 				scrolling = scrollState != OnScrollListener.SCROLL_STATE_IDLE;
 			}
 
 			public void onScroll(final AbsListView view, final int firstVisibleItem, final int visibleItemCount, final int totalItemCount) {
+				dragItemY = -1;
 				dragView();
 			}
 		});
@@ -159,6 +156,7 @@ public class MyListView extends ListView {
 				if (prevState == State.DRAGGING_ITEM || prevState == State.ITEM_FLYING)
 					stopDragging();
 				dragItemNum = -1;
+				dragItemY = -1;
 				scrolling = false;
 				if (dragVelocityTracker != null)
 					dragVelocityTracker.clear();
@@ -192,7 +190,7 @@ public class MyListView extends ListView {
 					final float xVelocity = dragVelocityTracker.getXVelocity();
 //					Log.i(TAG, "x velocity: " + xVelocity);
 					if (flightScroller == null) flightScroller = new MyScroller(getContext());
-					flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity <= 0);
+					flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity < 0);
 					setState(State.ITEM_FLYING);
 					post(itemFlinger);
 					processed = true;
@@ -333,8 +331,34 @@ public class MyListView extends ListView {
 		final View view = getDragItem();
 		if (view == null)
 			return -1;
-		view.getLocationOnScreen(xy);
-		return xy[1] - coordOffsetY / 2;
+
+		if (dragItemY != -1)
+			return dragItemY;
+
+		//now some utterly ugly code.. alas view.getLocationInWindow gives absolute bullshit
+		int t = 0;
+		for (View v = view; v != null;) {
+			boolean add = true;
+			//there's some frame layout in my hierarchy that has getTop=50.. dunno what it is, there's
+			//nothing like it in my layout definition.. it still spoils the offset on my nexus1
+			if (v instanceof FrameLayout) {
+				final FrameLayout frameLayout = (FrameLayout) v;
+				if (frameLayout.getForeground() != null)
+					add = false;
+
+			}
+			if (add)
+				t += (v.getTop() + v.getPaddingTop());
+			View p = null;
+			final ViewParent viewParent = v.getParent();
+			if (viewParent instanceof View) {
+				p = (View) viewParent;
+			}
+			//Log.i(TAG, "v=" + v + ", vis: " + v.getVisibility() + ", top=" + v.getTop() + ", pt=" + v.getPaddingTop());
+			v = p;
+		}
+		//Log.i(TAG, "t=" + t);
+		return t;
 	}
 
 	private void dragView() {
