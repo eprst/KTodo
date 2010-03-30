@@ -8,10 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 
 public class KTodo extends ListActivity {
@@ -66,19 +63,42 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		getMyListView().setDeleteItemListener(new MyListView.DeleteItemListener() {
+		final MyListView listView = getMyListView();
+		listView.setDeleteItemListener(new MyListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
 				todoItemsStorage.deleteTodoItem(id);
 				updateView();
 			}
 		});
 
-		getMyListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
 				todoItem.done = !todoItem.done;
 				todoItemsStorage.saveTodoItem(todoItem);
 				updateView();
+			}
+		});
+
+		listView.setSlideLeftInfo(getSlidingView(), new MyListView.SlideLeftListener() {
+			TodoItem item;
+
+			public void slideLeftStarted(final long id) {
+				//Log.i(TAG, "slide left: " + id);
+				item = todoItemsStorage.loadTodoItem(id);
+				getEditSummaryWidget().setText(item.summary);
+				getEditBodyWidget().setText(item.body);
+			}
+
+			public void onSlideBack() {
+				//Log.i(TAG, "slide back");
+				final String summary = getEditSummaryWidget().getText().toString();
+				if (item != null && summary.length() > 0) {
+					item.summary = summary;
+					item.body = getEditBodyWidget().getText().toString();
+					todoItemsStorage.saveTodoItem(item);
+					updateView(); 
+				}
 			}
 		});
 	}
@@ -154,6 +174,14 @@ public class KTodo extends ListActivity {
 		onTagSelected();
 	}
 
+	@Override
+	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK)
+			if (getMyListView().handleBack())
+				return true;
+		return super.onKeyDown(keyCode, event);
+	}
+
 	private void addTodoItem() {
 		final long currentTagID = getCurrentTagID();
 		if (currentTagID == AdapterView.INVALID_ROW_ID) {
@@ -175,7 +203,7 @@ public class KTodo extends ListActivity {
 
 	private void updateView() {
 		currentTagItemsCursor.requery();
-		final boolean b = tagsAdapter.getCount() > 0;
+//		final boolean b = tagsAdapter.getCount() > 0;
 //		getAddTaskButton().setEnabled(b);
 	}
 
@@ -210,5 +238,17 @@ public class KTodo extends ListActivity {
 
 	private MyListView getMyListView() {
 		return (MyListView) findViewById(android.R.id.list);
+	}
+
+	private SlidingView getSlidingView() {
+		return (SlidingView) findViewById(R.id.sliding_view);
+	}
+
+	private EditText getEditSummaryWidget() {
+		return (EditText) findViewById(R.id.edit_task_summary);
+	}
+
+	private EditText getEditBodyWidget() {
+		return (EditText) findViewById(R.id.edit_task_body);
 	}
 }

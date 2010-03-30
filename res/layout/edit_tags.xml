@@ -12,6 +12,7 @@
 	                          android:choiceMode="singleChoice"
 	                          android:layoutAnimation="@anim/list_slide_left"
 	                          android:id="@id/android:list"
+	                          kos:vibrateOnTearOff="20"
 	                          kos:maxThrowVelocity="1500"/>
 	<LinearLayout android:layout_height="wrap_content"
 	              android:layout_width="fill_parent">

@@ -6,16 +6,18 @@ import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.*;
 import android.widget.*;
 
 import java.util.ArrayList;
 
-public class MyListView extends ListView {
+public class MyListView extends ListView { //todo: haptic feedback on item drag
 	private static final String TAG = "MyListView";
 
 	private int maxThrowVelocity;
+	private int vibrateOnTearOff;
 	private ImageView dragView;
 	private WindowManager windowManager;
 	private WindowManager.LayoutParams windowParams;
@@ -24,14 +26,18 @@ public class MyListView extends ListView {
 	private int lastDragX;
 	private int dragStartX, dragStartY;
 	private int dragPointX;    // at what offset inside the item did the user grab it
-	private int coordOffsetY, coordOffsetX;  // the difference between screen coordinates and coordinates in this view
+	private int /*coordOffsetY,*/ coordOffsetX;  // the difference between screen coordinates and coordinates in this view
 	private int scaledTouchSlop;
 	private boolean scrolling;
-	private VelocityTracker dragVelocityTracker;
+	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
 	private MyScroller flightScroller;
 	private State state = State.NORMAL;
 	private DeleteItemListener deleteItemListener;
 	private int dragItemY = -1;
+
+	//slide left stuff
+	private SlidingView slideLeftView;
+	private SlideLeftListener slideLeftListener;
 
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private boolean replaying;
@@ -91,6 +97,12 @@ public class MyListView extends ListView {
 		void deleteItem(final long id);
 	}
 
+	public interface SlideLeftListener {
+		void slideLeftStarted(final long id);
+
+		void onSlideBack();
+	}
+
 	private static enum State {
 		NORMAL, PRESSED_ON_ITEM, DRAGGING_ITEM, ITEM_FLYING, DRAGGING_VIEW_LEFT
 	}
@@ -112,12 +124,18 @@ public class MyListView extends ListView {
 			}
 		});
 
-		final TypedArray ta = context.obtainStyledAttributes(R.styleable.MyListView);
+		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MyListView);
 		maxThrowVelocity = ta.getInt(R.styleable.MyListView_maxThrowVelocity, 1500);
+		vibrateOnTearOff = ta.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
 	}
 
 	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {
 		this.deleteItemListener = deleteItemListener;
+	}
+
+	public void setSlideLeftInfo(final SlidingView sv, final SlideLeftListener listener) {
+		slideLeftView = sv;
+		slideLeftListener = listener;
 	}
 
 	private void setState(final State newState) {
@@ -126,14 +144,20 @@ public class MyListView extends ListView {
 		switch (state) {
 			case NORMAL:
 				if (newState == State.PRESSED_ON_ITEM) break;
+				if (newState == State.DRAGGING_VIEW_LEFT) break;
 				throw impossibleTransition;
 			case PRESSED_ON_ITEM:
 				break;
 			case DRAGGING_ITEM:
 				if (newState == State.NORMAL) break;
 				if (newState == State.ITEM_FLYING) break;
+				if (newState == State.DRAGGING_VIEW_LEFT) break;
 				throw impossibleTransition;
 			case ITEM_FLYING:
+				if (newState == State.NORMAL) break;
+				if (newState == State.DRAGGING_ITEM) break;
+				throw impossibleTransition;
+			case DRAGGING_VIEW_LEFT:
 				if (newState == State.NORMAL) break;
 				if (newState == State.DRAGGING_ITEM) break;
 				throw impossibleTransition;
@@ -158,18 +182,47 @@ public class MyListView extends ListView {
 				dragItemNum = -1;
 				dragItemY = -1;
 				scrolling = false;
-				if (dragVelocityTracker != null)
-					dragVelocityTracker.clear();
+				dragVelocityTracker.clear();
 				break;
 			case DRAGGING_ITEM:
 				superCancel();
 				if (prevState == State.ITEM_FLYING) {
 					flightScroller.forceFinished(true);
 					dragVelocityTracker.clear();
-				} else if (!startDragging())
-					state = prevState;
+				} else {
+					if (!startDragging())
+						state = prevState;
+					else vibrateOnTearOff();
+				}
 				break;
+			case DRAGGING_VIEW_LEFT:
+				superCancel();
+				dragVelocityTracker.clear();
+				if (prevState == State.DRAGGING_ITEM)
+					stopDragging();
 		}
+	}
+
+	private void vibrateOnTearOff() {
+		if (vibrateOnTearOff > 0) {
+			final Vibrator v = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+			if (v != null)
+				v.vibrate(vibrateOnTearOff);
+		}
+	}
+
+	public boolean handleBack() {
+		if (state != State.NORMAL) return false;
+		if (slideLeftView == null) return false;
+		if (slideLeftView.getScrollX() != slideLeftView.getWidth()) return false;
+		slideLeftView.switchLeft();
+		slideLeftView.setSlideListener(new SlidingView.SlideListener() {
+			public void slidingFinished() {
+				slideLeftListener.onSlideBack();
+				slideLeftView.setSlideListener(null);
+			}
+		});
+		return true;
 	}
 
 	@Override
@@ -194,9 +247,12 @@ public class MyListView extends ListView {
 					setState(State.ITEM_FLYING);
 					post(itemFlinger);
 					processed = true;
-				}
-				if (state == State.PRESSED_ON_ITEM)
+				} else if (state == State.PRESSED_ON_ITEM)
 					setState(State.NORMAL);
+				else if (state == State.DRAGGING_VIEW_LEFT) {
+					finishSlideLeft();
+					processed = true;
+				}
 				scrolling = false;
 				break;
 
@@ -220,19 +276,45 @@ public class MyListView extends ListView {
 				if (scrolling) break;
 				final int x = (int) ev.getX();
 				final int y = (int) ev.getY();
+				final int rawX = (int) ev.getRawX();
 
 				if (state == State.DRAGGING_ITEM) {
-					dragVelocityTracker.addMovement(ev);
-					dragView(x);
+					dragVelocityTracker.addMovement(ev, true);
+					final int off = x - dragPointX + coordOffsetX;
+					if (off < 0) {
+						setState(State.DRAGGING_VIEW_LEFT);
+					} else {
+						dragView(x);
+					}
+					processed = true;
+				} else if (state == State.DRAGGING_VIEW_LEFT) {
+					final int correctedX = rawX - coordOffsetX; //don't know how to compute it for real, using x only. Scrolling affects it somehow
+					dragVelocityTracker.addMovement(ev, false);
+					final int off = dragPointX - correctedX - coordOffsetX;
+					if (off < 0) {
+						slideLeft(0);
+						setState(State.DRAGGING_ITEM);
+					} else {
+						slideLeft(off);
+					}
 					processed = true;
 				} else {
 					final int deltaXFromDown = x - dragStartX;
 					final int deltaYFromDown = y - dragStartY;
 					if (deltaYFromDown >= scaledTouchSlop)
 						scrolling = true;
-					if (deltaXFromDown > scaledTouchSlop && !scrolling && state == State.PRESSED_ON_ITEM) {
-						setState(State.DRAGGING_ITEM);
-						processed = true;
+					final int itemnum = pointToPositionWithInvisible(x, y);
+					if (!scrolling) {
+						dragVelocityTracker.addMovement(ev, true);
+						if (state == State.PRESSED_ON_ITEM && deltaXFromDown > scaledTouchSlop) {
+							setState(State.DRAGGING_ITEM);
+							processed = true;
+						} else if (state == State.PRESSED_ON_ITEM && deltaXFromDown < -scaledTouchSlop &&
+						           slideLeftListener != null && itemnum != AdapterView.INVALID_POSITION) {
+							setState(State.DRAGGING_VIEW_LEFT);
+							slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemnum));
+							processed = true;
+						}
 					}
 				}
 				break;
@@ -250,6 +332,22 @@ public class MyListView extends ListView {
 			intercepted.clear();
 		}
 		return super.onTouchEvent(ev);
+	}
+
+	private void finishSlideLeft() {
+		dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
+		final float xVelocity = dragVelocityTracker.getXVelocity();
+		final boolean goRight;
+//					Log.i(TAG, "xVelocity=" + xVelocity);
+		if (xVelocity > -50 && xVelocity < 50)
+			goRight = slideLeftView.getScrollX() > slideLeftView.getWidth() / 2;
+		else
+			goRight = xVelocity < 0;
+		if (goRight)
+			slideLeftView.switchRight();
+		else
+			slideLeftView.switchLeft();
+		setState(State.NORMAL);
 	}
 
 	public int pointToPositionWithInvisible(final int x, final int y) {
@@ -278,7 +376,7 @@ public class MyListView extends ListView {
 		dragStartY = y;
 		final View item = getChildAt(itemnum - getFirstVisiblePosition());
 		dragPointX = x - item.getLeft();
-		coordOffsetY = ((int) ev.getRawY()) - y;
+		//coordOffsetY = ((int) ev.getRawY()) - y;
 		coordOffsetX = ((int) ev.getRawX()) - x;
 		setState(State.PRESSED_ON_ITEM);
 		return true;
@@ -316,8 +414,6 @@ public class MyListView extends ListView {
 		windowManager.addView(v, windowParams);
 		dragView = v;
 
-		if (dragVelocityTracker == null)
-			dragVelocityTracker = VelocityTracker.obtain();
 		setState(State.DRAGGING_ITEM);
 		return true;
 	}
@@ -385,6 +481,13 @@ public class MyListView extends ListView {
 				lastDragX = x;
 			}
 		}
+	}
+
+	private void slideLeft(final int off) {
+		//final int off = dragPointX - x - coordOffsetX;
+//		Log.i(TAG, "off=" + off + " (" + dragPointX + " - " + x + " - " + coordOffsetX + ")");
+		slideLeftView.scrollTo(off, 0);
+		//slideLeftView.invalidate();
 	}
 
 	private boolean itemInBounds(final int itemPosition) {

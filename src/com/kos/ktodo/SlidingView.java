@@ -9,11 +9,16 @@ import android.widget.Scroller;
 
 public class SlidingView extends FrameLayout {
 	private static final String TAG = "SlidingView";
+	private SlideListener slideListener;
 	final Scroller scroller;
 
 	public SlidingView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		scroller = new Scroller(context, new LinearInterpolator());
+	}
+
+	public void setSlideListener(final SlideListener slideListener) {
+		this.slideListener = slideListener;
 	}
 
 	public void slideLeft() {
@@ -25,13 +30,13 @@ public class SlidingView extends FrameLayout {
 	}
 
 	public void switchRight() {
-		scroller.startScroll(0, 0, getWidth(), 0, 200);
+		scroller.startScroll(getScrollX(), 0, getWidth() - getScrollX(), 0, 200);
 		invalidate();
 //		postInvalidate();
 	}
 
 	public void switchLeft() {
-		scroller.startScroll(getWidth(), 0, -getWidth(), 0, 200);
+		scroller.startScroll(getScrollX(), 0, -getScrollX(), 0, 200);
 		invalidate();
 //		postInvalidate();
 	}
@@ -41,7 +46,8 @@ public class SlidingView extends FrameLayout {
 		if (scroller.computeScrollOffset()) {
 			scrollTo(scroller.getCurrX(), 0);
 //			postInvalidate();
-		}
+		} else if (slideListener != null)
+			slideListener.slidingFinished();
 	}
 
 	@Override
@@ -49,5 +55,9 @@ public class SlidingView extends FrameLayout {
 		super.onLayout(changed, l, t, r, b);
 		final int w = r - l;
 		getChildAt(1).layout(l + w, t, r + w, b);
+	}
+
+	public interface SlideListener {
+		void slidingFinished();
 	}
 }

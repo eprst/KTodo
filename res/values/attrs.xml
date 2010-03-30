@@ -1,5 +1,6 @@
 <resources>
 	<declare-styleable name="MyListView">
 		<attr name="maxThrowVelocity" format="integer"/>
+		<attr name="vibrateOnTearOff" format="integer"/>
 	</declare-styleable>
 </resources>
