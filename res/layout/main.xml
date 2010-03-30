@@ -10,6 +10,7 @@
 	              android:gravity="center_horizontal|center_vertical">
 		<Spinner
 				android:id="@+id/tags"
+				android:nextFocusRight="@id/tags"
 				android:layout_height="wrap_content"
 				android:layout_width="fill_parent"/>
 		<com.kos.ktodo.MyListView android:layout_height="0dip"
@@ -18,7 +19,8 @@
 		                          android:choiceMode="none"
 		                          android:layoutAnimation="@anim/list_slide_left"
 		                          android:id="@id/android:list"
-		                          kos:vibrateOnTearOff="20"
+		                          android:nextFocusRight="@id/android:list"
+		                          kos:vibrateOnTearOff="25"
 		                          kos:maxThrowVelocity="1500"/>
 		<LinearLayout android:layout_height="wrap_content"
 		              android:layout_width="fill_parent">
@@ -31,6 +33,7 @@
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"/>
 			<Button android:text="@string/add" android:id="@+id/add_task_button"
+			        android:nextFocusRight="@id/add_task_button"
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"/>
 		</LinearLayout>
@@ -44,6 +47,7 @@
 				android:maxLines="1"
 				android:singleLine="true"
 				android:inputType="text"
+				android:nextFocusLeft="@id/edit_task_summary"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"/>
 		<EditText
@@ -51,6 +55,7 @@
 				android:inputType="textMultiLine"
 				android:gravity="top"
 				android:singleLine="false"
+				android:nextFocusLeft="@id/edit_task_body"
 				android:layout_width="fill_parent"
 				android:layout_weight="1.0"
 				android:layout_height="0dip"/>

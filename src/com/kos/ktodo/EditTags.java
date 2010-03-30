@@ -96,7 +96,6 @@ public class EditTags extends ListActivity {
 
 	@Override
 	public boolean onContextItemSelected(final MenuItem item) {
-		super.onContextItemSelected(item);
 		final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 		if (info == null) return false;
 		final long id = getListAdapter().getItemId(info.position);
@@ -108,7 +107,7 @@ public class EditTags extends ListActivity {
 				deleteTag(id);
 				return true;
 		}
-		return false;
+		return super.onContextItemSelected(item);
 	}
 
 	private void deleteTag(final long id) {

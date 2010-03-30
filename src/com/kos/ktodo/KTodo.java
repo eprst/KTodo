@@ -1,5 +1,6 @@
 package com.kos.ktodo;
 
+import android.*;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -15,11 +16,20 @@ public class KTodo extends ListActivity {
 	private static final String TAG = "KTodo";
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
+	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
+
+	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
+	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
 
 	private TodoItemsStorage todoItemsStorage;
 	private TagsStorage tagsStorage;
 	private SimpleCursorAdapter tagsAdapter;
 	private Cursor currentTagItemsCursor;
+	private boolean hidingCompleted;
+	private TodoItem editingItem;
+
+	private TodoItem lastDeletedItem;
+	private long lastDeletedTimestamp;
 
 	/**
 	 * Called when the activity is first created.
@@ -44,6 +54,7 @@ public class KTodo extends ListActivity {
 
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		setCurrentTag(preferences.getInt("currentTag", 0));
+		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
 
 		getAddTaskButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
@@ -51,21 +62,23 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		onTagSelected();
+		reloadTodoItems();
 
 		getTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
-				onTagSelected();
+				reloadTodoItems();
 			}
 
 			public void onNothingSelected(final AdapterView<?> parent) {
-				onTagSelected();
+				reloadTodoItems();
 			}
 		});
 
 		final MyListView listView = getMyListView();
 		listView.setDeleteItemListener(new MyListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
+				lastDeletedItem = todoItemsStorage.loadTodoItem(id);
+				lastDeletedTimestamp = System.currentTimeMillis();
 				todoItemsStorage.deleteTodoItem(id);
 				updateView();
 			}
@@ -81,34 +94,42 @@ public class KTodo extends ListActivity {
 		});
 
 		listView.setSlideLeftInfo(getSlidingView(), new MyListView.SlideLeftListener() {
-			TodoItem item;
-
 			public void slideLeftStarted(final long id) {
-				//Log.i(TAG, "slide left: " + id);
-				item = todoItemsStorage.loadTodoItem(id);
-				getEditSummaryWidget().setText(item.summary);
-				getEditBodyWidget().setText(item.body);
+				startEditingItem(id);
 			}
 
 			public void onSlideBack() {
 				//Log.i(TAG, "slide back");
 				final String summary = getEditSummaryWidget().getText().toString();
-				if (item != null && summary.length() > 0) {
-					item.summary = summary;
-					item.body = getEditBodyWidget().getText().toString();
-					todoItemsStorage.saveTodoItem(item);
-					updateView(); 
+				if (editingItem != null && summary.length() > 0) {
+					editingItem.summary = summary;
+					editingItem.body = getEditBodyWidget().getText().toString();
+					todoItemsStorage.saveTodoItem(editingItem);
+					updateView();
 				}
 			}
 		});
+
+		registerForContextMenu(listView);
 	}
 
-	private void onTagSelected() {
+	private void startEditingItem(final long id) {
+		editingItem = todoItemsStorage.loadTodoItem(id);
+		getEditSummaryWidget().setText(editingItem.summary);
+		getEditBodyWidget().setText(editingItem.body);
+	}
+
+	private void reloadTodoItems() {
 		if (currentTagItemsCursor != null) {
 			stopManagingCursor(currentTagItemsCursor);
 			currentTagItemsCursor.close();
 		}
-		currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID());
+
+		if (hidingCompleted)
+			currentTagItemsCursor = todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID());
+		else
+			currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID());
+
 		final int doneIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DONE);
 		startManagingCursor(currentTagItemsCursor);
 		final ListAdapter todoAdapter = new SimpleCursorAdapter(
@@ -140,7 +161,9 @@ public class KTodo extends ListActivity {
 	@Override
 	protected void onPause() {
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
-		preferences.edit().putInt("currentTag", getTagsWidget().getSelectedItemPosition()).commit();
+		final SharedPreferences.Editor editor = preferences.edit();
+		editor.putInt("currentTag", getTagsWidget().getSelectedItemPosition());
+		editor.putBoolean("hidingCompleted", hidingCompleted).commit();
 		super.onPause();
 	}
 
@@ -155,6 +178,7 @@ public class KTodo extends ListActivity {
 	protected void onSaveInstanceState(final Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt("currentTag", getTagsWidget().getSelectedItemPosition());
+		outState.putBoolean("hidingCompleted", hidingCompleted);
 		final EditText addTask = getAddTaskWidget();
 		outState.putString("addTaskText", addTask.getText().toString());
 		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
@@ -165,20 +189,28 @@ public class KTodo extends ListActivity {
 	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		setCurrentTag(savedInstanceState.getInt("currentTag"));
+		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
 		final String addTaskText = savedInstanceState.getString("addTaskText");
 		if (addTaskText != null) {
 			final EditText taskWidget = getAddTaskWidget();
 			taskWidget.setText(addTaskText);
 			taskWidget.setSelection(savedInstanceState.getInt("addTaskSelStart"), savedInstanceState.getInt("addTaskSelEnd"));
 		}
-		onTagSelected();
+		reloadTodoItems();
 	}
 
 	@Override
 	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK)
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if (getMyListView().handleBack())
 				return true;
+			if (lastDeletedItem != null && System.currentTimeMillis() - lastDeletedTimestamp < 3000) {
+				todoItemsStorage.addTodoItem(lastDeletedItem);
+				lastDeletedItem = null;
+				updateView();
+				return true;
+			}
+		}
 		return super.onKeyDown(keyCode, event);
 	}
 
@@ -193,7 +225,7 @@ public class KTodo extends ListActivity {
 			final String st = et.getText().toString();
 			if (st.length() > 0) {
 				todoItemsStorage.addTodoItem(new TodoItem(
-						0, currentTagID, false, st, null));
+						-1, currentTagID, false, st, null));
 				et.setText("");
 				et.requestFocus();
 				updateView();
@@ -217,11 +249,48 @@ public class KTodo extends ListActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
-		super.onCreateOptionsMenu(menu);
+	public boolean onPrepareOptionsMenu(final Menu menu) {
+		menu.clear();
 		final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
 		item.setIntent(new Intent(this, EditTags.class));
-		return true;
+		menu.add(0, SHOW_HIDE_COMPLETED_MENU_ITEM, Menu.NONE,
+				hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		if (item.getItemId() == SHOW_HIDE_COMPLETED_MENU_ITEM) {
+			hidingCompleted = !hidingCompleted;
+			reloadTodoItems();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onCreateContextMenu(final ContextMenu menu, final View v, final ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.add(0, EDIT_ITEM_CONTEXT_MENU_ITEM, Menu.NONE, R.string.edit);
+		menu.add(0, DELETE_ITEM_CONTEXT_MENU_ITEM, Menu.NONE, R.string.delete);
+	}
+
+	@Override
+	public boolean onContextItemSelected(final MenuItem item) {
+		final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		if (info == null) return false;
+		final long id = getListAdapter().getItemId(info.position);
+		switch (item.getItemId()) {
+			case EDIT_ITEM_CONTEXT_MENU_ITEM:
+				startEditingItem(id);
+				getSlidingView().switchRight();
+				return true;
+			case DELETE_ITEM_CONTEXT_MENU_ITEM:
+				todoItemsStorage.deleteTodoItem(id);
+				updateView();
+				return true;
+		}
+		return super.onContextItemSelected(item);
 	}
 
 	private EditText getAddTaskWidget() {

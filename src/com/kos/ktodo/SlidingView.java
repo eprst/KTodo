@@ -3,6 +3,8 @@ package com.kos.ktodo;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
@@ -32,12 +34,14 @@ public class SlidingView extends FrameLayout {
 	public void switchRight() {
 		scroller.startScroll(getScrollX(), 0, getWidth() - getScrollX(), 0, 200);
 		invalidate();
+		getChildAt(1).requestFocus();
 //		postInvalidate();
 	}
 
 	public void switchLeft() {
 		scroller.startScroll(getScrollX(), 0, -getScrollX(), 0, 200);
 		invalidate();
+		getChildAt(0).requestFocus();
 //		postInvalidate();
 	}
 

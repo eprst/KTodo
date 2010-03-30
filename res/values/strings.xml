@@ -3,9 +3,12 @@
 	<string name="intro">Add some tags using menu -> Edit tags</string>
 	<string name="app_name">KTodo</string>
 	<string name="edit_tags">Edit tags</string>
+	<string name="show_completed_items">Show checked</string>
+	<string name="hide_completed_items">Hide checked</string>
 	<string name="add">Add</string>
 	<string name="rename">Rename</string>
 	<string name="delete">Delete</string>
+	<string name="edit">Edit</string>
 	<string name="rename_tag_title">Rename tag</string>
 	<string name="new_tag_name_text">New tag name</string>
 	<string name="tag_already_exists">Such tag already exists</string>

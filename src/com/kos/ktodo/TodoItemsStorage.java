@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -34,6 +33,8 @@ public class TodoItemsStorage {
 
 	private ContentValues fillValues(final TodoItem item) {
 		final ContentValues cv = new ContentValues();
+		if (item.id != -1)
+			cv.put(TODO_ID, item.id);
 		cv.put(TODO_TAG_ID, item.tagID);
 		cv.put(TODO_DONE, item.done);
 		cv.put(TODO_SUMMARY, item.summary);
@@ -63,6 +64,11 @@ public class TodoItemsStorage {
 	public Cursor getByTagCursor(final long tagID) {
 		return db.query(TODO_TABLE_NAME, new String[]{TODO_ID, TODO_DONE, TODO_BODY, TODO_SUMMARY},
 				TODO_TAG_ID + "=" + tagID, null, null, null, null);
+	}
+
+	public Cursor getByTagCursorExcludingCompleted(final long tagID) {
+		return db.query(TODO_TABLE_NAME, new String[]{TODO_ID, TODO_DONE, TODO_BODY, TODO_SUMMARY},
+				TODO_TAG_ID + "=" + tagID + " and " + TODO_DONE + " = 0", null, null, null, null);
 	}
 
 	public TodoItem loadTodoItem(final long id) {
