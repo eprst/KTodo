@@ -12,7 +12,7 @@
 	                          android:choiceMode="singleChoice"
 	                          android:layoutAnimation="@anim/list_slide_left"
 	                          android:id="@id/android:list"
-	                          kos:vibrateOnTearOff="25"
+	                          kos:vibrateOnTearOff="20"
 	                          kos:maxThrowVelocity="1500"/>
 	<LinearLayout android:layout_height="wrap_content"
 	              android:layout_width="fill_parent">
@@ -20,6 +20,7 @@
 				android:id="@+id/add_tag_text"
 				android:maxLines="1"
 				android:inputType="text"
+				android:imeOptions="actionDone"
 				android:layout_weight="1.0"
 				android:layout_width="0dip"
 				android:layout_height="wrap_content"/>

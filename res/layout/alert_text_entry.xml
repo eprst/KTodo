@@ -11,5 +11,6 @@
 			android:autoText="false"
 			android:gravity="fill_horizontal"
 			android:maxLines="1"
+			android:imeOptions="actionDone"
 			android:textAppearance="?android:attr/textAppearanceMedium"/>
 </LinearLayout>

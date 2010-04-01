@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.*;
 import android.widget.*;
 
@@ -23,6 +24,7 @@ public class KTodo extends ListActivity {
 	private final int CHANGE_PRIO_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 2;
 	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 3;
 
+	private Handler handler;
 	private TodoItemsStorage todoItemsStorage;
 	private TagsStorage tagsStorage;
 	private SimpleCursorAdapter tagsAdapter;
@@ -43,6 +45,7 @@ public class KTodo extends ListActivity {
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		handler = new Handler();
 
 		todoItemsStorage = new TodoItemsStorage(this);
 		todoItemsStorage.open();
@@ -104,13 +107,7 @@ public class KTodo extends ListActivity {
 
 			public void onSlideBack() {
 				//Log.i(TAG, "slide back");
-				final String summary = getEditSummaryWidget().getText().toString();
-				if (editingItem != null && summary.length() > 0) {
-					editingItem.summary = summary;
-					editingItem.body = getEditBodyWidget().getText().toString();
-					todoItemsStorage.saveTodoItem(editingItem);
-					updateView();
-				}
+				saveItemBeingEdited();
 			}
 		});
 
@@ -137,6 +134,7 @@ public class KTodo extends ListActivity {
 		registerForContextMenu(listView);
 		setupEditPrioButtons();
 	}
+
 
 	private SimpleCursorAdapter createTagsAdapter(final Cursor cursor, final int layout) {
 		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
@@ -186,8 +184,17 @@ public class KTodo extends ListActivity {
 		if (position != -1)
 			spinner.setSelection(position);
 
-
 		updateEditPrioButtons();
+	}
+
+	private void saveItemBeingEdited() {
+		final String summary = getEditSummaryWidget().getText().toString();
+		if (editingItem != null && summary.length() > 0) {
+			editingItem.summary = summary;
+			editingItem.body = getEditBodyWidget().getText().toString();
+			todoItemsStorage.saveTodoItem(editingItem);
+			updateView();
+		}
 	}
 
 	private int getItemPosition(final CursorAdapter a, final long id) {
@@ -287,6 +294,12 @@ public class KTodo extends ListActivity {
 		outState.putString("addTaskText", addTask.getText().toString());
 		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
 		outState.putInt("addTaskSelEnd", addTask.getSelectionEnd());
+		final boolean onLeft = getSlidingView().isOnLeft();
+		outState.putBoolean("onLeft", onLeft);
+		if (!onLeft) {
+			outState.putLong("itemBeingEditedID", editingItem.id);
+			saveItemBeingEdited();
+		}
 	}
 
 	@Override
@@ -300,6 +313,17 @@ public class KTodo extends ListActivity {
 			final EditText taskWidget = getAddTaskWidget();
 			taskWidget.setText(addTaskText);
 			taskWidget.setSelection(savedInstanceState.getInt("addTaskSelStart"), savedInstanceState.getInt("addTaskSelEnd"));
+		}
+		final boolean onLeft = savedInstanceState.getBoolean("onLeft");
+		if (onLeft)
+			getSlidingView().switchLeft();
+		else {
+			startEditingItem(savedInstanceState.getLong("itemBeingEditedID"));
+			handler.postDelayed(new Runnable() {
+				public void run() {
+					getSlidingView().switchRight();
+				}
+			}, 100);
 		}
 		reloadTodoItems();
 	}

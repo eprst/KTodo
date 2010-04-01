@@ -3,9 +3,11 @@
 <com.kos.ktodo.PriorityCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
                                        android:id="@+id/todo_item"
                                        android:layout_width="fill_parent"
-                                       android:layout_height="?android:attr/listPreferredItemHeight"
-                                       android:textAppearance="?android:attr/textAppearanceLarge"
+                                       android:layout_height="40sp"
+                                       android:textAppearance="?android:attr/textAppearanceMedium"
                                        android:gravity="center_vertical"
                                        android:checkMark="?android:attr/textCheckMark"
+                                       android:maxLines="1"
+                                       android:singleLine="true"
                                        android:paddingLeft="6dip"
                                        android:paddingRight="6dip"/>

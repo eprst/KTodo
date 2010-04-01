@@ -30,8 +30,10 @@ public class PriorityCheckedTextView extends CheckedTextView {
 	@Override
 	public void setCheckMarkDrawable(final Drawable d) {
 		super.setCheckMarkDrawable(d);
-		if (d != null)
+		if (d != null) {
 			checkMarkWidth = d.getIntrinsicWidth();
+			mPaddingRight += 20;
+		}
 	}
 
 	@Override

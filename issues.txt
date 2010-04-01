@@ -1,0 +1,6 @@
+[v] can't drag left when an item is partially visible
+[v] possible to leave main view half-slided
+[v] editor state isn't saved (on screen rotation) : fixed, no only focus is lost
+
+[v] try smaller items, currently on 6 fit on one screen
+[ ] when on right screen: soft keyboard should hide priority buttons

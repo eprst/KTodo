@@ -2,9 +2,6 @@ package com.kos.ktodo;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
@@ -31,18 +28,26 @@ public class SlidingView extends FrameLayout {
 		scrollBy(-1, 0);
 	}
 
+	public boolean isOnLeft() {
+		return getScrollX() == 0;
+	}
+
 	public void switchRight() {
 		scroller.startScroll(getScrollX(), 0, getWidth() - getScrollX(), 0, 200);
 		invalidate();
 		getChildAt(1).requestFocus();
-//		postInvalidate();
+		postInvalidate();
 	}
 
 	public void switchLeft() {
-		scroller.startScroll(getScrollX(), 0, -getScrollX(), 0, 200);
+		final int startX = getScrollX();
+		if (startX < 10) //sometimes it fails if it has to scroll only a few pixels
+			scrollTo(0, 0);
+		else
+			scroller.startScroll(startX, 0, -startX, 0, 200);
 		invalidate();
 		getChildAt(0).requestFocus();
-//		postInvalidate();
+		postInvalidate();
 	}
 
 	@Override

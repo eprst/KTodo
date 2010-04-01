@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -159,6 +160,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 				throw impossibleTransition;
 			case DRAGGING_VIEW_LEFT:
 				if (newState == State.NORMAL) break;
+				if (newState == State.PRESSED_ON_ITEM) break; //this is only a temporary change, either DRAGGING or NORMAL follow immediately
 				if (newState == State.DRAGGING_ITEM) break;
 				throw impossibleTransition;
 			default:
@@ -233,91 +235,17 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 		switch (action) {
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
-				if (state == State.DRAGGING_ITEM) {
-					final int lastLeft = lastDragX - dragPointX + coordOffsetX;
-					if (lastLeft <= scaledTouchSlop) {
-						setState(State.NORMAL);
-						break;
-					}
-					dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
-					final float xVelocity = dragVelocityTracker.getXVelocity();
-//					Log.i(TAG, "x velocity: " + xVelocity);
-					if (flightScroller == null) flightScroller = new MyScroller(getContext());
-					flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity < 0);
-					setState(State.ITEM_FLYING);
-					post(itemFlinger);
-					processed = true;
-				} else if (state == State.PRESSED_ON_ITEM)
-					setState(State.NORMAL);
-				else if (state == State.DRAGGING_VIEW_LEFT) {
-					finishSlideLeft();
-					processed = true;
-				}
-				scrolling = false;
+				processed = processUpEvent();
 				break;
 
 			case MotionEvent.ACTION_DOWN:
 				if (scrolling) break;
-				if (state == State.ITEM_FLYING) {
-					final int x = (int) ev.getX();
-					final int y = (int) ev.getY();
-					final int itemnum = pointToPositionWithInvisible(x, y);
-					if (itemnum == AdapterView.INVALID_POSITION) break;
-					final int lastLeft = lastDragX - dragPointX + coordOffsetX;
-					if (lastLeft <= x && itemnum == dragItemNum) {
-						dragPointX = x - lastLeft;
-						setState(State.DRAGGING_ITEM);
-						processed = true;
-					}
-				} else startPreDragging(ev);
+				processed = processDownEvent(ev);
 				break;
 
 			case MotionEvent.ACTION_MOVE:
 				if (scrolling) break;
-				final int x = (int) ev.getX();
-				final int y = (int) ev.getY();
-				final int rawX = (int) ev.getRawX();
-
-				if (state == State.DRAGGING_ITEM) {
-					dragVelocityTracker.addMovement(ev, true);
-					final int off = x - dragPointX + coordOffsetX;
-					if (off < 0) {
-						setState(State.DRAGGING_VIEW_LEFT);
-						slideLeftListener.slideLeftStarted(getItemIdAtPosition(dragItemNum));
-					} else {
-						dragView(x);
-					}
-					processed = true;
-				} else if (state == State.DRAGGING_VIEW_LEFT) {
-					final int correctedX = rawX - coordOffsetX; //don't know how to compute it for real, using x only. Scrolling affects it somehow
-					dragVelocityTracker.addMovement(ev, false);
-					final int off = dragPointX - correctedX - coordOffsetX;
-					if (off < 0) {
-						slideLeft(0);
-						setState(State.DRAGGING_ITEM);
-					} else {
-						slideLeft(off);
-					}
-					processed = true;
-				} else {
-					final int deltaXFromDown = x - dragStartX;
-					final int deltaYFromDown = y - dragStartY;
-					if (deltaYFromDown >= scaledTouchSlop)
-						scrolling = true;
-					final int itemnum = pointToPositionWithInvisible(x, y);
-					if (!scrolling) {
-						dragVelocityTracker.addMovement(ev, true);
-						if (state == State.PRESSED_ON_ITEM && deltaXFromDown > scaledTouchSlop) {
-							setState(State.DRAGGING_ITEM);
-							processed = true;
-						} else if (state == State.PRESSED_ON_ITEM && deltaXFromDown < -scaledTouchSlop &&
-						           slideLeftListener != null && itemnum != AdapterView.INVALID_POSITION) {
-							setState(State.DRAGGING_VIEW_LEFT);
-							slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemnum));
-							processed = true;
-						}
-					}
-				}
+				processed = processMoveEvent(ev);
 				break;
 		}
 		if (processed) {
@@ -333,6 +261,107 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 			intercepted.clear();
 		}
 		return super.onTouchEvent(ev);
+	}
+
+	private boolean processUpEvent() {
+		boolean processed = false;
+		if (state == State.DRAGGING_ITEM) {
+			final int lastLeft = lastDragX - dragPointX + coordOffsetX;
+			if (lastLeft <= scaledTouchSlop) {
+				setState(State.NORMAL);
+				return processed;
+			}
+			dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
+			final float xVelocity = dragVelocityTracker.getXVelocity();
+//					Log.i(TAG, "x velocity: " + xVelocity);
+			if (flightScroller == null) flightScroller = new MyScroller(getContext());
+			flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity < 0);
+			setState(State.ITEM_FLYING);
+			post(itemFlinger);
+			processed = true;
+		} else if (state == State.PRESSED_ON_ITEM)
+			setState(State.NORMAL);
+		else if (state == State.DRAGGING_VIEW_LEFT) {
+			finishSlideLeft();
+			processed = true;
+		}
+		scrolling = false;
+		return processed;
+	}
+
+	private boolean processDownEvent(final MotionEvent ev) {
+		boolean processed = false;
+		if (state == State.ITEM_FLYING) {
+			final int x = (int) ev.getX();
+			final int y = (int) ev.getY();
+			final int itemnum = pointToPositionWithInvisible(x, y);
+			if (itemnum == AdapterView.INVALID_POSITION) return processed;
+			final int lastLeft = lastDragX - dragPointX + coordOffsetX;
+			if (lastLeft <= x && itemnum == dragItemNum) {
+				dragPointX = x - lastLeft;
+				setState(State.DRAGGING_ITEM);
+				processed = true;
+			}
+		} else startPreDragging(ev);
+		return processed;
+	}
+
+	private boolean processMoveEvent(final MotionEvent ev) {
+		final int x = (int) ev.getX();
+		final int y = (int) ev.getY();
+		final int rawX = (int) ev.getRawX();
+		final int off;
+		boolean processed = false;
+
+		switch (state) {
+			case DRAGGING_ITEM:
+				dragVelocityTracker.addMovement(ev, false);
+				off = x - dragPointX + coordOffsetX;
+				if (off < 0) {
+					setState(State.DRAGGING_VIEW_LEFT);
+					slideLeftListener.slideLeftStarted(getItemIdAtPosition(dragItemNum));
+				} else {
+					dragView(x);
+				}
+				processed = true;
+				break;
+			case DRAGGING_VIEW_LEFT:
+				final int correctedX = rawX - coordOffsetX; //don't know how to compute it for real, using x only. Scrolling affects it somehow
+				dragVelocityTracker.addMovement(ev, true);
+				off = dragPointX - correctedX - coordOffsetX;
+				if (off < 0) {
+					slideLeft(0);
+					if (startPreDragging(ev))
+						setState(State.DRAGGING_ITEM);
+					else
+						setState(State.NORMAL);
+				} else {
+					slideLeft(off);
+				}
+				processed = true;
+				break;
+			default:
+				final int deltaXFromDown = x - dragStartX;
+				final int deltaYFromDown = y - dragStartY;
+				if (deltaYFromDown >= scaledTouchSlop)
+					scrolling = true;
+				final int itemnum = pointToPositionWithInvisible(x, y);
+				if (!scrolling) {
+					dragVelocityTracker.addMovement(ev, false);
+					if (state == State.PRESSED_ON_ITEM && deltaXFromDown > scaledTouchSlop) {
+						setState(State.DRAGGING_ITEM);
+						processed = true;
+					} else if ((state == State.NORMAL || state == State.PRESSED_ON_ITEM) &&
+					           deltaXFromDown < -scaledTouchSlop &&
+					           slideLeftListener != null && itemnum != AdapterView.INVALID_POSITION) {
+						setState(State.DRAGGING_VIEW_LEFT);
+						dragPointX = x;
+						slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemnum));
+						processed = true;
+					}
+				}
+		}
+		return processed;
 	}
 
 	private void finishSlideLeft() {
@@ -369,12 +398,12 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 		if (state == State.ITEM_FLYING) return false;
 		final int x = (int) ev.getX();
 		final int y = (int) ev.getY();
+		dragStartX = x;
+		dragStartY = y;
 		final int itemnum = pointToPosition(x, y);
 		if (itemnum == AdapterView.INVALID_POSITION) return false;
 		if (!itemInBounds(itemnum)) return false;
 		dragItemNum = itemnum;
-		dragStartX = x;
-		dragStartY = y;
 		final View item = getChildAt(itemnum - getFirstVisiblePosition());
 		dragPointX = x - item.getLeft();
 		//coordOffsetY = ((int) ev.getRawY()) - y;

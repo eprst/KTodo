@@ -31,16 +31,17 @@ public final class RawVelocityTracker {
 		mPastTime[0] = 0;
 	}
 
-	public void addMovement(final MotionEvent ev, final boolean respectHistory) {
+	public void addMovement(final MotionEvent ev, final boolean useRaw) {
 		final long time = ev.getEventTime();
-		if (respectHistory) {
+		if (!useRaw) {
 			final int N = ev.getHistorySize();
 			for (int i = 0; i < N; i++) {
 				addPoint(ev.getHistoricalX(i), ev.getHistoricalY(i),
 						ev.getHistoricalEventTime(i));
 			}
-		}
-		addPoint(ev.getRawX(), ev.getRawY(), time);
+			addPoint(ev.getX(), ev.getY(), time);
+		} else
+			addPoint(ev.getRawX(), ev.getRawY(), time);
 	}
 
 	private void addPoint(final float x, final float y, final long time) {
