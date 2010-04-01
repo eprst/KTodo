@@ -52,11 +52,18 @@ public class TagsStorage {
 	}
 
 	public Cursor getAllTagsCursor() {
-		return db.query(TAG_TABLE_NAME, new String[]{TAG_ID, TAG_TAG}, null, null, null, null, null);
+		return db.query(TAG_TABLE_NAME, new String[]{TAG_ID, TAG_TAG}, null, null, null, null, TAG_ORDER + " ASC");
 	}
 
-	public Cursor getAllExceptOneCursor(final long exception) {
-		return db.query(TAG_TABLE_NAME, new String[]{TAG_ID, TAG_TAG}, TAG_ID + "<>" + exception, null, null, null, null);
+	public Cursor getAllTagsExceptCursor(final long... except) {
+		final StringBuilder where = new StringBuilder();
+		for (final long e : except) {
+			if (where.length() != 0)
+				where.append(" AND ");
+			where.append(TAG_ID).append("<>").append(e);
+		}
+		return db.query(TAG_TABLE_NAME, new String[]{TAG_ID, TAG_TAG},
+				where.toString(), null, null, null, TAG_ORDER + " ASC");
 	}
 
 	public boolean hasTag(final String tag) {

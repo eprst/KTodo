@@ -28,7 +28,7 @@ public class EditTags extends ListActivity {
 
 		tagsStorage = new TagsStorage(this);
 		tagsStorage.open();
-		allTagsCursor = tagsStorage.getAllTagsCursor();
+		allTagsCursor = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_TAG_ID);
 		startManagingCursor(allTagsCursor);
 		final ListAdapter tagsAdapter = new SimpleCursorAdapter(
 				this, android.R.layout.simple_list_item_1,
@@ -156,7 +156,7 @@ public class EditTags extends ListActivity {
 	private void moveItemsAndDeleteTag(final long id) {
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string.select_tag_title);
-		final Cursor c = tagsStorage.getAllExceptOneCursor(id);
+		final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_TAG_ID, id);
 		final ListAdapter adapter = new SimpleCursorAdapter(
 				this, android.R.layout.select_dialog_item,
 				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1});

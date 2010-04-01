@@ -283,6 +283,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 					final int off = x - dragPointX + coordOffsetX;
 					if (off < 0) {
 						setState(State.DRAGGING_VIEW_LEFT);
+						slideLeftListener.slideLeftStarted(getItemIdAtPosition(dragItemNum));
 					} else {
 						dragView(x);
 					}

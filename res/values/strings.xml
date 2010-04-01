@@ -16,4 +16,9 @@
 	<string name="items_depend_on_tag">There are %d items with this tag. What to do with them?</string>
 	<string name="move">Move</string>
 	<string name="select_tag_title">Select tag</string>
+	<string name="select_prio_title">Select priority</string>
+	<string name="change_prio">Change priority</string>
+	<string name="change_tag">Move</string>
+	<string name="all">All</string>
+	<string name="unfiled">Unfiled</string>
 </resources>
