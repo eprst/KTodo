@@ -72,33 +72,26 @@
 				android:layout_height="0dip"/>
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
-		              android:layout_height="wrap_content"> <!-- prio buttons -->
-			<com.kos.ktodo.ToggleButton android:id="@+id/prio_1"
-			                            android:text="1"
-			                            android:nextFocusLeft="@id/prio_1"
-			                            android:layout_height="wrap_content"
-			                            android:layout_width="0dip"
-			                            android:layout_weight="1.0"/>
-			<com.kos.ktodo.ToggleButton android:id="@+id/prio_2"
-			                            android:text="2"
-			                            android:layout_height="wrap_content"
-			                            android:layout_width="0dip"
-			                            android:layout_weight="1.0"/>
-			<com.kos.ktodo.ToggleButton android:id="@+id/prio_3"
-			                            android:text="3"
-			                            android:layout_height="wrap_content"
-			                            android:layout_width="0dip"
-			                            android:layout_weight="1.0"/>
-			<com.kos.ktodo.ToggleButton android:id="@+id/prio_4"
-			                            android:text="4"
-			                            android:layout_height="wrap_content"
-			                            android:layout_width="0dip"
-			                            android:layout_weight="1.0"/>
-			<com.kos.ktodo.ToggleButton android:id="@+id/prio_5"
-			                            android:text="5"
-			                            android:layout_height="wrap_content"
-			                            android:layout_width="0dip"
-			                            android:layout_weight="1.0"/>
+		              android:layout_height="wrap_content">
+			<com.kos.ktodo.SliderButton
+					android:id="@+id/prio_sliding_button"
+					android:nextFocusLeft="@id/prio_sliding_button"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1.0"
+					android:text="@string/priority"
+					kos:separator=" "
+					kos:valuesList="1,2,3,4,5"/>
+			<com.kos.ktodo.SliderButton
+					android:id="@+id/progress_sliding_button"
+					android:nextFocusRight="@id/progress_sliding_button"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1.0"
+					android:text="@string/progress"
+					kos:separator=" "
+					kos:valuesList="0,10,20,30,40,50,60,70,80,90,100"
+					kos:valueSuffix="%"/>
 		</LinearLayout>
 	</LinearLayout>
 </com.kos.ktodo.SlidingView>

@@ -98,7 +98,6 @@ public class KTodo extends ListActivity {
 			}
 
 			public void onNothingSelected(final AdapterView<?> parent) {
-				reloadTodoItems();
 			}
 		});
 
@@ -131,6 +130,7 @@ public class KTodo extends ListActivity {
 				//Log.i(TAG, "slide back");
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 				saveItemBeingEdited();
+				updateView();
 			}
 		});
 
@@ -155,7 +155,7 @@ public class KTodo extends ListActivity {
 		});
 
 		registerForContextMenu(listView);
-		setupEditPrioButtons();
+		setupSlidingPrioButton();
 	}
 
 
@@ -207,7 +207,7 @@ public class KTodo extends ListActivity {
 		if (position != -1)
 			spinner.setSelection(position);
 
-		updateEditPrioButtons();
+		updateSlidingPrioButton();
 	}
 
 	private void saveItemBeingEdited() {
@@ -216,7 +216,6 @@ public class KTodo extends ListActivity {
 			editingItem.summary = summary;
 			editingItem.body = getEditBodyWidget().getText().toString();
 			todoItemsStorage.saveTodoItem(editingItem);
-			updateView();
 		}
 	}
 
@@ -228,23 +227,16 @@ public class KTodo extends ListActivity {
 		return -1;
 	}
 
-	private void setupEditPrioButtons() {
-		final View.OnClickListener onClickListener = new View.OnClickListener() {
-			public void onClick(final View v) {
-				editingItem.prio = Integer.parseInt(((TextView) v).getText().toString());
-				updateEditPrioButtons();
+	private void setupSlidingPrioButton() {
+		getPrioSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
+			public void valueChanged(final String newValue) {
+				editingItem.prio = Integer.parseInt(newValue);
 			}
-		};
-		final Button[] editPrioButtons = getEditPrioButtons();
-		for (int i = 1; i < editPrioButtons.length; i++) {
-			editPrioButtons[i].setOnClickListener(onClickListener);
-		}
+		});
 	}
 
-	private void updateEditPrioButtons() {
-		final ToggleButton[] editPrioButtons = getEditPrioButtons();
-		for (int i = 1; i < editPrioButtons.length; i++)
-			editPrioButtons[i].setPushed(i == editingItem.prio);
+	private void updateSlidingPrioButton() {
+		getPrioSliderButton().setSelection(editingItem.prio - 1);
 	}
 
 	private void reloadTodoItems() {
@@ -306,12 +298,12 @@ public class KTodo extends ListActivity {
 	protected void onDestroy() {
 		todoItemsStorage.close();
 		tagsStorage.close();
+		allTagsCursor.close();
 		super.onDestroy();
 	}
 
 	@Override
 	protected void onSaveInstanceState(final Bundle outState) {
-		super.onSaveInstanceState(outState);
 		outState.putLong("currentTag", getCurrentTagID());
 		outState.putBoolean("hidingCompleted", hidingCompleted);
 		outState.putInt("defaultPrio", defaultPrio);
@@ -325,6 +317,7 @@ public class KTodo extends ListActivity {
 			outState.putLong("itemBeingEditedID", editingItem.id);
 			saveItemBeingEdited();
 		}
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -344,6 +337,7 @@ public class KTodo extends ListActivity {
 			getSlidingView().switchLeft();
 		else {
 			startEditingItem(savedInstanceState.getLong("itemBeingEditedID"));
+			Log.i(TAG, "going to post delayed");
 			handler.postDelayed(new Runnable() {
 				public void run() {
 					getSlidingView().switchRight();
@@ -630,14 +624,8 @@ public class KTodo extends ListActivity {
 		return (Spinner) findViewById(R.id.item_tag);
 	}
 
-	private ToggleButton[] getEditPrioButtons() {
-		return new ToggleButton[]{null,
-		                          (ToggleButton) findViewById(R.id.prio_1),
-		                          (ToggleButton) findViewById(R.id.prio_2),
-		                          (ToggleButton) findViewById(R.id.prio_3),
-		                          (ToggleButton) findViewById(R.id.prio_4),
-		                          (ToggleButton) findViewById(R.id.prio_5)
-		};
+	private SliderButton getPrioSliderButton() {
+		return (SliderButton) findViewById(R.id.prio_sliding_button);
 	}
 
 	private interface PrioSelectedCallback {

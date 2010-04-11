@@ -229,8 +229,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 	public boolean onTouchEvent(final MotionEvent ev) {
 		if (replaying || deleteItemListener == null) return super.onTouchEvent(ev);
 		boolean processed = false;
-		final int action = ev.getAction();
-		switch (action) {
+		switch (ev.getAction()) {
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
 				processed = processUpEvent();
