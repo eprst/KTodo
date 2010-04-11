@@ -11,7 +11,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final int DB_VERSION = 1;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
-	public static final int UNFILED_TAG_ID = 2;
+	public static final int UNFILED_METATAG_ID = 2;
 
 	public static final String TAG_TABLE_NAME = "tag";
 	public static final String TAG_ID = "_id";
@@ -60,7 +60,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(TAG_TAG, context.getString(R.string.all)); //will be localized in KTodo anyways
 		cv.put(TAG_ORDER, 1);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
-		cv.put(TAG_ID, UNFILED_TAG_ID);
+		cv.put(TAG_ID, UNFILED_METATAG_ID);
 		cv.put(TAG_TAG, context.getString(R.string.unfiled)); //will be localized in KTodo anyways
 		cv.put(TAG_ORDER, 100);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);

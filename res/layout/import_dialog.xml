@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+	<EditText
+			android:id="@+id/text_entry"
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:autoText="false"
+			android:gravity="fill_horizontal"
+			android:maxLines="1"
+			android:imeOptions="actionDone"
+			android:textAppearance="?android:attr/textAppearanceMedium"/>
+	<CheckBox
+			android:id="@+id/wipe_checkbox"
+			android:text="@string/wipe"
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"/>
+</LinearLayout>

@@ -58,6 +58,10 @@ public class TodoItemsStorage {
 		return db.delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
 	}
 
+	public void deleteAllTodoItems() {
+		db.delete(TODO_TABLE_NAME, null, null);
+	}
+
 	public int deleteByTag(final long tagID) {
 		return db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
 	}

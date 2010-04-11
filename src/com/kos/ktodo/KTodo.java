@@ -10,24 +10,36 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
+import com.kos.ktodo.impex.XmlExporter;
+import com.kos.ktodo.impex.XmlImporter;
+
+import java.io.File;
+import java.io.IOException;
 
 public class KTodo extends ListActivity {
 	private static final String TAG = "KTodo";
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
+	private final int EXPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 2;
+	private final int IMPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 3;
 
 	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
 	private final int CHANGE_PRIO_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 2;
 	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 3;
 
+//	private final Random rnd = new Random();
+//	private final HashMap<Integer, SubActivityCallback> subCallbacks = new HashMap<Integer, SubActivityCallback>(5);
+
 	private Handler handler;
 	private TodoItemsStorage todoItemsStorage;
 	private TagsStorage tagsStorage;
 	private SimpleCursorAdapter tagsAdapter;
+	private Cursor allTagsCursor;
 	private Cursor currentTagItemsCursor;
 	private boolean hidingCompleted;
 	private int defaultPrio;
@@ -52,7 +64,7 @@ public class KTodo extends ListActivity {
 		tagsStorage = new TagsStorage(this);
 		tagsStorage.open();
 
-		final Cursor allTagsCursor = tagsStorage.getAllTagsCursor();
+		allTagsCursor = tagsStorage.getAllTagsCursor();
 		startManagingCursor(allTagsCursor);
 		tagsAdapter = createTagsAdapter(allTagsCursor, android.R.layout.simple_spinner_item);
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -66,6 +78,15 @@ public class KTodo extends ListActivity {
 		getAddTaskButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
 				addTodoItem();
+			}
+		});
+		getAddTaskWidget().setOnKeyListener(new View.OnKeyListener() {
+			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+					addTodoItem();
+					return true;
+				}
+				return false;
 			}
 		});
 
@@ -159,7 +180,7 @@ public class KTodo extends ListActivity {
 					final int tagID = cursor.getInt(tagIDIndex);
 					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
 						((TextView) view).setText(R.string.all);
-					else if (tagID == DBHelper.UNFILED_TAG_ID)
+					else if (tagID == DBHelper.UNFILED_METATAG_ID)
 						((TextView) view).setText(R.string.unfiled);
 				}
 			}
@@ -225,6 +246,8 @@ public class KTodo extends ListActivity {
 	}
 
 	private void reloadTodoItems() {
+		allTagsCursor.requery();
+
 		if (currentTagItemsCursor != null) {
 			stopManagingCursor(currentTagItemsCursor);
 			currentTagItemsCursor.close();
@@ -349,7 +372,7 @@ public class KTodo extends ListActivity {
 //			final AlertDialog.Builder b = new AlertDialog.Builder(this);
 //			b.setMessage(R.string.intro);
 //			b.show();
-			currentTagID = DBHelper.UNFILED_TAG_ID;
+			currentTagID = DBHelper.UNFILED_METATAG_ID;
 		}
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
@@ -372,6 +395,7 @@ public class KTodo extends ListActivity {
 	}
 
 	private void updateView() {
+		allTagsCursor.requery();
 		currentTagItemsCursor.requery();
 //		final boolean b = tagsAdapter.getCount() > 0;
 //		getAddTaskButton().setEnabled(b);
@@ -394,15 +418,24 @@ public class KTodo extends ListActivity {
 		item.setIntent(new Intent(this, EditTags.class));
 		menu.add(0, SHOW_HIDE_COMPLETED_MENU_ITEM, Menu.NONE,
 				hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items);
+		menu.add(0, EXPORT_MENU_ITEM, Menu.NONE, R.string.export);
+		menu.add(0, IMPORT_MENU_ITEM, Menu.NONE, R.string._import);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		if (item.getItemId() == SHOW_HIDE_COMPLETED_MENU_ITEM) {
-			hidingCompleted = !hidingCompleted;
-			reloadTodoItems();
-			return true;
+		switch (item.getItemId()) {
+			case SHOW_HIDE_COMPLETED_MENU_ITEM:
+				hidingCompleted = !hidingCompleted;
+				reloadTodoItems();
+				return true;
+			case EXPORT_MENU_ITEM:
+				exportData();
+				return true;
+			case IMPORT_MENU_ITEM:
+				importData();
+				return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -461,7 +494,7 @@ public class KTodo extends ListActivity {
 						cursor.close();
 					}
 				});
-				final AlertDialog dialog = b.show();
+				b.show();
 				return true;
 		}
 		return super.onContextItemSelected(item);
@@ -477,6 +510,87 @@ public class KTodo extends ListActivity {
 		});
 		b.show();
 	}
+
+	private void exportData() { //any good reason to export/import in background? It's very quick anyways
+		final LayoutInflater inf = LayoutInflater.from(this);
+		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
+		final String currentName = "/sdcard/ktodo.xml"; //todo use real Save As dialog
+		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
+		editText.setText(currentName);
+
+		final AlertDialog.Builder b = new AlertDialog.Builder(this);
+		b.setTitle(R.string.export);
+		b.setMessage(R.string.export_file_name);
+		b.setCancelable(true);
+		b.setView(textEntryView);
+		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialogInterface, final int i) {
+				final String st = editText.getText().toString();
+				try {
+					XmlExporter.exportData(KTodo.this, new File(st));
+				} catch (IOException e) {
+					Log.e(TAG, "error exporting data", e);
+					new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setMessage(e.toString()).show();
+				}
+			}
+		});
+
+		final AlertDialog dialog = b.create();
+		Util.setupEditTextEnterListener(editText, dialog);
+		dialog.show();
+	}
+
+	private void importData() {
+		final LayoutInflater inf = LayoutInflater.from(this);
+		final View dialogView = inf.inflate(R.layout.import_dialog, null);
+		final String currentName = "/sdcard/ktodo.xml"; //todo use real Open dialog
+		final EditText editText = (EditText) dialogView.findViewById(R.id.text_entry);
+		editText.setText(currentName);
+		final CheckBox wipe = (CheckBox) dialogView.findViewById(R.id.wipe_checkbox);
+
+		final AlertDialog.Builder b = new AlertDialog.Builder(this);
+		b.setTitle(R.string._import);
+		b.setMessage(R.string.import_file_name);
+		b.setCancelable(true);
+		b.setView(dialogView);
+		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(final DialogInterface dialogInterface, final int i) {
+				if (wipe.isChecked()) { //additional warning?
+					todoItemsStorage.deleteAllTodoItems();
+					tagsStorage.deleteAllTags();
+				}
+				final String st = editText.getText().toString();
+				try {
+					XmlImporter.importData(KTodo.this, new File(st), false);
+				} catch (IOException e) {
+					Log.e(TAG, "error importing data", e);
+					new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setMessage(e.toString()).show();
+				}
+				reloadTodoItems();
+			}
+		});
+
+		final AlertDialog dialog = b.create();
+		Util.setupEditTextEnterListener(editText, dialog);
+		dialog.show();
+	}
+
+/*	private void startSubActivity(final Class subActivityClass, final SubActivityCallback callback, final Bundle params) {
+		final int i = rnd.nextInt();
+		subCallbacks.put(i, callback);
+		final Intent intent = new Intent(this, subActivityClass);
+		if (params != null)
+			intent.getExtras().putAll(params);
+		startActivityForResult(intent, i);
+	}
+
+	@Override
+	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		final SubActivityCallback callback = subCallbacks.remove(requestCode);
+		if (callback != null && resultCode == Activity.RESULT_OK)
+			callback.onResultOK(data);
+	}*/
 
 	private EditText getAddTaskWidget() {
 		return (EditText) findViewById(R.id.add_task);
@@ -527,4 +641,8 @@ public class KTodo extends ListActivity {
 	private interface PrioSelectedCallback {
 		void prioSelected(int prio);
 	}
+
+/*	private interface SubActivityCallback {
+		void onResultOK(final Intent data);
+	}*/
 }

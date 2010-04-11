@@ -51,6 +51,12 @@ public class TagsStorage {
 		return db.delete(TAG_TABLE_NAME, TAG_ID + "=" + id, null) > 0;
 	}
 
+	public void deleteAllTags() {
+		db.delete(TAG_TABLE_NAME,
+				TAG_ID + "<>" + DBHelper.ALL_TAGS_METATAG_ID + " AND " + DBHelper.TAG_ID + "<>" + DBHelper.UNFILED_METATAG_ID,
+				null);
+	}
+
 	public Cursor getAllTagsCursor() {
 		return db.query(TAG_TABLE_NAME, new String[]{TAG_ID, TAG_TAG}, null, null, null, null, TAG_ORDER + " ASC");
 	}
