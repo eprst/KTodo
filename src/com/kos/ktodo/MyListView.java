@@ -8,7 +8,6 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -145,7 +144,6 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 		switch (state) {
 			case NORMAL:
 				if (newState == State.PRESSED_ON_ITEM) break;
-				if (newState == State.DRAGGING_VIEW_LEFT) break;
 				throw impossibleTransition;
 			case PRESSED_ON_ITEM:
 				break;
@@ -297,7 +295,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 			final int itemnum = pointToPositionWithInvisible(x, y);
 			if (itemnum == AdapterView.INVALID_POSITION) return processed;
 			final int lastLeft = lastDragX - dragPointX + coordOffsetX;
-			if (lastLeft <= x && itemnum == dragItemNum) {
+			if (lastLeft <= x && itemnum == dragItemNum && itemInBounds(dragItemNum)) {
 				dragPointX = x - lastLeft;
 				setState(State.DRAGGING_ITEM);
 				processed = true;
@@ -348,10 +346,10 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 				final int itemnum = pointToPositionWithInvisible(x, y);
 				if (!scrolling) {
 					dragVelocityTracker.addMovement(ev, false);
-					if (state == State.PRESSED_ON_ITEM && deltaXFromDown > scaledTouchSlop) {
+					if (state == State.PRESSED_ON_ITEM && itemInBounds(dragItemNum) && deltaXFromDown > scaledTouchSlop) {
 						setState(State.DRAGGING_ITEM);
 						processed = true;
-					} else if ((state == State.NORMAL || state == State.PRESSED_ON_ITEM) &&
+					} else if (state == State.PRESSED_ON_ITEM &&
 					           deltaXFromDown < -scaledTouchSlop &&
 					           slideLeftListener != null && itemnum != AdapterView.INVALID_POSITION) {
 						setState(State.DRAGGING_VIEW_LEFT);
@@ -402,7 +400,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 		dragStartY = y;
 		final int itemnum = pointToPosition(x, y);
 		if (itemnum == AdapterView.INVALID_POSITION) return false;
-		if (!itemInBounds(itemnum)) return false;
+//		if (!itemInBounds(itemnum)) return false;
 		dragItemNum = itemnum;
 		final View item = getChildAt(itemnum - getFirstVisiblePosition());
 		dragPointX = x - item.getLeft();
@@ -415,6 +413,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 	private boolean startDragging() {
 		final View item = getDragItem();
 		if (item == null) return false;
+		if (!itemInBounds(dragItemNum)) return false;
 		item.setDrawingCacheEnabled(true);
 		final Bitmap bm = Bitmap.createBitmap(item.getDrawingCache());
 		windowParams = new WindowManager.LayoutParams();

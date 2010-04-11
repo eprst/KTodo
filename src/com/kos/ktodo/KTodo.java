@@ -124,10 +124,12 @@ public class KTodo extends ListActivity {
 		listView.setSlideLeftInfo(getSlidingView(), new MyListView.SlideLeftListener() {
 			public void slideLeftStarted(final long id) {
 				startEditingItem(id);
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 			}
 
 			public void onSlideBack() {
 				//Log.i(TAG, "slide back");
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 				saveItemBeingEdited();
 			}
 		});

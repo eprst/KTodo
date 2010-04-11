@@ -14,6 +14,5 @@
 		<activity android:name=".EditTags"
 		          android:label="@string/edit_tags"
 		          android:windowSoftInputMode="adjustResize"/>
-		<activity android:name=".dlg.SaveAsDialog"/>
 	</application>
 </manifest>
