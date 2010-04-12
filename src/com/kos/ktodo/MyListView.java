@@ -13,7 +13,13 @@ import android.widget.*;
 
 import java.util.ArrayList;
 
-public class MyListView extends ListView { //todo: haptic feedback on item drag
+/**
+ * Special list view and allows to drag items to the right and throw them off screen for removing
+ * or drag them to the left for editing (if associated with a <code>SlidingView</code>).
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
+public class MyListView extends ListView {
 	private static final String TAG = "MyListView";
 
 	private int maxThrowVelocity;

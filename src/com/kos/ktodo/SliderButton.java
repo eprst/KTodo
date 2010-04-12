@@ -8,6 +8,11 @@ import android.util.AttributeSet;
 import android.view.*;
 import android.widget.Button;
 
+/**
+ * A button for choosing a value from a list. Uses sliding motion to change current selection.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class SliderButton extends Button {
 	private final String prefix;
 	private final String separator;

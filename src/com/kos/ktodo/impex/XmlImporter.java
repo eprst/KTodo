@@ -23,6 +23,8 @@ import static com.kos.ktodo.Util.assumeEquals;
 
 /**
  * Tables to XML importer.
+ * 
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
 public class XmlImporter extends XmlBase {
 	private static final String TAG = "XmlImporter";

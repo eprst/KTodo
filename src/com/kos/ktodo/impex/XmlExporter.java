@@ -10,6 +10,8 @@ import java.io.*;
 
 /**
  * Tables to XML file exporter.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
 public class XmlExporter extends XmlBase {
 	public static final String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";

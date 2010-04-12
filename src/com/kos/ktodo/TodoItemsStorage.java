@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import static com.kos.ktodo.DBHelper.*;
 
+/**
+ * TodoItems storage.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class TodoItemsStorage {
 	private static final String TAG = "TodoItemsStorage";
 

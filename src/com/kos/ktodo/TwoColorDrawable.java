@@ -5,8 +5,13 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
+/**
+ * A drawable that fills backround using two colors, with a changeable proportion between them.
+ * Used to draw kind of a progress bar in the item background.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class TwoColorDrawable extends Drawable {
 	private TwoColorState s;
 	private final Paint p = new Paint();

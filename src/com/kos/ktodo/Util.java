@@ -5,6 +5,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
+/**
+ * Various utils.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class Util {
 	public static void assume(final boolean c) {
 		if (!c) throw new RuntimeException("assertion failed");

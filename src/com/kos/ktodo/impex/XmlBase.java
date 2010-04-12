@@ -1,5 +1,10 @@
 package com.kos.ktodo.impex;
 
+/**
+ * Base class for XML importer and exporter.
+ * 
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class XmlBase {
 	public static final String DATABASE_TAG = "database";
 	public static final String TABLE_TAG = "table";

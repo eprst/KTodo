@@ -7,6 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 import static com.kos.ktodo.DBHelper.*;
 
+/**
+ * Tags storage.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class TagsStorage {
 	private static final String TAG = "TagsStorage";
 

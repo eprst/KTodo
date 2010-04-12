@@ -11,6 +11,11 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 
+/**
+ * Edit tags activity.
+ *
+ * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
+ */
 public class EditTags extends ListActivity {
 	private static final String TAG = "EditTags";
 
