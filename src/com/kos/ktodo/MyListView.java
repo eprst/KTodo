@@ -27,7 +27,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 	private int dragStartX, dragStartY;
 	private int dragPointX;    // at what offset inside the item did the user grab it
 	private int /*coordOffsetY,*/ coordOffsetX;  // the difference between screen coordinates and coordinates in this view
-	private int scaledTouchSlop;
+	private final int scaledTouchSlop;
 	private boolean scrolling;
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
 	private MyScroller flightScroller;

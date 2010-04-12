@@ -5,8 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
+import android.view.*;
 import android.widget.Button;
 
 public class SliderButton extends Button {
@@ -16,6 +15,7 @@ public class SliderButton extends Button {
 	private final String[] suffixedValues;
 	private OnChangeListener onChangeListener;
 
+	private final int scaledTouchSlop;
 	private int currentSelection;
 	private boolean sliding;
 	private int slideStartX;
@@ -25,6 +25,8 @@ public class SliderButton extends Button {
 
 	public SliderButton(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
+//		final ViewConfiguration viewConfiguration = ViewConfiguration.get(context);
+		scaledTouchSlop = 2;//viewConfiguration.getScaledTouchSlop();
 		prefix = getText().toString();
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SliderButton);
 		final String valueSuffix = ta.getString(R.styleable.SliderButton_valueSuffix);
@@ -90,23 +92,31 @@ public class SliderButton extends Button {
 			case MotionEvent.ACTION_MOVE:
 				final int unit = getWidth() / (values.length + 2);
 				final int delta = (int) (event.getX() - slideStartX);
+				if (!sliding && (delta > scaledTouchSlop || delta < -scaledTouchSlop))
+					sliding = true;
 				final int selDelta = delta / unit;
 				int newSelection = slideStartIndex + selDelta;
 				if (newSelection < 0) newSelection = 0;
 				if (newSelection >= values.length) newSelection = values.length - 1;
-				if (newSelection != currentSelection) {
-					sliding = true;
-					setSelection(newSelection);
-					notifyOnChangeListener();
+				if (sliding) {
 					if (dlg == null) {
 						final AlertDialog.Builder b = new AlertDialog.Builder(getContext());
 						b.setTitle(prefix);
 						b.setMessage(suffixedValues[newSelection]);
 						dlg = b.create();
 						dlg.show();
+						final Window dwin = dlg.getWindow();
+						final WindowManager.LayoutParams lp = dwin.getAttributes();
+						lp.dimAmount = 0f;
+						lp.windowAnimations = 0;
+						dwin.setAttributes(lp);
 					} else {
 						dlg.setMessage(suffixedValues[newSelection]);
 					}
+				}
+				if (newSelection != currentSelection) {
+					setSelection(newSelection);
+					notifyOnChangeListener();
 				}
 				break;
 			case MotionEvent.ACTION_UP:
