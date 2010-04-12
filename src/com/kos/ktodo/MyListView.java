@@ -127,6 +127,7 @@ public class MyListView extends ListView { //todo: haptic feedback on item drag
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MyListView);
 		maxThrowVelocity = ta.getInt(R.styleable.MyListView_maxThrowVelocity, 1500);
 		vibrateOnTearOff = ta.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
+		ta.recycle();
 	}
 
 	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {

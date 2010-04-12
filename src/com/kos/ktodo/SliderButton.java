@@ -57,6 +57,8 @@ public class SliderButton extends Button {
 				b.show();
 			}
 		});
+
+		ta.recycle();
 	}
 
 	public void setOnChangeListener(final OnChangeListener onChangeListener) {

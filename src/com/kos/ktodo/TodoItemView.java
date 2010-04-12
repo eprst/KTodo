@@ -1,24 +1,39 @@
 package com.kos.ktodo;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
-public class PriorityCheckedTextView extends CheckedTextView {
+public class TodoItemView extends CheckedTextView {
 	private String prio;
 	private int paddingRight;
 	private int checkMarkWidth;
 
-	public PriorityCheckedTextView(final Context context, final AttributeSet attrs) {
+	private TwoColorDrawable tcd;
+	private int progress;
+
+	public TodoItemView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
+		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.TodoItemView);
+		final int c1 = ta.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
+		final int c2 = ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY);
+		tcd = new TwoColorDrawable(c1, c2);
+		ta.recycle();
+		setBackgroundDrawable(tcd);
 	}
 
 	public void setPrio(final int prio) {
 		this.prio = Integer.toString(prio);
-//		this.prio = Integer.toString((int) (System.currentTimeMillis() % 10));
+	}
+
+	public void setProgress(final int progress) {
+		this.progress = progress;
+		tcd.setPercent(progress);
 	}
 
 	@Override
@@ -34,6 +49,25 @@ public class PriorityCheckedTextView extends CheckedTextView {
 			checkMarkWidth = d.getIntrinsicWidth();
 			mPaddingRight += 20;
 		}
+	}
+
+	@Override
+	public void setSelected(final boolean selected) {
+		super.setSelected(selected);
+		updateBackground();
+	}
+
+	@Override
+	public void setPressed(final boolean pressed) {
+		super.setPressed(pressed);
+		updateBackground();
+	}
+
+	private void updateBackground() {
+		if (isSelected() || isPressed())
+			setBackgroundDrawable(null);
+		else
+			setBackgroundDrawable(tcd);
 	}
 
 	@Override

@@ -10,6 +10,8 @@ import static com.kos.ktodo.DBHelper.*;
 public class TodoItemsStorage {
 	private static final String TAG = "TodoItemsStorage";
 
+	private static final String[] ALL_COLUMNS = new String[]{TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS};
+
 	private SQLiteDatabase db;
 	private DBHelper helper;
 
@@ -28,7 +30,7 @@ public class TodoItemsStorage {
 	public TodoItem addTodoItem(final TodoItem item) {
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
-		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio);
+		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress);
 	}
 
 	private ContentValues fillValues(final TodoItem item) {
@@ -40,6 +42,7 @@ public class TodoItemsStorage {
 		cv.put(TODO_SUMMARY, item.summary);
 		cv.put(TODO_BODY, item.body);
 		cv.put(TODO_PRIO, item.prio);
+		cv.put(TODO_PROGRESS, item.progress);
 		return cv;
 	}
 
@@ -67,8 +70,7 @@ public class TodoItemsStorage {
 	}
 
 	public Cursor getByTagCursor(final long tagID) {
-		return db.query(TODO_TABLE_NAME, new String[]{TODO_ID, TODO_DONE, TODO_BODY, TODO_SUMMARY, TODO_PRIO},
-				getTagConstraint(tagID), null, null, null, TODO_PRIO + " ASC");
+		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, getTagConstraint(tagID), null, null, null, TODO_PRIO + " ASC");
 	}
 
 	public Cursor getByTagCursorExcludingCompleted(final long tagID) {
@@ -76,8 +78,7 @@ public class TodoItemsStorage {
 		final String doneConstraint = TODO_DONE + " = 0";
 		final String constraint = tagConstraint == null ? doneConstraint :
 		                          tagConstraint + " AND " + doneConstraint;
-		return db.query(TODO_TABLE_NAME, new String[]{TODO_ID, TODO_DONE, TODO_BODY, TODO_SUMMARY, TODO_PRIO},
-				constraint, null, null, null, TODO_PRIO + " ASC");
+		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, constraint, null, null, null, TODO_PRIO + " ASC");
 	}
 
 	private String getTagConstraint(final long tagID) {
@@ -85,18 +86,17 @@ public class TodoItemsStorage {
 	}
 
 	public TodoItem loadTodoItem(final long id) {
-		final Cursor cursor = db.query(TODO_TABLE_NAME, new String[]{
-				TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO},
-				TODO_ID + "=" + id, null, null, null, TODO_PRIO);
+		final Cursor cursor = db.query(TODO_TABLE_NAME, ALL_COLUMNS, TODO_ID + "=" + id, null, null, null, TODO_PRIO);
 		TodoItem res = null;
 		if (cursor.moveToFirst()) {
 			res = new TodoItem(
 					id,
-					cursor.getInt(0),
-					cursor.getInt(1) != 0,
-					cursor.getString(2),
+					cursor.getInt(1),
+					cursor.getInt(2) != 0,
 					cursor.getString(3),
-					cursor.getInt(4)
+					cursor.getString(4),
+					cursor.getInt(5),
+					cursor.getInt(6)
 			);
 		}
 		cursor.close();

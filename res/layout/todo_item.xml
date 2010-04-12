@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.kos.ktodo.PriorityCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
-                                       android:id="@+id/todo_item"
-                                       android:layout_width="fill_parent"
-                                       android:layout_height="40sp"
-                                       android:textAppearance="?android:attr/textAppearanceMedium"
-                                       android:gravity="center_vertical"
-                                       android:checkMark="?android:attr/textCheckMark"
-                                       android:maxLines="1"
-                                       android:singleLine="true"
-                                       android:paddingLeft="6dip"
-                                       android:paddingRight="6dip"/>
+<com.kos.ktodo.TodoItemView
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:kos="http://schemas.android.com/apk/res/com.kos.ktodo"
+		android:id="@+id/todo_item"
+		android:layout_width="fill_parent"
+		android:layout_height="40sp"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:gravity="center_vertical"
+		android:checkMark="?android:attr/textCheckMark"
+		android:maxLines="1"
+		android:singleLine="true"
+		android:paddingLeft="6dip"
+		android:paddingRight="6dip"
+		kos:progress0Color="@color/progress_0"
+		kos:progress100Color="@color/progress_100"/>

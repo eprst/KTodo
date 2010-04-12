@@ -30,7 +30,8 @@ public class KTodo extends ListActivity {
 	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
 	private final int CHANGE_PRIO_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 2;
-	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 3;
+	private final int CHANGE_PROGRESS_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 3;
+	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 4;
 
 //	private final Random rnd = new Random();
 //	private final HashMap<Integer, SubActivityCallback> subCallbacks = new HashMap<Integer, SubActivityCallback>(5);
@@ -114,8 +115,9 @@ public class KTodo extends ListActivity {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-				todoItem.done = !todoItem.done;
+				todoItem.setDone(!todoItem.done);
 				todoItemsStorage.saveTodoItem(todoItem);
+				((Checkable) view).setChecked(todoItem.done);
 				updateView();
 			}
 		});
@@ -154,8 +156,19 @@ public class KTodo extends ListActivity {
 			}
 		});
 
+		getPrioSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
+			public void valueChanged(final String newValue) {
+				editingItem.prio = Integer.parseInt(newValue);
+			}
+		});
+
+		getProgressSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
+			public void valueChanged(final String newValue) {
+				editingItem.setProgress(Integer.parseInt(newValue));
+			}
+		});
+
 		registerForContextMenu(listView);
-		setupSlidingPrioButton();
 	}
 
 
@@ -207,7 +220,8 @@ public class KTodo extends ListActivity {
 		if (position != -1)
 			spinner.setSelection(position);
 
-		updateSlidingPrioButton();
+		getPrioSliderButton().setSelection(editingItem.prio - 1);
+		getProgressSliderButton().setSelection(editingItem.progress / 10);
 	}
 
 	private void saveItemBeingEdited() {
@@ -227,18 +241,6 @@ public class KTodo extends ListActivity {
 		return -1;
 	}
 
-	private void setupSlidingPrioButton() {
-		getPrioSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
-			public void valueChanged(final String newValue) {
-				editingItem.prio = Integer.parseInt(newValue);
-			}
-		});
-	}
-
-	private void updateSlidingPrioButton() {
-		getPrioSliderButton().setSelection(editingItem.prio - 1);
-	}
-
 	private void reloadTodoItems() {
 		allTagsCursor.requery();
 
@@ -254,19 +256,19 @@ public class KTodo extends ListActivity {
 
 		final int doneIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DONE);
 		final int prioIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PRIO);
+		final int progressIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PROGRESS);
 		startManagingCursor(currentTagItemsCursor);
 		final ListAdapter todoAdapter = new SimpleCursorAdapter(
-//				this, android.R.layout.simple_list_item_checked,
 				this, R.layout.todo_item,
 				currentTagItemsCursor,
-				//new String[]{DBHelper.TODO_SUMMARY}, new int[]{android.R.id.text1}) {
 				new String[]{DBHelper.TODO_SUMMARY}, new int[]{R.id.todo_item}) {
 			@Override
 			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
 				final View view = super.newView(context, cursor, parent);
-				final PriorityCheckedTextView ctv = (PriorityCheckedTextView) view;
+				final TodoItemView ctv = (TodoItemView) view;
 				ctv.setChecked(cursor.getInt(doneIndex) != 0);
 				ctv.setPrio(cursor.getInt(prioIndex));
+				ctv.setProgress(cursor.getInt(progressIndex));
 				return view;
 			}
 
@@ -274,9 +276,10 @@ public class KTodo extends ListActivity {
 			public void bindView(final View view, final Context context, final Cursor cursor) {
 				super.bindView(view, context, cursor);
 				view.getId();
-				final PriorityCheckedTextView ctv = (PriorityCheckedTextView) view;
+				final TodoItemView ctv = (TodoItemView) view;
 				ctv.setChecked(cursor.getInt(doneIndex) != 0);
 				ctv.setPrio(cursor.getInt(prioIndex));
+				ctv.setProgress(cursor.getInt(progressIndex));
 			}
 		};
 
@@ -365,16 +368,12 @@ public class KTodo extends ListActivity {
 	private void addTodoItem() {
 		long currentTagID = getCurrentTagID();
 		if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID) {
-//			final AlertDialog.Builder b = new AlertDialog.Builder(this);
-//			b.setMessage(R.string.intro);
-//			b.show();
 			currentTagID = DBHelper.UNFILED_METATAG_ID;
 		}
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
 		if (st.length() > 0) {
-			todoItemsStorage.addTodoItem(new TodoItem(
-					-1, currentTagID, false, st, null, defaultPrio));
+			todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0));
 			et.setText("");
 			et.requestFocus();
 			updateView();
@@ -393,8 +392,6 @@ public class KTodo extends ListActivity {
 	private void updateView() {
 		allTagsCursor.requery();
 		currentTagItemsCursor.requery();
-//		final boolean b = tagsAdapter.getCount() > 0;
-//		getAddTaskButton().setEnabled(b);
 	}
 
 	private void setCurrentTag(final long id) {
@@ -442,6 +439,7 @@ public class KTodo extends ListActivity {
 		menu.add(0, EDIT_ITEM_CONTEXT_MENU_ITEM, Menu.NONE, R.string.edit);
 		menu.add(0, CHANGE_TAG_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_tag);
 		menu.add(0, CHANGE_PRIO_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_prio);
+		menu.add(0, CHANGE_PROGRESS_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_progress);
 		menu.add(0, DELETE_ITEM_CONTEXT_MENU_ITEM, Menu.NONE, R.string.delete);
 	}
 
@@ -451,6 +449,7 @@ public class KTodo extends ListActivity {
 		if (info == null) return false;
 		final long id = getListAdapter().getItemId(info.position);
 		final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+		final AlertDialog.Builder b;
 		switch (item.getItemId()) {
 			case EDIT_ITEM_CONTEXT_MENU_ITEM:
 				startEditingItem(id);
@@ -471,8 +470,22 @@ public class KTodo extends ListActivity {
 					}
 				});
 				return true;
+			case CHANGE_PROGRESS_CONTEXT_MENU_ITEM:
+				b = new AlertDialog.Builder(this);
+				b.setTitle(R.string.select_progress_title);
+				b.setItems(new CharSequence[]{
+						"0%", "10%", "20%", "30%", "40%", "50%",
+						"60%", "70%", "80%", "90%", "100%"}, new DialogInterface.OnClickListener() {
+					public void onClick(final DialogInterface dialog, final int which) {
+						todoItem.setProgress(which * 10);
+						todoItemsStorage.saveTodoItem(todoItem);
+						updateView();
+					}
+				});
+				b.show();
+				return true;
 			case CHANGE_TAG_CONTEXT_MENU_ITEM:
-				final AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_tag_title);
 				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID, DBHelper.ALL_TAGS_METATAG_ID);
 				final ListAdapter adapter = createTagsAdapter(cursor, android.R.layout.simple_dropdown_item_1line);
@@ -626,6 +639,10 @@ public class KTodo extends ListActivity {
 
 	private SliderButton getPrioSliderButton() {
 		return (SliderButton) findViewById(R.id.prio_sliding_button);
+	}
+
+	private SliderButton getProgressSliderButton() {
+		return (SliderButton) findViewById(R.id.progress_sliding_button);
 	}
 
 	private interface PrioSelectedCallback {

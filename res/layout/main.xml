@@ -20,6 +20,7 @@
 		                          android:layoutAnimation="@anim/list_slide_left"
 		                          android:id="@id/android:list"
 		                          android:nextFocusRight="@id/android:list"
+		                          android:scrollingCache="false"
 		                          kos:vibrateOnTearOff="20"
 		                          kos:maxThrowVelocity="1500"/>
 		<LinearLayout android:layout_height="wrap_content"
@@ -63,6 +64,8 @@
 		<EditText
 				android:id="@+id/edit_task_body"
 				android:inputType="textMultiLine"
+				android:autoLink="none"
+				android:autoText="true"
 				android:gravity="top"
 				android:singleLine="false"
 				android:imeOptions="actionDone"

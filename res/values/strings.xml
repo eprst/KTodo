@@ -19,6 +19,8 @@
 	<string name="priority">Priority</string>
 	<string name="select_prio_title">Select priority</string>
 	<string name="change_prio">Change priority</string>
+	<string name="change_progress">Change progress</string>
+	<string name="select_progress_title">Select progress</string>
 	<string name="change_tag">Move</string>
 	<string name="all">All</string>
 	<string name="unfiled">Unfiled</string>

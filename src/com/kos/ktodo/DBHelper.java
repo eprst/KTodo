@@ -25,6 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TODO_SUMMARY = "summary";
 	public static final String TODO_BODY = "body";
 	public static final String TODO_PRIO = "prio";
+	public static final String TODO_PROGRESS = "progress";
 
 	private final Context context;
 
@@ -45,16 +46,11 @@ public class DBHelper extends SQLiteOpenHelper {
 		                                 TODO_DONE + " boolean not null, " +
 		                                 TODO_SUMMARY + " text not null, " +
 		                                 TODO_PRIO + " integer default 1 not null, " +
+		                                 TODO_PROGRESS + " integer default 0 not null, " +
 		                                 TODO_BODY + " text nullable);";
 		sqLiteDatabase.execSQL(CREATE_TAG_TABLE);
 		sqLiteDatabase.execSQL(CREATE_TODO_TABLE);
 
-//		final ContentValues cv = new ContentValues();
-//		cv.put(TODO_DONE, 0);
-//		cv.put(TODO_PRIO, 1);
-//		cv.put(TODO_SUMMARY, context.getString(R.string.intro));
-//		cv.put(TODO_TAG_ID, AdapterView.INVALID_ROW_ID); //hack hack hack :]
-//		sqLiteDatabase.insert(TODO_TABLE_NAME, null, cv);
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_ID, ALL_TAGS_METATAG_ID);
 		cv.put(TAG_TAG, context.getString(R.string.all)); //will be localized in KTodo anyways
