@@ -93,9 +93,7 @@ public class XmlImporter extends XmlBase {
 				assumeEquals(XmlPullParser.START_TAG, et);
 				assumeEquals(COLUMN_TAG, p.getName());
 				final String cname = p.getAttributeValue(null, NAME_ATTR);
-				String val = p.nextText();
-				if (val == null) val = "";
-				val = Entities.XML.unescape(val);
+				final String val = unescape(p.nextText());
 
 				if (pkRemapping == null || !cname.equals(pkColumn))
 					cv.put(cname, val);
