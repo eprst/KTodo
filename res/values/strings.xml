@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="intro">Add some tags using menu -> Edit tags</string>
 	<string name="app_name">KTodo</string>
 	<string name="edit_tags">Edit tags</string>
 	<string name="show_completed_items">Show checked</string>
@@ -21,7 +20,7 @@
 	<string name="change_prio">Change priority</string>
 	<string name="change_progress">Change progress</string>
 	<string name="select_progress_title">Select progress</string>
-	<string name="change_tag">Move</string>
+	<string name="change_tag">Change tag</string>
 	<string name="all">All</string>
 	<string name="unfiled">Unfiled</string>
 	<string name="export">Export</string>

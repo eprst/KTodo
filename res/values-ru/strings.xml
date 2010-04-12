@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="edit_tags">Ред. тэги</string>
+	<string name="show_completed_items">Показать готовые</string>
+	<string name="hide_completed_items">Спрятать готовые</string>
+	<string name="add">Ага</string>
+	<string name="rename">Переименовать</string>
+	<string name="delete">Удалить</string>
+	<string name="edit">Редактировать</string>
+	<string name="rename_tag_title">Ред. тэга</string>
+	<string name="new_tag_name_text">Новое имя</string>
+	<string name="tag_already_exists">Такой тэг уже есть</string>
+	<string name="delete_tag_title">Удалить тэг</string>
+	<string name="items_depend_on_tag">Этому тэгу принадлежит %d элементов. Что с ними делать?</string>
+	<string name="move">Переместить</string>
+	<string name="select_tag_title">Выберите тэг</string>
+	<string name="priority">Приоритет</string>
+	<string name="select_prio_title">Выберите приоритет</string>
+	<string name="change_prio">Изменить приоритет</string>
+	<string name="change_progress">Изменить прогресс</string>
+	<string name="select_progress_title">Выберите прогресс</string>
+	<string name="change_tag">Сменить тэг</string>
+	<string name="all">Все</string>
+	<string name="unfiled">Без тэга</string>
+	<string name="export">Экспорт</string>
+	<string name="export_file_name">Файл экспорта</string>
+	<string name="exporting_data">Экспортирую</string>
+	<string name="_import">Импорт</string>
+	<string name="import_file_name">Файл импорта</string>
+	<string name="importing_data">Импортирую</string>
+	<string name="error">Ошибка</string>
+	<string name="wipe">Удалить имеющиеся данные</string>
+	<string name="progress">Прогресс</string>
+</resources>
