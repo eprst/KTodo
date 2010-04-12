@@ -58,11 +58,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_ID, ALL_TAGS_METATAG_ID);
-		cv.put(TAG_TAG, context.getString(R.string.all)); //will be localized in KTodo anyways
+		cv.put(TAG_TAG, context.getString(R.string.all_untranslated)); //will be localized in KTodo
 		cv.put(TAG_ORDER, 1);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
 		cv.put(TAG_ID, UNFILED_METATAG_ID);
-		cv.put(TAG_TAG, context.getString(R.string.unfiled)); //will be localized in KTodo anyways
+		cv.put(TAG_TAG, context.getString(R.string.unfiled_untranslated)); //will be localized in KTodo
 		cv.put(TAG_ORDER, 100);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
 	}
