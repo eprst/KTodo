@@ -26,8 +26,10 @@
 	<string name="unfiled">Unfiled</string>
 	<string name="export">Export</string>
 	<string name="export_file_name">Export file name</string>
+	<string name="exporting_data">Exporting data</string>
 	<string name="_import">Import</string>
 	<string name="import_file_name">Import file name</string>
+	<string name="importing_data">Importing data</string>
 	<string name="error">Error</string>
 	<string name="wipe">Wipe existing data</string>
 	<string name="progress">Progress</string> <!-- Complete? Finished? Done? -->

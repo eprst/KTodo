@@ -2,6 +2,8 @@ package com.kos.ktodo;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
@@ -9,11 +11,21 @@ import android.widget.Scroller;
 public class SlidingView extends FrameLayout {
 	private static final String TAG = "SlidingView";
 	private SlideListener slideListener;
-	final Scroller scroller;
+	private final Scroller scroller;
+	private boolean fixAfterOrientationChanged;
 
 	public SlidingView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		scroller = new Scroller(context, new LinearInterpolator());
+
+		getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+			public void onGlobalLayout() {
+				if (fixAfterOrientationChanged) {
+					fixAfterOrientationChanged = false;
+					scrollTo(getWidth(), 0);
+				}
+			}
+		});
 	}
 
 	public void setSlideListener(final SlideListener slideListener) {
@@ -48,6 +60,11 @@ public class SlidingView extends FrameLayout {
 		invalidate();
 		getChildAt(0).requestFocus();
 		postInvalidate();
+	}
+
+	public void fixAfterOrientationChange() {
+		if (!isOnLeft()) 
+			fixAfterOrientationChanged = true;
 	}
 
 	@Override

@@ -3,13 +3,16 @@ package com.kos.ktodo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -171,6 +174,11 @@ public class KTodo extends ListActivity {
 		registerForContextMenu(listView);
 	}
 
+	@Override
+	public void onConfigurationChanged(final Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		getSlidingView().fixAfterOrientationChange();
+	}
 
 	private SimpleCursorAdapter createTagsAdapter(final Cursor cursor, final int layout) {
 		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
@@ -239,6 +247,14 @@ public class KTodo extends ListActivity {
 			if (a.getItemId(i) == id)
 				return i;
 		return -1;
+	}
+
+	private void reloadTodoItemsFromAnotherThread() {
+		handler.post(new Runnable() {
+			public void run() {
+				reloadTodoItems();
+			}
+		});
 	}
 
 	private void reloadTodoItems() {
@@ -538,18 +554,30 @@ public class KTodo extends ListActivity {
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
 				final String st = editText.getText().toString();
-				try {
-					XmlExporter.exportData(KTodo.this, new File(st));
-				} catch (IOException e) {
-					Log.e(TAG, "error exporting data", e);
-					new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setMessage(e.toString()).show();
-				}
+				runAsynchronously(R.string.export, R.string.exporting_data, new Runnable() {
+					public void run() {
+						try {
+							XmlExporter.exportData(KTodo.this, new File(st));
+						} catch (IOException e) {
+							Log.e(TAG, "error exporting data", e);
+							showErrorFromAnotherThread(e.toString());
+						}
+					}
+				});
 			}
 		});
 
 		final AlertDialog dialog = b.create();
 		Util.setupEditTextEnterListener(editText, dialog);
 		dialog.show();
+	}
+
+	private void showErrorFromAnotherThread(final String msg) {
+		handler.post(new Runnable() {
+			public void run() {
+				new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setMessage(msg).show();
+			}
+		});
 	}
 
 	private void importData() {
@@ -572,19 +600,40 @@ public class KTodo extends ListActivity {
 					tagsStorage.deleteAllTags();
 				}
 				final String st = editText.getText().toString();
-				try {
-					XmlImporter.importData(KTodo.this, new File(st), false);
-				} catch (IOException e) {
-					Log.e(TAG, "error importing data", e);
-					new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setMessage(e.toString()).show();
-				}
-				reloadTodoItems();
+				runAsynchronously(R.string._import, R.string.importing_data, new Runnable() {
+					public void run() {
+						try {
+							XmlImporter.importData(KTodo.this, new File(st), false);
+						} catch (IOException e) {
+							Log.e(TAG, "error importing data", e);
+							showErrorFromAnotherThread(e.toString());
+						}
+						reloadTodoItemsFromAnotherThread();
+					}
+				});
 			}
 		});
 
 		final AlertDialog dialog = b.create();
 		Util.setupEditTextEnterListener(editText, dialog);
 		dialog.show();
+	}
+
+	private void runAsynchronously(final int title, final int message, final Runnable r) {
+		final ProgressDialog pg = ProgressDialog.show(this, getString(title), getString(message), true);
+		final Handler h = new Handler() {
+			@Override
+			public void handleMessage(final Message msg) {
+				pg.dismiss();
+			}
+		};
+		final Runnable r2 = new Runnable() {
+			public void run() {
+				r.run();
+				h.sendEmptyMessage(0);
+			}
+		};
+		new Thread(r2).start();
 	}
 
 /*	private void startSubActivity(final Class subActivityClass, final SubActivityCallback callback, final Bundle params) {
