@@ -11,11 +11,14 @@ import android.widget.CheckedTextView;
 
 public class TodoItemView extends CheckedTextView {
 	private String prio;
+	private boolean showNotesMark;
 	private int paddingRight;
 	private int checkMarkWidth;
 
-	private TwoColorDrawable tcd;
-	private int progress;
+	private final TwoColorDrawable tcd;
+	private final Drawable notesDrawable;
+
+	private final float[] ar = new float[2];
 
 	public TodoItemView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
@@ -23,6 +26,7 @@ public class TodoItemView extends CheckedTextView {
 		final int c1 = ta.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
 		final int c2 = ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY);
 		tcd = new TwoColorDrawable(c1, c2);
+		notesDrawable = ta.getDrawable(R.styleable.TodoItemView_notesDrawable);
 		ta.recycle();
 		setBackgroundDrawable(tcd);
 	}
@@ -32,8 +36,11 @@ public class TodoItemView extends CheckedTextView {
 	}
 
 	public void setProgress(final int progress) {
-		this.progress = progress;
 		tcd.setPercent(progress);
+	}
+
+	public void setShowNotesMark(final boolean showNotesMark) {
+		this.showNotesMark = showNotesMark;
 	}
 
 	@Override
@@ -74,12 +81,18 @@ public class TodoItemView extends CheckedTextView {
 	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
 		final Paint p = new Paint(getPaint());
-//		p.setColor(Color.CYAN);
-//		final int pl = getPaddingLeft();
-//		Log.i("foo", "checkMarkWidth=" + checkMarkWidth);
 		final int sz = checkMarkWidth / 2;
 		p.setTextSize(sz - 2);
 		final int pl = getWidth() - checkMarkWidth - paddingRight - sz;
-		canvas.drawPosText(prio, new float[]{pl, sz + 2}, p);
+		ar[0] = pl;
+		ar[1] = sz + 2;
+		canvas.drawPosText(prio, ar, p);
+		if (showNotesMark && notesDrawable != null) {
+			final int ih = notesDrawable.getIntrinsicHeight();
+			final int iw = notesDrawable.getIntrinsicWidth();
+			final int height = getHeight();
+			notesDrawable.setBounds(pl - 2, height - ih - 4, pl - 2 + iw, height - 4);
+			notesDrawable.draw(canvas);
+		}
 	}
 }

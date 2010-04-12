@@ -4,10 +4,10 @@
 
 [v] try smaller items, currently on 6 fit on one screen
 [-] when on right screen: soft keyboard should hide priority buttons | pan looks bad
-[ ] Add a small indication that an item has notes
+[v] Add a small indication that an item has notes
 [v] % done
 [v] bug: long tap - menu - drag left
-[ ] faster item check/uncheck response
+[-] faster item check/uncheck response | setting mark explicitly doesn't help
 [ ] import/export not in UI thread
 [ ] auto-link in notes body?
 

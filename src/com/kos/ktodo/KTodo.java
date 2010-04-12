@@ -257,6 +257,7 @@ public class KTodo extends ListActivity {
 		final int doneIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DONE);
 		final int prioIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PRIO);
 		final int progressIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PROGRESS);
+		final int bodyIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_BODY);
 		startManagingCursor(currentTagItemsCursor);
 		final ListAdapter todoAdapter = new SimpleCursorAdapter(
 				this, R.layout.todo_item,
@@ -265,10 +266,7 @@ public class KTodo extends ListActivity {
 			@Override
 			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
 				final View view = super.newView(context, cursor, parent);
-				final TodoItemView ctv = (TodoItemView) view;
-				ctv.setChecked(cursor.getInt(doneIndex) != 0);
-				ctv.setPrio(cursor.getInt(prioIndex));
-				ctv.setProgress(cursor.getInt(progressIndex));
+				initView((TodoItemView) view, cursor);
 				return view;
 			}
 
@@ -276,10 +274,15 @@ public class KTodo extends ListActivity {
 			public void bindView(final View view, final Context context, final Cursor cursor) {
 				super.bindView(view, context, cursor);
 				view.getId();
-				final TodoItemView ctv = (TodoItemView) view;
+				initView((TodoItemView) view, cursor);
+			}
+
+			private void initView(final TodoItemView ctv, final Cursor cursor) {
 				ctv.setChecked(cursor.getInt(doneIndex) != 0);
 				ctv.setPrio(cursor.getInt(prioIndex));
 				ctv.setProgress(cursor.getInt(progressIndex));
+				final String body = cursor.getString(bodyIndex);
+				ctv.setShowNotesMark(body != null && body.length() > 0);
 			}
 		};
 

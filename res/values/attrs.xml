@@ -12,5 +12,6 @@
 	<declare-styleable name="TodoItemView">
 		<attr name="progress0Color" format="color"/>
 		<attr name="progress100Color" format="color"/>
+		<attr name="notesDrawable" format="reference"/>
 	</declare-styleable>
 </resources>
