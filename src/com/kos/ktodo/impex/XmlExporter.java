@@ -39,7 +39,8 @@ public class XmlExporter extends XmlBase {
 				w.newLine();
 				for (int i = 0; i < cols; i++) {
 					openTag(COLUMN_TAG, NAME_ATTR, c.getColumnName(i));
-					w.append(c.getString(i));
+					final String s = Entities.XML.escape(c.getString(i));
+					w.append(s);
 					closeTag(COLUMN_TAG);
 					w.newLine();
 				}
