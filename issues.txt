@@ -1,6 +1,6 @@
 [v] can't drag left when an item is partially visible
 [v] possible to leave main view half-slided
-[v] editor state isn't saved (on screen rotation) : fixed, no only focus is lost
+[v] editor state isn't saved (on screen rotation) : fixed
 
 [v] try smaller items, currently on 6 fit on one screen
 [-] when on right screen: soft keyboard should hide priority buttons | no way to do this as of android 2.1
@@ -10,5 +10,6 @@
 [-] faster item check/uncheck response | setting mark explicitly doesn't help
 [v] import/export not in UI thread
 [ ] auto-link in notes body?
+[ ] real Open/Save As dialogs for import/export
 
-[ ] Russian translation
+[v] Russian translation
