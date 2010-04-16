@@ -321,7 +321,7 @@ public class MyListView extends ListView {
 			case DRAGGING_ITEM:
 				dragVelocityTracker.addMovement(ev, false);
 				off = x - dragPointX + coordOffsetX;
-				if (off < 0) {
+				if (off < 0 && slideLeftListener != null) {
 					setState(State.DRAGGING_VIEW_LEFT);
 					slideLeftListener.slideLeftStarted(getItemIdAtPosition(dragItemNum));
 				} else {
