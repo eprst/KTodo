@@ -129,6 +129,7 @@ public class KTodo extends ListActivity {
 			public void slideLeftStarted(final long id) {
 				startEditingItem(id);
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
 			}
 
 			public void onSlideBack() {

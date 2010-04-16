@@ -14,6 +14,7 @@ public class TodoItemView extends CheckedTextView {
 	private boolean showNotesMark;
 	private int paddingRight;
 	private int checkMarkWidth;
+	private int minHeight;
 
 	private final TwoColorDrawable tcd;
 	private final Drawable notesDrawable;
@@ -75,6 +76,16 @@ public class TodoItemView extends CheckedTextView {
 			setBackgroundDrawable(null);
 		else
 			setBackgroundDrawable(tcd);
+	}
+
+	@Override
+	public void setMinHeight(final int minHeight) {
+		//this allows to workaround the fact that setCheckmarkDrawable sets min heigh to 72 (check mark height)
+		//essentially we make the value set in constructor (and thus obtained from xml) to be the final one
+		if (this.minHeight == 0) {
+			this.minHeight = minHeight;
+			super.setMinHeight(minHeight);
+		}
 	}
 
 	@Override
