@@ -54,7 +54,7 @@ public class TodoItemView extends CheckedTextView {
 		super.setCheckMarkDrawable(d);
 		if (d != null) {
 			checkMarkWidth = d.getIntrinsicWidth();
-			mPaddingRight += 20;
+			mPaddingRight = 2 * checkMarkWidth;
 		}
 	}
 
