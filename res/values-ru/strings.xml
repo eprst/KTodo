@@ -19,7 +19,7 @@
 	<string name="change_prio">Изменить приоритет</string>
 	<string name="change_progress">Изменить прогресс</string>
 	<string name="select_progress_title">Выберите прогресс</string>
-	<string name="change_tag">Сменить тэг</string>
+	<string name="change_tag">Изменить тэг</string>
 	<string name="all">Все</string>
 	<string name="unfiled">Без тэга</string>
 	<string name="export">Экспорт</string>
