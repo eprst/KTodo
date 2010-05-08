@@ -509,8 +509,8 @@ public class MyListView extends ListView {
 				setState(State.NORMAL); //we're out of screen; todo: this could be a flight
 			else {
 				final View item = getDragItem();
-				if (item != null) item.setVisibility(View.INVISIBLE);
 				dragView.setVisibility(View.VISIBLE);
+				if (item != null) item.setVisibility(View.INVISIBLE);
 				windowParams.y = getDragItemY();
 				windowManager.updateViewLayout(dragView, windowParams);
 				lastDragX = x;
@@ -533,6 +533,7 @@ public class MyListView extends ListView {
 
 	private void stopDragging() {
 		intercepted.clear();
+		unExpandViews(true);
 		if (dragView != null) {
 			final Context mContext = getContext();
 			final WindowManager wm = (WindowManager) mContext.getSystemService("window");
@@ -545,7 +546,6 @@ public class MyListView extends ListView {
 			dragBitmap.recycle();
 			dragBitmap = null;
 		}
-		unExpandViews(true);
 	}
 
 	private void unExpandViews(final boolean deletion) { //todo: remove unnecessary stuff
