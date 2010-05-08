@@ -4,7 +4,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 /**
- * Helper for tracking the velocity of touch events. Can uses raw coordinates.
+ * Helper for tracking the velocity of touch events. Can use raw coordinates.
  */
 public final class RawVelocityTracker {
 	static final String TAG = "VelocityTracker";

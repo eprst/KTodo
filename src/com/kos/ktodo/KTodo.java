@@ -117,11 +117,18 @@ public class KTodo extends ListActivity {
 
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-				todoItem.setDone(!todoItem.done);
-				todoItemsStorage.saveTodoItem(todoItem);
-				((Checkable) view).setChecked(todoItem.done);
-				updateView();
+				//making it async (uncommenting this code) seems to make it visually worse
+//				final TodoItemView tiv = (TodoItemView) view;
+//				tiv.toggle();
+
+//				handler.post(new Runnable() {
+//					public void run() {
+						final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+						todoItem.setDone(!todoItem.done);
+						todoItemsStorage.saveTodoItem(todoItem);
+						updateView();
+//					}
+//				});
 			}
 		});
 
