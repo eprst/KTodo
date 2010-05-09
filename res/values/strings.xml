@@ -23,6 +23,7 @@
 	<string name="change_progress">Change progress</string>
 	<string name="select_progress_title">Select progress</string>
 	<string name="change_tag">Change tag</string>
+	<string name="change_due_date">Change due date</string>
 	<string name="all">All</string>
 	<string name="unfiled">Unfiled</string>
 	<string name="export">Export</string>
@@ -34,4 +35,10 @@
 	<string name="error">Error</string>
 	<string name="wipe">Wipe existing data</string>
 	<string name="progress">Progress</string> <!-- Complete? Finished? Done? -->
+	<string name="due_date">Due date</string>
+	<string name="today">Today</string>
+	<string name="tomorrow">Tomorrow</string>
+	<string name="one_week_later">One week later</string>
+	<string name="no_date">No date</string>
+	<string name="choose_date">Choose date...</string>
 </resources>

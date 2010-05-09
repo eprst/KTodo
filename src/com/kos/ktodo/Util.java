@@ -5,6 +5,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Various utils.
  *
@@ -35,5 +40,38 @@ public class Util {
 				return false;
 			}
 		});
+	}
+
+	public static boolean isDue(final Long dueDate) {
+		if (dueDate == null) return false;
+		final Calendar due = Calendar.getInstance();
+		due.setTimeInMillis(dueDate);
+		final Calendar now = Calendar.getInstance();
+		if (due.get(Calendar.YEAR) < now.get(Calendar.YEAR)) return true;
+		if (due.get(Calendar.YEAR) > now.get(Calendar.YEAR)) return false;
+		if (due.get(Calendar.MONTH) < now.get(Calendar.MONTH)) return true;
+		if (due.get(Calendar.MONTH) > now.get(Calendar.MONTH)) return false;
+		return due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH);
+	}
+
+	public static String showDueDate(final Long dueDate) {
+		if (dueDate == null) return null;
+		final Calendar due = Calendar.getInstance();
+		due.setTimeInMillis(dueDate);
+		//there's no sane way to get locale-aware formatted date without a year
+		final String r1 = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault()).
+				format(new Date(due.getTimeInMillis()));
+		final Calendar now = Calendar.getInstance();
+		final int year = due.get(Calendar.YEAR);
+		if (now.get(Calendar.YEAR) != year)
+			return r1;
+		//try to cut off the year
+		final String y = Integer.toString(year);
+		final String y2 = y.substring(2); //last 2 digits of year
+		if (r1.endsWith(y2) && !r1.endsWith(y))
+			return r1.substring(0, r1.length() - 3);
+		else
+			return r1;
+
 	}
 }

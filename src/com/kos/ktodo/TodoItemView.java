@@ -12,20 +12,26 @@ import android.widget.CheckedTextView;
 public class TodoItemView extends CheckedTextView {
 	private String prio;
 	private boolean showNotesMark;
+
+	private String dueDate;
+	private boolean dueDateExpired;
+	private float dueDateWidth = -1;
+
 	private int paddingRight;
 	private int checkMarkWidth;
 	private int minHeight;
 
 	private final TwoColorDrawable tcd;
 	private final Drawable notesDrawable;
-
-	private final float[] ar = new float[2];
+	private final int dueDateColor, expiredDueDateColor;
 
 	public TodoItemView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.TodoItemView);
 		final int c1 = ta.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
 		final int c2 = ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY);
+		dueDateColor = ta.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE);
+		expiredDueDateColor = ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED);
 		tcd = new TwoColorDrawable(c1, c2);
 		notesDrawable = ta.getDrawable(R.styleable.TodoItemView_notesDrawable);
 		ta.recycle();
@@ -44,6 +50,13 @@ public class TodoItemView extends CheckedTextView {
 		this.showNotesMark = showNotesMark;
 	}
 
+	public void setDueDate(final String dueDate, final boolean dueDateExpired) {
+		this.dueDate = dueDate;
+		this.dueDateExpired = dueDateExpired;
+		dueDateWidth = -1;
+		updateSuperPadding();
+	}
+
 	@Override
 	public void setPadding(final int left, final int top, final int right, final int bottom) {
 		super.setPadding(left, top, right, bottom);
@@ -53,10 +66,20 @@ public class TodoItemView extends CheckedTextView {
 	@Override
 	public void setCheckMarkDrawable(final Drawable d) {
 		super.setCheckMarkDrawable(d);
-		if (d != null) {
-			checkMarkWidth = d.getIntrinsicWidth();
-			mPaddingRight = 2 * checkMarkWidth;
+		checkMarkWidth = d != null ? d.getIntrinsicWidth() : 0;
+		updateSuperPadding();
+	}
+
+	private void updateSuperPadding() {
+		int p = 2 * checkMarkWidth;
+		if (dueDate != null) {
+			final Paint paint = new Paint(getPaint());
+			final int sz = checkMarkWidth / 2;
+			paint.setTextSize(sz - 2);
+			dueDateWidth = paint.measureText(dueDate) + sz;
+			p += dueDateWidth;
 		}
+		mPaddingRight = p;
 	}
 
 	@Override
@@ -95,15 +118,20 @@ public class TodoItemView extends CheckedTextView {
 		final int sz = checkMarkWidth / 2;
 		p.setTextSize(sz - 2);
 		final int pl = getWidth() - checkMarkWidth - paddingRight - sz;
-		ar[0] = pl;
-		ar[1] = sz + 2;
-		canvas.drawPosText(prio, ar, p);
+		canvas.drawText(prio, pl, sz + 2, p);
 		if (showNotesMark && notesDrawable != null) {
 			final int ih = notesDrawable.getIntrinsicHeight();
 			final int iw = notesDrawable.getIntrinsicWidth();
 			final int height = getHeight();
 			notesDrawable.setBounds(pl - 2, height - ih - 4, pl - 2 + iw, height - 4);
 			notesDrawable.draw(canvas);
+		}
+		if (dueDate != null) {
+//			p.setTextSize(getPaint().getTextSize());
+			p.setColor(dueDateExpired ? expiredDueDateColor : dueDateColor);
+//			final float textHeight = p.getFontMetrics().top;
+//			final float y = (getHeight() - textHeight) / 2;
+			canvas.drawText(dueDate, pl - dueDateWidth, getHeight() - 6, p);
 		}
 	}
 }

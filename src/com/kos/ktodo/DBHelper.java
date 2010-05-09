@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * SQLite helper.
@@ -13,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 1;
+	private static final int DB_VERSION = 2;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
@@ -31,6 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TODO_BODY = "body";
 	public static final String TODO_PRIO = "prio";
 	public static final String TODO_PROGRESS = "progress";
+	public static final String TODO_DUE_DATE = "due_date";
 
 	private final Context context;
 
@@ -52,6 +54,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		                                 TODO_SUMMARY + " text not null, " +
 		                                 TODO_PRIO + " integer default 1 not null, " +
 		                                 TODO_PROGRESS + " integer default 0 not null, " +
+		                                 TODO_DUE_DATE + " integer nullable, " +
 		                                 TODO_BODY + " text nullable);";
 		sqLiteDatabase.execSQL(CREATE_TAG_TABLE);
 		sqLiteDatabase.execSQL(CREATE_TODO_TABLE);
@@ -69,8 +72,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(final SQLiteDatabase sqLiteDatabase, final int oldv, final int newv) {
-//		Log.i(TAG, "onUpgrade: " + oldv + "->" + newv);
-//		Log.i(TAG, "upgrading...");
-//		sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_PRIO + " integer default 1 not null;");
+		Log.i(TAG, "onUpgrade: " + oldv + " -> " + newv);
+		if (oldv == 1 && newv == 2) {
+			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer nullable;");
+		}
+	}
+
+	public static boolean isNullable(final String tableName, final String columnName) {
+		if (TODO_TABLE_NAME.equals(tableName))
+			return TODO_DUE_DATE.equals(columnName) || TODO_BODY.equals(columnName);
+		return false;
 	}
 }

@@ -20,6 +20,7 @@
 	<string name="change_progress">Изменить прогресс</string>
 	<string name="select_progress_title">Выберите прогресс</string>
 	<string name="change_tag">Изменить тэг</string>
+	<string name="change_due_date">Изменить срок выполнения</string>
 	<string name="all">Все</string>
 	<string name="unfiled">Без тэга</string>
 	<string name="export">Экспорт</string>
@@ -31,4 +32,10 @@
 	<string name="error">Ошибка</string>
 	<string name="wipe">Удалить имеющиеся данные</string>
 	<string name="progress">Прогресс</string>
+	<string name="due_date">Срок</string>
+	<string name="today">Сегодня</string>
+	<string name="tomorrow">Завтра</string>
+	<string name="one_week_later">Через неделю</string>
+	<string name="no_date">Без срока</string>
+	<string name="choose_date">Выбрать дату...</string>
 </resources>

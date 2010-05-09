@@ -23,7 +23,8 @@
 		                          android:scrollingCache="false"
 		                          kos:vibrateOnTearOff="20"
 		                          kos:maxThrowVelocity="1500"/>
-		<LinearLayout android:layout_height="wrap_content"
+		<LinearLayout android:orientation="horizontal"
+		              android:layout_height="wrap_content"
 		              android:layout_width="fill_parent">
 			<EditText
 					android:id="@+id/add_task"
@@ -95,6 +96,11 @@
 					kos:separator=" "
 					kos:valuesList="0,10,20,30,40,50,60,70,80,90,100"
 					kos:valueSuffix="%"/>
+			<Button
+					android:id="@+id/due_date_button"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/due_date"/>
 		</LinearLayout>
 	</LinearLayout>
 </com.kos.ktodo.SlidingView>

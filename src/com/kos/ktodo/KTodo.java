@@ -34,7 +34,8 @@ public class KTodo extends ListActivity {
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
 	private final int CHANGE_PRIO_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 2;
 	private final int CHANGE_PROGRESS_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 3;
-	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 4;
+	private final int CHANGE_DUE_DATE_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 4;
+	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 5;
 
 //	private final Random rnd = new Random();
 //	private final HashMap<Integer, SubActivityCallback> subCallbacks = new HashMap<Integer, SubActivityCallback>(5);
@@ -123,10 +124,10 @@ public class KTodo extends ListActivity {
 
 //				handler.post(new Runnable() {
 //					public void run() {
-						final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-						todoItem.setDone(!todoItem.done);
-						todoItemsStorage.saveTodoItem(todoItem);
-						updateView();
+				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+				todoItem.setDone(!todoItem.done);
+				todoItemsStorage.saveTodoItem(todoItem);
+				updateView();
 //					}
 //				});
 			}
@@ -176,6 +177,19 @@ public class KTodo extends ListActivity {
 		getProgressSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
 			public void valueChanged(final String newValue) {
 				editingItem.setProgress(Integer.parseInt(newValue));
+			}
+		});
+
+		getDueDateButton().setOnClickListener(new DueDateSelector() {
+			@Override
+			public void onDueDateSelected(final Long dueDate) {
+				editingItem.dueDate = dueDate;
+				updateDueDateButton();
+			}
+
+			@Override
+			public Long getCurrentDueDate() {
+				return editingItem.dueDate;
 			}
 		});
 
@@ -238,6 +252,14 @@ public class KTodo extends ListActivity {
 
 		getPrioSliderButton().setSelection(editingItem.prio - 1);
 		getProgressSliderButton().setSelection(editingItem.progress / 10);
+		updateDueDateButton();
+	}
+
+	private void updateDueDateButton() {
+		if (editingItem.dueDate == null)
+			getDueDateButton().setText(R.string.due_date);
+		else
+			getDueDateButton().setText(Util.showDueDate(editingItem.dueDate));
 	}
 
 	private void saveItemBeingEdited() {
@@ -282,6 +304,7 @@ public class KTodo extends ListActivity {
 		final int prioIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PRIO);
 		final int progressIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PROGRESS);
 		final int bodyIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_BODY);
+		final int dueDateIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DUE_DATE);
 		startManagingCursor(currentTagItemsCursor);
 		final ListAdapter todoAdapter = new SimpleCursorAdapter(
 				this, R.layout.todo_item,
@@ -307,6 +330,12 @@ public class KTodo extends ListActivity {
 				ctv.setProgress(cursor.getInt(progressIndex));
 				final String body = cursor.getString(bodyIndex);
 				ctv.setShowNotesMark(body != null && body.length() > 0);
+				if (cursor.isNull(dueDateIndex))
+					ctv.setDueDate(null, false);
+				else {
+					final Long dd = cursor.getLong(dueDateIndex);
+					ctv.setDueDate(Util.showDueDate(dd), Util.isDue(dd));
+				}
 			}
 		};
 
@@ -400,7 +429,7 @@ public class KTodo extends ListActivity {
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
 		if (st.length() > 0) {
-			todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0));
+			todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, null));
 			et.setText("");
 			et.requestFocus();
 			updateView();
@@ -467,6 +496,7 @@ public class KTodo extends ListActivity {
 		menu.add(0, CHANGE_TAG_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_tag);
 		menu.add(0, CHANGE_PRIO_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_prio);
 		menu.add(0, CHANGE_PROGRESS_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_progress);
+		menu.add(0, CHANGE_DUE_DATE_CONTEXT_MENU_ITEM, Menu.NONE, R.string.change_due_date);
 		menu.add(0, DELETE_ITEM_CONTEXT_MENU_ITEM, Menu.NONE, R.string.delete);
 	}
 
@@ -510,6 +540,21 @@ public class KTodo extends ListActivity {
 					}
 				});
 				b.show();
+				return true;
+			case CHANGE_DUE_DATE_CONTEXT_MENU_ITEM:
+				new DueDateSelector() {
+					@Override
+					public void onDueDateSelected(final Long dueDate) {
+						todoItem.dueDate = dueDate;
+						todoItemsStorage.saveTodoItem(todoItem);
+						updateView();
+					}
+
+					@Override
+					public Long getCurrentDueDate() {
+						return todoItem.dueDate;
+					}
+				}.onClick(getMyListView());
 				return true;
 			case CHANGE_TAG_CONTEXT_MENU_ITEM:
 				b = new AlertDialog.Builder(this);
@@ -703,6 +748,10 @@ public class KTodo extends ListActivity {
 
 	private SliderButton getProgressSliderButton() {
 		return (SliderButton) findViewById(R.id.progress_sliding_button);
+	}
+
+	private Button getDueDateButton() {
+		return (Button) findViewById(R.id.due_date_button);
 	}
 
 	private interface PrioSelectedCallback {

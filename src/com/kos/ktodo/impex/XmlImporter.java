@@ -23,7 +23,7 @@ import static com.kos.ktodo.Util.assumeEquals;
 
 /**
  * Tables to XML importer.
- * 
+ *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
 public class XmlImporter extends XmlBase {
@@ -95,7 +95,7 @@ public class XmlImporter extends XmlBase {
 				assumeEquals(XmlPullParser.START_TAG, et);
 				assumeEquals(COLUMN_TAG, p.getName());
 				final String cname = p.getAttributeValue(null, NAME_ATTR);
-				final String val = unescape(p.nextText());
+				final String val = valueForDB(tableName, cname, unescape(p.nextText()));
 
 				if (pkRemapping == null || !cname.equals(pkColumn))
 					cv.put(cname, val);
@@ -162,5 +162,13 @@ public class XmlImporter extends XmlBase {
 	private static void readTag(final XmlPullParser p, final String expectedName, final boolean closing) throws IOException, XmlPullParserException {
 		p.nextTag();
 		p.require(closing ? XmlPullParser.END_TAG : XmlPullParser.START_TAG, null, expectedName);
+	}
+
+	private static String valueForDB(final String tableName, final String cname, final String valFromXML) {
+		if (valFromXML.length() > 0) return valFromXML;
+		//write nullable/not null into XML?
+		if (DBHelper.isNullable(tableName, cname))
+			return null;
+		return valFromXML;
 	}
 }

@@ -1,5 +1,7 @@
 package com.kos.ktodo;
 
+import java.util.Date;
+
 public class TodoItem {
 	public final long id;
 	public long tagID;
@@ -8,13 +10,15 @@ public class TodoItem {
 	public String body;
 	public int prio = 1;
 	public int progress = 0;
+	public Long dueDate = null;
 
 	public TodoItem(final long id, final long tagID) {
 		this.id = id;
 		this.tagID = tagID;
 	}
 
-	public TodoItem(final long id, final long tagID, final boolean done, final String summary, final String body, final int prio, final int progress) {
+	public TodoItem(final long id, final long tagID, final boolean done, final String summary, final String body, final int prio, final int progress,
+	                final Long dueDate) {
 		this.id = id;
 		this.tagID = tagID;
 		this.done = done;
@@ -22,6 +26,7 @@ public class TodoItem {
 		this.body = body;
 		this.prio = prio;
 		this.progress = progress;
+		this.dueDate = dueDate;
 	}
 
 	public void setDone(final boolean done) {
@@ -38,7 +43,6 @@ public class TodoItem {
 		}
 	}
 
-	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("TodoItem");
@@ -49,6 +53,8 @@ public class TodoItem {
 		sb.append(", summary='").append(summary).append('\'');
 		sb.append(", prio=").append(prio);
 		sb.append(", progress=").append(prio);
+		if (dueDate != null)
+			sb.append(", dueDate=").append(new Date(dueDate));
 		sb.append('}');
 		return sb.toString();
 	}

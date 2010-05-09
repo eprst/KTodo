@@ -15,7 +15,8 @@ import static com.kos.ktodo.DBHelper.*;
 public class TodoItemsStorage {
 	private static final String TAG = "TodoItemsStorage";
 
-	private static final String[] ALL_COLUMNS = new String[]{TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS};
+	private static final String[] ALL_COLUMNS = new String[]{
+			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE};
 
 	private SQLiteDatabase db;
 	private DBHelper helper;
@@ -35,7 +36,7 @@ public class TodoItemsStorage {
 	public TodoItem addTodoItem(final TodoItem item) {
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
-		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress);
+		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress, item.dueDate);
 	}
 
 	private ContentValues fillValues(final TodoItem item) {
@@ -48,6 +49,10 @@ public class TodoItemsStorage {
 		cv.put(TODO_BODY, item.body);
 		cv.put(TODO_PRIO, item.prio);
 		cv.put(TODO_PROGRESS, item.progress);
+		if (item.dueDate != null)
+			cv.put(TODO_DUE_DATE, item.dueDate);
+		else
+			cv.putNull(TODO_DUE_DATE);
 		return cv;
 	}
 
@@ -101,7 +106,8 @@ public class TodoItemsStorage {
 					cursor.getString(3),
 					cursor.getString(4),
 					cursor.getInt(5),
-					cursor.getInt(6)
+					cursor.getInt(6),
+					cursor.isNull(7) ? null : cursor.getLong(7)
 			);
 		}
 		cursor.close();
