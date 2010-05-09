@@ -69,7 +69,7 @@ public class Util {
 			return getShortFormat(ctx).format(dueDate);
 	}
 
-	private static final Pattern leadingYearCut = Pattern.compile("([yY]+.)?(.*)");
+	private static final Pattern leadingYearCut = Pattern.compile("[yY]+.(.*)");
 	private static DateFormat shortFormat = null;
 	private static Locale shortFormatLocale = null;
 
@@ -86,11 +86,11 @@ public class Util {
 //			final String i = pat;
 			Matcher m = leadingYearCut.matcher(pat);
 			if (m.matches())
-				pat = m.group(2);
+				pat = m.group(1);
 			pat = new StringBuffer(pat).reverse().toString();
 			m = leadingYearCut.matcher(pat);
 			if (m.matches())
-				pat = m.group(2);
+				pat = m.group(1);
 			pat = new StringBuffer(pat).reverse().toString();
 //			Log.i("Util", i + " -> " + pat);
 			shortFormat = new SimpleDateFormat(pat);
