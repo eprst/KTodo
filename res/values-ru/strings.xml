@@ -38,4 +38,5 @@
 	<string name="one_week_later">Через неделю</string>
 	<string name="no_date">Без срока</string>
 	<string name="choose_date">Выбрать дату...</string>
+	<string name="due_date_format_short">dd.MM</string>
 </resources>

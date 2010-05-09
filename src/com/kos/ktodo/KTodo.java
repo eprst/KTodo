@@ -259,7 +259,7 @@ public class KTodo extends ListActivity {
 		if (editingItem.dueDate == null)
 			getDueDateButton().setText(R.string.due_date);
 		else
-			getDueDateButton().setText(Util.showDueDate(editingItem.dueDate));
+			getDueDateButton().setText(Util.showDueDate(this, editingItem.dueDate));
 	}
 
 	private void saveItemBeingEdited() {
@@ -334,7 +334,7 @@ public class KTodo extends ListActivity {
 					ctv.setDueDate(null, false);
 				else {
 					final Long dd = cursor.getLong(dueDateIndex);
-					ctv.setDueDate(Util.showDueDate(dd), Util.isDue(dd));
+					ctv.setDueDate(Util.showDueDate(KTodo.this, dd), Util.isDue(dd));
 				}
 			}
 		};

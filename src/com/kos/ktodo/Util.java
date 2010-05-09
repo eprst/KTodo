@@ -1,14 +1,17 @@
 package com.kos.ktodo;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Various utils.
@@ -54,24 +57,51 @@ public class Util {
 		return due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH);
 	}
 
-	public static String showDueDate(final Long dueDate) {
+	public static String showDueDate(final Context ctx, final Long dueDate) {
 		if (dueDate == null) return null;
 		final Calendar due = Calendar.getInstance();
 		due.setTimeInMillis(dueDate);
-		//there's no sane way to get locale-aware formatted date without a year
-		final String r1 = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault()).
-				format(new Date(due.getTimeInMillis()));
 		final Calendar now = Calendar.getInstance();
 		final int year = due.get(Calendar.YEAR);
 		if (now.get(Calendar.YEAR) != year)
-			return r1;
-		//try to cut off the year
-		final String y = Integer.toString(year);
-		final String y2 = y.substring(2); //last 2 digits of year
-		if (r1.endsWith(y2) && !r1.endsWith(y))
-			return r1.substring(0, r1.length() - 3);
+			return getLongFormat().format(dueDate);
 		else
-			return r1;
+			return getShortFormat(ctx).format(dueDate);
+	}
 
+	private static final Pattern leadingYearCut = Pattern.compile("([yY]+.)?(.*)");
+	private static DateFormat shortFormat = null;
+	private static Locale shortFormatLocale = null;
+
+	private static DateFormat getShortFormat(final Context ctx) {
+		//there's no sane way to get locale-aware formatted date without a year
+		final Locale l = Locale.getDefault();
+		if (l.equals(shortFormatLocale))
+			return shortFormat;
+
+		final DateFormat full = getLongFormat();
+		if (full instanceof SimpleDateFormat) {
+			final SimpleDateFormat sdf = (SimpleDateFormat) full;
+			String pat = sdf.toPattern();
+//			final String i = pat;
+			Matcher m = leadingYearCut.matcher(pat);
+			if (m.matches())
+				pat = m.group(2);
+			pat = new StringBuffer(pat).reverse().toString();
+			m = leadingYearCut.matcher(pat);
+			if (m.matches())
+				pat = m.group(2);
+			pat = new StringBuffer(pat).reverse().toString();
+//			Log.i("Util", i + " -> " + pat);
+			shortFormat = new SimpleDateFormat(pat);
+		} else {
+			shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
+		}
+		shortFormatLocale = Locale.getDefault();
+		return shortFormat;
+	}
+
+	private static DateFormat getLongFormat() {
+		return DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
 	}
 }
