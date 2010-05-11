@@ -128,7 +128,7 @@ public class TodoItemView extends CheckedTextView {
 		}
 		if (dueDate != null) {
 //			p.setTextSize(getPaint().getTextSize());
-			p.setColor(dueDateExpired ? expiredDueDateColor : dueDateColor);
+			p.setColor(dueDateExpired && !isChecked() ? expiredDueDateColor : dueDateColor);
 //			final float textHeight = p.getFontMetrics().top;
 //			final float y = (getHeight() - textHeight) / 2;
 			canvas.drawText(dueDate, pl - dueDateWidth, getHeight() - 6, p);
