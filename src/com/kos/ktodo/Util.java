@@ -2,6 +2,7 @@ package com.kos.ktodo;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -69,7 +70,7 @@ public class Util {
 			return getShortFormat(ctx).format(dueDate);
 	}
 
-	private static final Pattern leadingYearCut = Pattern.compile("[yY]+.(.*)");
+	private static final Pattern leadingYearCut = Pattern.compile(".[yY]+.(.*)");
 	private static DateFormat shortFormat = null;
 	private static Locale shortFormatLocale = null;
 
@@ -83,17 +84,22 @@ public class Util {
 		if (full instanceof SimpleDateFormat) {
 			final SimpleDateFormat sdf = (SimpleDateFormat) full;
 			String pat = sdf.toPattern();
-//			final String i = pat;
+			shortFormat = null;
 			Matcher m = leadingYearCut.matcher(pat);
 			if (m.matches())
-				pat = m.group(1);
-			pat = new StringBuffer(pat).reverse().toString();
-			m = leadingYearCut.matcher(pat);
-			if (m.matches())
-				pat = m.group(1);
-			pat = new StringBuffer(pat).reverse().toString();
-//			Log.i("Util", i + " -> " + pat);
-			shortFormat = new SimpleDateFormat(pat);
+				shortFormat = new SimpleDateFormat(m.group(1));
+			else {
+				pat = new StringBuffer(pat).reverse().toString();
+				m = leadingYearCut.matcher(pat);
+				if (m.matches()) {
+					pat = m.group(1);
+					pat = new StringBuffer(pat).reverse().toString();
+					shortFormat = new SimpleDateFormat(pat);
+				}
+			}
+			if (shortFormat == null)
+				shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
+			Log.i("Util", "short pat for " + Locale.getDefault() + " : " + ((SimpleDateFormat) shortFormat).toPattern());
 		} else {
 			shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
 		}
