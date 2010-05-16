@@ -13,8 +13,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.*;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
@@ -80,6 +82,15 @@ public class KTodo extends ListActivity {
 		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
 		setDefaultPrio(preferences.getInt("defaultPrio", 1));
 
+		setupFirstScreenWidgets();
+		setupSecondScreenWidgets();
+
+		registerForContextMenu(getMyListView());
+
+		reloadTodoItems();
+	}
+
+	private void setupFirstScreenWidgets() {
 		getAddTaskButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
 				addTodoItem();
@@ -94,8 +105,6 @@ public class KTodo extends ListActivity {
 				return false;
 			}
 		});
-
-		reloadTodoItems();
 
 		getTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -153,11 +162,11 @@ public class KTodo extends ListActivity {
 				editingItem.tagID = id;
 			}
 
-			public void onNothingSelected(final AdapterView<?> parent) {
-			}
+			public void onNothingSelected(final AdapterView<?> parent) {}
 		});
+	}
 
-
+	private void setupSecondScreenWidgets() {
 		getPrioButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
 				selectPrio(new PrioSelectedCallback() {
@@ -193,7 +202,37 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		registerForContextMenu(listView);
+		setupBodyWidgetFlingDetector();
+	}
+
+	private void setupBodyWidgetFlingDetector() {
+		final GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+			@Override
+			public boolean onFling(final MotionEvent e1, final MotionEvent e2, final float velocityX, final float velocityY) {
+				if (Math.abs(e1.getY() - e2.getY()) > 250)
+					return false;
+
+				if (e2.getX() - e1.getX() > 120 && Math.abs(velocityX) > 200) {
+					final long now = SystemClock.uptimeMillis();
+					final MotionEvent cancelEvent = MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0, 0, 0);
+					getEditBodyWidget().onTouchEvent(cancelEvent);
+					final View focus = getSlidingView().findFocus();
+					if (focus != null) {
+						final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+					}
+					getMyListView().handleBack();
+					return true;
+				}
+				return false;
+			}
+		});
+		final View.OnTouchListener gestureListener = new View.OnTouchListener() {
+			public boolean onTouch(final View v, final MotionEvent event) {
+				return gestureDetector.onTouchEvent(event);
+			}
+		};
+		getEditBodyWidget().setOnTouchListener(gestureListener);
 	}
 
 	@Override
