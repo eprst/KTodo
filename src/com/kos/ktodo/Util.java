@@ -46,16 +46,18 @@ public class Util {
 		});
 	}
 
-	public static boolean isDue(final Long dueDate) {
-		if (dueDate == null) return false;
+	public static DueStatus getDueStatus(final Long dueDate) {
+		if (dueDate == null) return DueStatus.NONE;
 		final Calendar due = Calendar.getInstance();
 		due.setTimeInMillis(dueDate);
 		final Calendar now = Calendar.getInstance();
-		if (due.get(Calendar.YEAR) < now.get(Calendar.YEAR)) return true;
-		if (due.get(Calendar.YEAR) > now.get(Calendar.YEAR)) return false;
-		if (due.get(Calendar.MONTH) < now.get(Calendar.MONTH)) return true;
-		if (due.get(Calendar.MONTH) > now.get(Calendar.MONTH)) return false;
-		return due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH);
+		if (due.get(Calendar.YEAR) < now.get(Calendar.YEAR)) return DueStatus.EXPIRED;
+		if (due.get(Calendar.YEAR) > now.get(Calendar.YEAR)) return DueStatus.FUTURE;
+		if (due.get(Calendar.MONTH) < now.get(Calendar.MONTH)) return DueStatus.EXPIRED;
+		if (due.get(Calendar.MONTH) > now.get(Calendar.MONTH)) return DueStatus.FUTURE;
+		if (due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH)) return DueStatus.EXPIRED;
+		if (due.get(Calendar.DAY_OF_MONTH) > now.get(Calendar.DAY_OF_MONTH)) return DueStatus.FUTURE;
+		return DueStatus.TODAY;
 	}
 
 	public static String showDueDate(final Context ctx, final Long dueDate) {

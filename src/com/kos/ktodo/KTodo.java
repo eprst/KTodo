@@ -370,10 +370,10 @@ public class KTodo extends ListActivity {
 				final String body = cursor.getString(bodyIndex);
 				ctv.setShowNotesMark(body != null && body.length() > 0);
 				if (cursor.isNull(dueDateIndex))
-					ctv.setDueDate(null, false);
+					ctv.setDueDate(null, DueStatus.NONE);
 				else {
 					final Long dd = cursor.getLong(dueDateIndex);
-					ctv.setDueDate(Util.showDueDate(KTodo.this, dd), Util.isDue(dd));
+					ctv.setDueDate(Util.showDueDate(KTodo.this, dd), Util.getDueStatus(dd));
 				}
 			}
 		};

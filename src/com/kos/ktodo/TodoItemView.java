@@ -14,7 +14,7 @@ public class TodoItemView extends CheckedTextView {
 	private boolean showNotesMark;
 
 	private String dueDate;
-	private boolean dueDateExpired;
+	private DueStatus dueStatus;
 	private float dueDateWidth = -1;
 
 	private int paddingRight;
@@ -23,7 +23,7 @@ public class TodoItemView extends CheckedTextView {
 
 	private final TwoColorDrawable tcd;
 	private final Drawable notesDrawable;
-	private final int dueDateColor, expiredDueDateColor;
+	private final int dueDateColor, todayDueDateColor, expiredDueDateColor;
 
 	public TodoItemView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
@@ -31,6 +31,7 @@ public class TodoItemView extends CheckedTextView {
 		final int c1 = ta.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
 		final int c2 = ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY);
 		dueDateColor = ta.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE);
+		todayDueDateColor = ta.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW);
 		expiredDueDateColor = ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED);
 		tcd = new TwoColorDrawable(c1, c2);
 		notesDrawable = ta.getDrawable(R.styleable.TodoItemView_notesDrawable);
@@ -50,9 +51,9 @@ public class TodoItemView extends CheckedTextView {
 		this.showNotesMark = showNotesMark;
 	}
 
-	public void setDueDate(final String dueDate, final boolean dueDateExpired) {
+	public void setDueDate(final String dueDate, final DueStatus dueStatus) {
 		this.dueDate = dueDate;
-		this.dueDateExpired = dueDateExpired;
+		this.dueStatus = dueStatus;
 		dueDateWidth = -1;
 		updateSuperPadding();
 	}
@@ -128,7 +129,15 @@ public class TodoItemView extends CheckedTextView {
 		}
 		if (dueDate != null) {
 //			p.setTextSize(getPaint().getTextSize());
-			p.setColor(dueDateExpired && !isChecked() ? expiredDueDateColor : dueDateColor);
+			int color = dueDateColor;
+			if (!isChecked()) {
+				if (dueStatus == DueStatus.TODAY)
+					color = todayDueDateColor;
+				else if (dueStatus == DueStatus.EXPIRED)
+					color = expiredDueDateColor;
+			}
+
+			p.setColor(color);
 //			final float textHeight = p.getFontMetrics().top;
 //			final float y = (getHeight() - textHeight) / 2;
 			canvas.drawText(dueDate, pl - dueDateWidth, getHeight() - 6, p);

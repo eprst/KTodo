@@ -16,4 +16,5 @@
 		kos:progress0Color="@color/progress_0"
 		kos:progress100Color="@color/progress_100"
 		kos:dueDateColor="@color/due_date_color"
+		kos:todayDueDateColor="@color/today_due_date_color"
 		kos:expiredDueDateColor="@color/expired_due_date_color"/>
