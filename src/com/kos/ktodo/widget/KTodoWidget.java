@@ -148,56 +148,14 @@ public class KTodoWidget extends AppWidgetProvider {
 
 	private static boolean showItem(final TodoItem i, final WidgetSettings s) {
 		if (s.hideCompleted && i.done) return false;
-		if (!s.showOnlyDue && s.showOnlyDueIn == -1) return true;
-
-		final IntegerPredicate onlyDuePred = new IntegerPredicate() {
-			public boolean apply(final Integer i) {
-				return s.showOnlyDue && i < 0;
-			}
-		};
-		final IntegerPredicate onlyDueInPred = new IntegerPredicate() {
-			public boolean apply(final Integer i) {
-				return s.showOnlyDueIn != -1 && i <= s.showOnlyDueIn;
-			}
-		};
-
-		final IntegerPredicate p = new AndPred(new NotNullPred(), new OrPred(onlyDuePred, onlyDueInPred));
-		return p.apply(Util.getDueInDays(i.dueDate));
-	}
-
-	private static interface IntegerPredicate {
-		boolean apply(final Integer i);
-	}
-
-	private static class NotNullPred implements IntegerPredicate {
-		public boolean apply(final Integer i) {
-			return i != null;
-		}
-	}
-
-	private static class AndPred implements IntegerPredicate {
-		private final IntegerPredicate p1, p2;
-
-		private AndPred(final IntegerPredicate p1, final IntegerPredicate p2) {
-			this.p1 = p1;
-			this.p2 = p2;
-		}
-
-		public boolean apply(final Integer i) {
-			return p1.apply(i) && p2.apply(i);
-		}
-	}
-
-	private static class OrPred implements IntegerPredicate {
-		private final IntegerPredicate p1, p2;
-
-		private OrPred(final IntegerPredicate p1, final IntegerPredicate p2) {
-			this.p1 = p1;
-			this.p2 = p2;
-		}
-
-		public boolean apply(final Integer i) {
-			return p1.apply(i) || p2.apply(i);
+		final int opts = (s.showOnlyDue ? 1 : 0) << 1 | (s.showOnlyDueIn == -1 ? 0 : 1);
+		final Integer dd = Util.getDueInDays(i.dueDate);
+		switch (opts) {
+			case 0: return true;
+			case 1: return dd != null && dd >= 0 && dd <= s.showOnlyDueIn;
+			case 2: return dd != null && dd < 0;
+			case 3: return dd != null && (dd < 0 || (dd <= s.showOnlyDueIn));
+			default: return true; //unreachable
 		}
 	}
 }
