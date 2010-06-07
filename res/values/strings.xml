@@ -42,4 +42,13 @@
 	<string name="no_date">No date</string>
 	<string name="choose_date">Choose date...</string>
 	<string name="due_date_format_short">M/d</string>
+	<string name="widget_loading">Loading widget...</string>
+	<string name="widget_configure_title">Configure KTodo widget</string>
+	<string name="widget_ok">OK</string>
+	<string name="widget_filtering_options">Todo items filtering</string>
+	<string name="widget_hide_completed">Hide completed</string>
+	<string name="widget_show_only">Show only...</string>
+	<string name="widget_show_only_due">Due items</string>
+	<string name="widget_show_only_due_x">Due in </string>
+	<string name="widget_days">days</string>
 </resources>

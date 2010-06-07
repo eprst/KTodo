@@ -20,6 +20,7 @@ public class TodoItemsStorage {
 
 	private SQLiteDatabase db;
 	private DBHelper helper;
+	private boolean modifiedDB;
 
 	public TodoItemsStorage(final Context context) {
 		helper = new DBHelper(context);
@@ -27,6 +28,7 @@ public class TodoItemsStorage {
 
 	public void open() {
 		db = helper.getWritableDatabase();
+		modifiedDB = false;
 	}
 
 	public void close() {
@@ -34,6 +36,7 @@ public class TodoItemsStorage {
 	}
 
 	public TodoItem addTodoItem(final TodoItem item) {
+		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
 		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress, item.dueDate);
@@ -57,25 +60,30 @@ public class TodoItemsStorage {
 	}
 
 	public boolean saveTodoItem(final TodoItem item) {
+		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		return db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
 	}
 
 	public void moveTodoItems(final long fromTag, final long toTag) {
+		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TODO_TAG_ID, toTag);
 		db.update(TODO_TABLE_NAME, cv, TODO_TAG_ID + "=" + fromTag, null);
 	}
 
 	public boolean deleteTodoItem(final long id) {
+		modifiedDB = true;
 		return db.delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
 	}
 
 	public void deleteAllTodoItems() {
+		modifiedDB = true;
 		db.delete(TODO_TABLE_NAME, null, null);
 	}
 
 	public int deleteByTag(final long tagID) {
+		modifiedDB = true;
 		return db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
 	}
 
@@ -98,19 +106,30 @@ public class TodoItemsStorage {
 	public TodoItem loadTodoItem(final long id) {
 		final Cursor cursor = db.query(TODO_TABLE_NAME, ALL_COLUMNS, TODO_ID + "=" + id, null, null, null, TODO_PRIO);
 		TodoItem res = null;
-		if (cursor.moveToFirst()) {
-			res = new TodoItem(
-					id,
-					cursor.getInt(1),
-					cursor.getInt(2) != 0,
-					cursor.getString(3),
-					cursor.getString(4),
-					cursor.getInt(5),
-					cursor.getInt(6),
-					cursor.isNull(7) ? null : cursor.getLong(7)
-			);
-		}
+		if (cursor.moveToFirst())
+			res = loadTodoItemFromCursor(cursor);
 		cursor.close();
 		return res;
+	}
+
+	public TodoItem loadTodoItemFromCursor(final Cursor cursor) {
+		return new TodoItem(
+				cursor.getInt(0),
+				cursor.getInt(1),
+				cursor.getInt(2) != 0,
+				cursor.getString(3),
+				cursor.getString(4),
+				cursor.getInt(5),
+				cursor.getInt(6),
+				cursor.isNull(7) ? null : cursor.getLong(7)
+		);
+	}
+
+	public boolean hasModifiedDB() {
+		return modifiedDB;
+	}
+
+	public void resetModifiedDB() {
+		modifiedDB = false;
 	}
 }

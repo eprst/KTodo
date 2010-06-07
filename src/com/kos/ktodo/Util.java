@@ -2,10 +2,15 @@ package com.kos.ktodo;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.util.Log;
+import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -47,17 +52,43 @@ public class Util {
 	}
 
 	public static DueStatus getDueStatus(final Long dueDate) {
-		if (dueDate == null) return DueStatus.NONE;
+		final Integer dueInDays = getDueInDays(dueDate);
+		if (dueInDays == null) return DueStatus.NONE;
+		if (dueInDays == 0)
+			return DueStatus.TODAY;
+		if (dueInDays < 0)
+			return DueStatus.EXPIRED;
+		return DueStatus.FUTURE;
+//		if (dueDate == null) return DueStatus.NONE;
+//		final Calendar due = Calendar.getInstance();
+//		due.setTimeInMillis(dueDate);
+//		final Calendar now = Calendar.getInstance();
+//		if (due.get(Calendar.YEAR) < now.get(Calendar.YEAR)) return DueStatus.EXPIRED;
+//		if (due.get(Calendar.YEAR) > now.get(Calendar.YEAR)) return DueStatus.FUTURE;
+//		if (due.get(Calendar.MONTH) < now.get(Calendar.MONTH)) return DueStatus.EXPIRED;
+//		if (due.get(Calendar.MONTH) > now.get(Calendar.MONTH)) return DueStatus.FUTURE;
+//		if (due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH)) return DueStatus.EXPIRED;
+//		if (due.get(Calendar.DAY_OF_MONTH) > now.get(Calendar.DAY_OF_MONTH)) return DueStatus.FUTURE;
+//		return DueStatus.TODAY;
+	}
+
+	public static Integer getDueInDays(final Long dueDate) {
+		if (dueDate == null) return null;
 		final Calendar due = Calendar.getInstance();
 		due.setTimeInMillis(dueDate);
+		killTime(due);
 		final Calendar now = Calendar.getInstance();
-		if (due.get(Calendar.YEAR) < now.get(Calendar.YEAR)) return DueStatus.EXPIRED;
-		if (due.get(Calendar.YEAR) > now.get(Calendar.YEAR)) return DueStatus.FUTURE;
-		if (due.get(Calendar.MONTH) < now.get(Calendar.MONTH)) return DueStatus.EXPIRED;
-		if (due.get(Calendar.MONTH) > now.get(Calendar.MONTH)) return DueStatus.FUTURE;
-		if (due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH)) return DueStatus.EXPIRED;
-		if (due.get(Calendar.DAY_OF_MONTH) > now.get(Calendar.DAY_OF_MONTH)) return DueStatus.FUTURE;
-		return DueStatus.TODAY;
+		killTime(now);
+		final long millisDiff = due.getTimeInMillis() - now.getTimeInMillis();
+		final long daysDiff = millisDiff / DateUtils.DAY_IN_MILLIS;
+		return (int) daysDiff;
+	}
+
+	private static void killTime(final Calendar due) {
+		due.set(Calendar.HOUR_OF_DAY, 0);
+		due.set(Calendar.MINUTE, 0);
+		due.set(Calendar.SECOND, 0);
+		due.set(Calendar.MILLISECOND, 0);
 	}
 
 	public static String showDueDate(final Context ctx, final Long dueDate) {
@@ -101,7 +132,7 @@ public class Util {
 			}
 			if (shortFormat == null)
 				shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
-			Log.i("Util", "short pat for " + Locale.getDefault() + " : " + ((SimpleDateFormat) shortFormat).toPattern());
+//			Log.i("Util", "short pat for " + Locale.getDefault() + " : " + ((SimpleDateFormat) shortFormat).toPattern());
 		} else {
 			shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
 		}
@@ -111,5 +142,44 @@ public class Util {
 
 	private static DateFormat getLongFormat() {
 		return DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+	}
+
+	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
+		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
+		return new SimpleCursorAdapter(ctx, layout,
+				cursor,
+				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}) {
+			@Override
+			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
+				final View view = super.newView(context, cursor, parent);
+				maybeLocalizeViewText(view, cursor);
+				return view;
+			}
+
+			@Override
+			public void bindView(final View view, final Context context, final Cursor cursor) {
+				super.bindView(view, context, cursor);
+				maybeLocalizeViewText(view, cursor);
+			}
+
+			private void maybeLocalizeViewText(final View view, final Cursor cursor) {
+				if (view instanceof TextView) {
+					final int tagID = cursor.getInt(tagIDIndex);
+					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
+						((TextView) view).setText(R.string.all);
+					else if (tagID == DBHelper.UNFILED_METATAG_ID)
+						((TextView) view).setText(R.string.unfiled);
+				}
+			}
+
+		};
+	}
+
+	public static int getItemPosition(final CursorAdapter a, final long id) {
+		final int cnt = a.getCount();
+		for (int i = 0; i < cnt; i++)
+			if (a.getItemId(i) == id)
+				return i;
+		return -1;
 	}
 }

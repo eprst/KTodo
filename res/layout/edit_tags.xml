@@ -15,7 +15,8 @@
 	                          kos:vibrateOnTearOff="20"
 	                          kos:maxThrowVelocity="1500"/>
 	<LinearLayout android:layout_height="wrap_content"
-	              android:layout_width="fill_parent">
+	              android:layout_width="fill_parent"
+	              style="@android:style/ButtonBar">
 		<EditText
 				android:id="@+id/add_tag_text"
 				android:maxLines="1"

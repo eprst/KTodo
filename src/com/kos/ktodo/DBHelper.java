@@ -14,7 +14,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 3;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
@@ -22,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TAG_TABLE_NAME = "tag";
 	public static final String TAG_ID = "_id";
 	public static final String TAG_TAG = "tag";
-	public static final String TAG_ORDER = "tag_order"; //not visible anywhere. Used to make All first and Unfiled last
+	public static final String TAG_ORDER = "tag_order"; //not visible anywhere. Used to make "All" first and "Unfiled" last
 
 	public static final String TODO_TABLE_NAME = "todo";
 	public static final String TODO_ID = "_id";
@@ -34,6 +34,37 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TODO_PROGRESS = "progress";
 	public static final String TODO_DUE_DATE = "due_date";
 
+	public static final String WIDGET_TABLE_NAME = "widget";
+	public static final String WIDGET_ID = "_id";
+	public static final String WIDGET_TAG_ID = "tag_id";
+	public static final String WIDGET_HIDE_COMPLETED = "hide_completed";
+	public static final String WIDGET_SHOW_ONLY_DUE = "show_only_due";
+	public static final String WIDGET_SHOW_ONLY_DUE_IN = "show_only_due_in";
+	public static final String WIDGET_CONFIGURED = "configured";
+
+	private static final String CREATE_TAG_TABLE = "create table if not exists " + TAG_TABLE_NAME +
+	                                               " (" + TAG_ID + " integer primary key autoincrement, " +
+	                                               TAG_ORDER + " integer default 10 not null, " +
+	                                               TAG_TAG + " text not null);";
+
+	private static final String CREATE_TODO_TABLE = "create table if not exists " + TODO_TABLE_NAME +
+	                                                " (" + TODO_ID + " integer primary key autoincrement, " +
+	                                                TODO_TAG_ID + " integer not null, " +
+	                                                TODO_DONE + " boolean not null, " +
+	                                                TODO_SUMMARY + " text not null, " +
+	                                                TODO_PRIO + " integer default 1 not null, " +
+	                                                TODO_PROGRESS + " integer default 0 not null, " +
+	                                                TODO_DUE_DATE + " integer nullable, " +
+	                                                TODO_BODY + " text nullable);";
+
+	private static final String CREATE_WIDGET_TABLE = "create table if not exists " + WIDGET_TABLE_NAME +
+	                                                  " (" + WIDGET_ID + " integer primary key autoincrement, " +
+	                                                  WIDGET_TAG_ID + " integer default 1 not null, " +
+	                                                  WIDGET_CONFIGURED + " boolean default 0 not null, " +
+	                                                  WIDGET_SHOW_ONLY_DUE + " boolean default 0 not null, " +
+	                                                  WIDGET_SHOW_ONLY_DUE_IN + " integer default -1 not null, " +
+	                                                  WIDGET_HIDE_COMPLETED + " boolean default 1 not null);";
+
 	private final Context context;
 
 	public DBHelper(final Context context) {
@@ -43,21 +74,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(final SQLiteDatabase sqLiteDatabase) {
-		final String CREATE_TAG_TABLE = "create table if not exists " + TAG_TABLE_NAME +
-		                                " (" + TAG_ID + " integer primary key autoincrement, " +
-		                                TAG_ORDER + " integer default 10 not null, " +
-		                                TAG_TAG + " text not null);";
-		final String CREATE_TODO_TABLE = "create table if not exists " + TODO_TABLE_NAME +
-		                                 " (" + TODO_ID + " integer primary key autoincrement, " +
-		                                 TODO_TAG_ID + " integer not null, " +
-		                                 TODO_DONE + " boolean not null, " +
-		                                 TODO_SUMMARY + " text not null, " +
-		                                 TODO_PRIO + " integer default 1 not null, " +
-		                                 TODO_PROGRESS + " integer default 0 not null, " +
-		                                 TODO_DUE_DATE + " integer nullable, " +
-		                                 TODO_BODY + " text nullable);";
 		sqLiteDatabase.execSQL(CREATE_TAG_TABLE);
 		sqLiteDatabase.execSQL(CREATE_TODO_TABLE);
+		sqLiteDatabase.execSQL(CREATE_WIDGET_TABLE);
 
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_ID, ALL_TAGS_METATAG_ID);
@@ -68,14 +87,16 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(TAG_TAG, context.getString(R.string.unfiled_untranslated)); //will be localized in KTodo
 		cv.put(TAG_ORDER, 100);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
+		//todo: insert help
 	}
 
 	@Override
 	public void onUpgrade(final SQLiteDatabase sqLiteDatabase, final int oldv, final int newv) {
 		Log.i(TAG, "onUpgrade: " + oldv + " -> " + newv);
-		if (oldv == 1 && newv == 2) {
+		if (oldv == 1)
 			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer nullable;");
-		}
+		if (oldv <= 2)
+			sqLiteDatabase.execSQL(CREATE_WIDGET_TABLE);
 	}
 
 	public static boolean isNullable(final String tableName, final String columnName) {

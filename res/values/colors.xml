@@ -5,4 +5,8 @@
 	<color name="due_date_color">#ffbfbfbf</color>
 	<color name="today_due_date_color">#ffffcc00</color>
 	<color name="expired_due_date_color">#ffff1f4f</color>
+	<color name="semi_white">#f888</color>
+	<color name="white">#ffff</color>
+	<color name="widget_sep">#f07e7efa</color>
+	<color name="widget_completed">#90a0a0a0</color>
 </resources>

@@ -3,6 +3,7 @@ package com.kos.ktodo;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.*;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
+import com.kos.ktodo.widget.UpdateService;
 
 /**
  * Edit tags activity.
@@ -241,8 +243,23 @@ public class EditTags extends ListActivity {
 	}
 
 	@Override
+	protected void onPause() {
+		updateWidgetsIfNeeded();
+		super.onPause();
+	}
+
+	@Override
 	protected void onDestroy() {
-		super.onDestroy();
+		updateWidgetsIfNeeded();
 		tagsStorage.close();
+		super.onDestroy();
+	}
+
+	private void updateWidgetsIfNeeded() {
+		if (tagsStorage.hasModifiedDB()) {
+			UpdateService.requestUpdateAll(this);
+			startService(new Intent(this, UpdateService.class));
+			tagsStorage.resetModifiedDB();
+		}
 	}
 }
