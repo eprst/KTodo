@@ -10,10 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.SystemClock;
+import android.os.*;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -31,6 +28,7 @@ public class KTodo extends ListActivity {
 	public static final String WIDGET_ID = "widget_id";
 
 	private static final String TAG = "KTodo";
+	private static final boolean TRACE = false; //enables method tracing
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
@@ -68,6 +66,7 @@ public class KTodo extends ListActivity {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (TRACE) Debug.startMethodTracing("ktodo");
 		setContentView(R.layout.main);
 		handler = new Handler();
 
@@ -89,9 +88,7 @@ public class KTodo extends ListActivity {
 			final int widgetId = intent.getExtras().getInt(WIDGET_ID);
 			final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
 			wss.open();
-			Log.i(TAG, "show widget " + widgetId);
 			currentTag = wss.load(widgetId).tagID;
-			Log.i(TAG, "cur tag: " + currentTag);
 			wss.close();
 		} else
 			currentTag = preferences.getLong("currentTag", 0);
@@ -104,7 +101,7 @@ public class KTodo extends ListActivity {
 
 		registerForContextMenu(getMyListView());
 
-		reloadTodoItems();
+//		reloadTodoItems(); //will be called from spinner.onMeasure->fireOnSelected->KTodo$4.onItemSelected
 
 		setResult(Activity.RESULT_OK);
 	}
@@ -330,6 +327,7 @@ public class KTodo extends ListActivity {
 	}
 
 	private void reloadTodoItems() {
+//		new Exception("reloadTodoItems").printStackTrace();
 		allTagsCursor.requery();
 
 		if (currentTagItemsCursor != null) {
@@ -404,6 +402,7 @@ public class KTodo extends ListActivity {
 		tagsStorage.close();
 		allTagsCursor.close();
 		super.onDestroy();
+		if (TRACE) Debug.stopMethodTracing();
 	}
 
 	private void updateWidgetsIfNeeded() {
@@ -436,7 +435,6 @@ public class KTodo extends ListActivity {
 	@Override
 	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		Log.i(TAG, "on restore state");
 		setCurrentTag(savedInstanceState.getLong("currentTag"));
 		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
 		setDefaultPrio(savedInstanceState.getInt("defaultPrio"));
@@ -451,7 +449,6 @@ public class KTodo extends ListActivity {
 			getSlidingView().switchLeft();
 		else {
 			startEditingItem(savedInstanceState.getLong("itemBeingEditedID"));
-			Log.i(TAG, "going to post delayed");
 			handler.postDelayed(new Runnable() {
 				public void run() {
 					getSlidingView().switchRight();

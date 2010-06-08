@@ -28,7 +28,6 @@ public class ConfigureActivity extends Activity {
 		setContentView(R.layout.configure);
 
 		appWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-		Log.i(TAG, "configure: " + appWidgetId);
 
 		settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();

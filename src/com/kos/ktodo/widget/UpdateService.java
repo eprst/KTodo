@@ -78,7 +78,6 @@ public class UpdateService extends Service implements Runnable {
 			final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
 			while (hasMoreUpdates()) {
 				final int widgetId = getNextUpdate();
-				Log.i(TAG, "updating widget " + widgetId);
 				final WidgetSettings s = settingsStorage.load(widgetId);
 				if (!s.configured) continue;
 				final RemoteViews updViews = KTodoWidget.buildUpdate(this, widgetId);

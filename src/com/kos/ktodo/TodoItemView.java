@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
 public class TodoItemView extends CheckedTextView {
+	private static final String[] PRIO_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
 	private String prio;
 	private boolean showNotesMark;
 
@@ -40,7 +41,7 @@ public class TodoItemView extends CheckedTextView {
 	}
 
 	public void setPrio(final int prio) {
-		this.prio = Integer.toString(prio);
+		this.prio = PRIO_TO_STRING[prio];
 	}
 
 	public void setProgress(final int progress) {

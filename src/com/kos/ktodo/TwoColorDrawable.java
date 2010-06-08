@@ -1,10 +1,8 @@
 package com.kos.ktodo;
 
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.PixelFormat;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 /**
  * A drawable that fills backround using two colors, with a changeable proportion between them.
@@ -39,15 +37,18 @@ public class TwoColorDrawable extends Drawable {
 		if (percent == 100) {
 			canvas.drawColor(s.c2);
 		} else if (percent == 0) {
-			canvas.drawColor(s.c1);
+			if (Color.alpha(s.c1) != 0)
+				canvas.drawColor(s.c1);
 		} else {
 			final int height = canvas.getHeight();
 			final int width = canvas.getWidth();
 			final int d = (width * percent) / 100;
 			p.setColor(s.c2);
 			canvas.drawRect(0, 0, d, height, p);
-			p.setColor(s.c1);
-			canvas.drawRect(d, 0, width, height, p);
+			if (Color.alpha(s.c1) != 0) {
+				p.setColor(s.c1);
+				canvas.drawRect(d, 0, width, height, p);
+			}
 		}
 	}
 

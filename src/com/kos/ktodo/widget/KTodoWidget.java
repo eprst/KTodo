@@ -22,22 +22,18 @@ public class KTodoWidget extends AppWidgetProvider {
 			appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, KTodoWidget.class));
 		UpdateService.requestUpdate(appWidgetIds);
 		context.startService(new Intent(context, UpdateService.class));
-		Log.i(TAG, "onUpdate...");
 	}
 
 	@Override
 	public void onDeleted(final Context context, final int[] appWidgetIds) {
 		final WidgetSettingsStorage wss = new WidgetSettingsStorage(context);
 		wss.open();
-		for (final int widgetId : appWidgetIds) {
-			Log.i(TAG, "delete: " + widgetId);
+		for (final int widgetId : appWidgetIds)
 			wss.delete(widgetId);
-		}
 		wss.close();
 	}
 
 	public static RemoteViews buildUpdate(final Context context, final int widgetId) {
-		Log.i(TAG, "update views: " + widgetId);
 		final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
 
 		final int[] items = new int[]{
