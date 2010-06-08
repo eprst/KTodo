@@ -2,6 +2,7 @@ package com.kos.ktodo;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -87,7 +88,17 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(TAG_TAG, context.getString(R.string.unfiled_untranslated)); //will be localized in KTodo
 		cv.put(TAG_ORDER, 100);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
-		//todo: insert help
+
+		final Resources r = context.getResources();
+		cv.clear();
+		cv.put(TODO_TAG_ID, UNFILED_METATAG_ID);
+		cv.put(TODO_DONE, false);
+		cv.put(TODO_SUMMARY, r.getString(R.string.help_summary));
+		cv.put(TODO_BODY, r.getString(R.string.help_body));
+		cv.put(TODO_PRIO, 1);
+		cv.put(TODO_PROGRESS, 0);
+		cv.putNull(TODO_DUE_DATE);
+		sqLiteDatabase.insert(TODO_TABLE_NAME, null, cv);
 	}
 
 	@Override

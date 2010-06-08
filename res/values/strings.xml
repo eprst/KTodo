@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">KTodo</string>
-	<string name="all_untranslated">All</string> <!-- don't translate this! -->
-	<string name="unfiled_untranslated">Unfiled</string> <!-- don't translate this! -->
+	<string name="all_untranslated">All</string>
+	<!-- don't translate this! -->
+	<string name="unfiled_untranslated">Unfiled</string>
+	<!-- don't translate this! -->
 	<string name="edit_tags">Edit tags</string>
 	<string name="show_completed_items">Show checked</string>
 	<string name="hide_completed_items">Hide checked</string>
@@ -34,7 +36,8 @@
 	<string name="importing_data">Importing data</string>
 	<string name="error">Error</string>
 	<string name="wipe">Wipe existing data</string>
-	<string name="progress">Progress</string> <!-- Complete? Finished? Done? -->
+	<string name="progress">Progress</string>
+	<!-- Complete? Finished? Done? -->
 	<string name="due_date">Due date</string>
 	<string name="today">Today</string>
 	<string name="tomorrow">Tomorrow</string>
@@ -49,6 +52,19 @@
 	<string name="widget_hide_completed">Hide completed</string>
 	<string name="widget_show_only">Show only...</string>
 	<string name="widget_show_only_due">Due items</string>
-	<string name="widget_show_only_due_x">Due in </string>
+	<string name="widget_show_only_due_x">Due in</string>
 	<string name="widget_days">days</string>
+	<string name="help_summary">Help! Slide me to the left!</string>
+	<string name="help_body">Short KTodo help\n\n
+On the main screen:\n
+* slide items to the left to edit (like you just did)\n
+* fling them to the right to delete (you have 3 seconds to undelete using \'back\' key)\n
+* long tap for context menu\n
+* items are always sorted by priority\n\n
+On the edit screen:\n
+* change tag using combo on top\n
+* edit summary and details using text areas\n
+* item will be marked by a blue ball on the main screen if you put something in the details\n
+* edit priority, progress and due date using buttons below\n
+* try to slide on priority and progress buttons</string>
 </resources>
