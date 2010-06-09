@@ -39,10 +39,8 @@ public class WidgetSettingsStorage {
 		cv.put(WIDGET_SHOW_ONLY_DUE, s.showOnlyDue);
 		cv.put(WIDGET_SHOW_ONLY_DUE_IN, s.showOnlyDueIn);
 		cv.put(WIDGET_CONFIGURED, s.configured);
-		if (db.update(WIDGET_TABLE_NAME, cv, getWhere(s.widgetID), null) == 0) {
-			cv.put(WIDGET_ID, s.widgetID);
-			db.insert(WIDGET_TABLE_NAME, null, cv);
-		}
+		cv.put(WIDGET_ID, s.widgetID);
+		db.replace(WIDGET_TABLE_NAME, null, cv);
 	}
 
 	public boolean delete(final int widgetID) {

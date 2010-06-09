@@ -154,7 +154,7 @@ public class XmlImporter extends XmlBase {
 			}
 			//updated 0 = do an insert
 		}
-		final long pk = db.insertWithOnConflict(tableName, null, cv, SQLiteDatabase.ConflictAlgorithm.REPLACE);
+		final long pk = db.replace(tableName, null, cv);
 		if (oldPK != null && pkRemapping != null)
 			pkRemapping.put(oldPK, pk);
 	}
