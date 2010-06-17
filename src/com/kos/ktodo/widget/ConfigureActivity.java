@@ -2,11 +2,11 @@ package com.kos.ktodo.widget;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import com.kos.ktodo.R;
@@ -27,7 +27,7 @@ public class ConfigureActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.configure);
 
-		appWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+		appWidgetId = (int) ContentUris.parseId(getIntent().getData());
 
 		settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();

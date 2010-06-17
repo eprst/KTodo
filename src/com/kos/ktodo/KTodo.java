@@ -4,10 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.*;
@@ -85,7 +82,7 @@ public class KTodo extends ListActivity {
 		final long currentTag;
 		final Intent intent = getIntent();
 		if (intent != null && SHOW_WIDGET_DATA.equals(intent.getAction())) {
-			final int widgetId = intent.getExtras().getInt(WIDGET_ID);
+			final int widgetId = (int) ContentUris.parseId(intent.getData());
 			final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
 			wss.open();
 			currentTag = wss.load(widgetId).tagID;
@@ -113,7 +110,7 @@ public class KTodo extends ListActivity {
 	@Override
 	protected void onNewIntent(final Intent intent) {
 		if (intent != null && SHOW_WIDGET_DATA.equals(intent.getAction())) {
-			final int widgetId = intent.getExtras().getInt(WIDGET_ID);
+			final int widgetId = (int) ContentUris.parseId(intent.getData());
 			final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
 			wss.open();
 			final int currentTag = wss.load(widgetId).tagID;

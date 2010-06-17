@@ -4,17 +4,41 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.util.Log;
+import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.kos.ktodo.*;
 
 public class KTodoWidget extends AppWidgetProvider {
 	private static final String TAG = "KTodoWidget";
+	private static final int[] ITEMS = new int[]{
+			R.id.widget_item1,
+			R.id.widget_item2,
+			R.id.widget_item3,
+			R.id.widget_item4,
+			R.id.widget_item5,
+			R.id.widget_item6,
+			R.id.widget_item7,
+			R.id.widget_item8,
+	};
+	private static final int[] LINES = new int[]{
+			R.id.widget_item1_line,
+			R.id.widget_item2_line,
+			R.id.widget_item3_line,
+			R.id.widget_item4_line,
+			R.id.widget_item5_line,
+			R.id.widget_item6_line,
+			R.id.widget_item7_line,
+			R.id.widget_item7_line,
+	};
+	//implement real content provider?
+	private static final String AUTHORITY = "com.kos.ktodo";
+	private static final Uri WIDGET_URI = Uri.parse("content://" + AUTHORITY + "/appwidgets");
 
 	@Override
 	public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -36,31 +60,11 @@ public class KTodoWidget extends AppWidgetProvider {
 	public static RemoteViews buildUpdate(final Context context, final int widgetId) {
 		final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
 
-		final int[] items = new int[]{
-				R.id.widget_item1,
-				R.id.widget_item2,
-				R.id.widget_item3,
-				R.id.widget_item4,
-				R.id.widget_item5,
-				R.id.widget_item6,
-				R.id.widget_item7,
-				R.id.widget_item8,
-		};
-		final int[] lines = new int[]{
-				R.id.widget_item1_line,
-				R.id.widget_item2_line,
-				R.id.widget_item3_line,
-				R.id.widget_item4_line,
-				R.id.widget_item5_line,
-				R.id.widget_item6_line,
-				R.id.widget_item7_line,
-				R.id.widget_item7_line,
-		};
 		views.setImageViewResource(R.id.widget_app_icon, R.drawable.icon_small);
 		views.setImageViewResource(R.id.widget_setup_icon, R.drawable.settings);
-		for (int i = 0; i < lines.length; i++) {
-			views.setViewVisibility(lines[i], View.INVISIBLE);
-			views.setViewVisibility(items[i], View.INVISIBLE);
+		for (int i = 0; i < LINES.length; i++) {
+			views.setViewVisibility(LINES[i], View.INVISIBLE);
+			views.setViewVisibility(ITEMS[i], View.INVISIBLE);
 		}
 
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(context);
@@ -99,13 +103,13 @@ public class KTodoWidget extends AppWidgetProvider {
 					if (!showItem(item, s))
 						continue;
 					if (i > 0)
-						views.setViewVisibility(lines[i - 1], View.VISIBLE);
+						views.setViewVisibility(LINES[i - 1], View.VISIBLE);
 
-					views.setImageViewResource(lines[i], R.drawable.line);
-					views.setTextViewText(items[i], item.summary);
-					views.setTextColor(items[i], getItemColor(r, item));
-					views.setViewVisibility(items[i], View.VISIBLE);
-					if (++i >= items.length) break;
+					views.setImageViewResource(LINES[i], R.drawable.line);
+					views.setTextViewText(ITEMS[i], item.summary);
+					views.setTextColor(ITEMS[i], getItemColor(r, item));
+					views.setViewVisibility(ITEMS[i], View.VISIBLE);
+					if (++i >= ITEMS.length) break;
 				} while (c.moveToNext());
 			}
 			c.close();
@@ -113,17 +117,18 @@ public class KTodoWidget extends AppWidgetProvider {
 			itemsStorage.close();
 		}
 
+
 		final Intent configureIntent = new Intent(context, ConfigureActivity.class);
 		configureIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
-		configureIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		configureIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
+		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
 		final PendingIntent configurePendingIntent = PendingIntent.getActivity(context, 0, configureIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_setup_icon, configurePendingIntent);
 
 		final Intent showTagIntent = new Intent(context, KTodo.class);
 		showTagIntent.setAction(KTodo.SHOW_WIDGET_DATA);
-		showTagIntent.putExtra(KTodo.WIDGET_ID, widgetId);
-		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		showTagIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
+		showTagIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
 		final PendingIntent showTagPendingIntent = PendingIntent.getActivity(context, 0, showTagIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_list, showTagPendingIntent);
 
