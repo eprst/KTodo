@@ -6,6 +6,7 @@ import android.content.ContentUris;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -27,7 +28,11 @@ public class ConfigureActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.configure);
 
-		appWidgetId = (int) ContentUris.parseId(getIntent().getData());
+		final Uri data = getIntent().getData();
+		if (data != null)
+			appWidgetId = (int) ContentUris.parseId(data);
+		else
+			appWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 
 		settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();
