@@ -22,15 +22,15 @@ import java.io.IOException;
 
 public class KTodo extends ListActivity {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
-	public static final String WIDGET_ID = "widget_id";
 
 	private static final String TAG = "KTodo";
 	private static final boolean TRACE = false; //enables method tracing
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
-	private final int EXPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 2;
-	private final int IMPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 3;
+	private final int SORTING_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 2;
+	private final int EXPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 3;
+	private final int IMPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 4;
 
 	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
@@ -50,6 +50,7 @@ public class KTodo extends ListActivity {
 	private Cursor currentTagItemsCursor;
 	private boolean hidingCompleted;
 	private int defaultPrio;
+	private TodoItemsSortingMode sortingMode;
 
 	private TodoItem editingItem;
 	private Cursor edititgItemTagsCursor;
@@ -92,6 +93,7 @@ public class KTodo extends ListActivity {
 		setCurrentTag(currentTag);
 		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
 		setDefaultPrio(preferences.getInt("defaultPrio", 1));
+		sortingMode = TodoItemsSortingMode.fromOrdinal(preferences.getInt("sortingMode", TodoItemsSortingMode.PRIO_THEN_DUE.ordinal()));
 
 		setupFirstScreenWidgets();
 		setupSecondScreenWidgets();
@@ -168,9 +170,10 @@ public class KTodo extends ListActivity {
 
 //				handler.post(new Runnable() {
 //					public void run() {
-				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-				todoItem.setDone(!todoItem.done);
-				todoItemsStorage.saveTodoItem(todoItem);
+//				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+//				todoItem.setDone(!todoItem.done);
+//				todoItemsStorage.saveTodoItem(todoItem);
+				todoItemsStorage.toggleDone(id);
 				updateView();
 //					}
 //				});
@@ -204,8 +207,8 @@ public class KTodo extends ListActivity {
 	private void setupSecondScreenWidgets() {
 		getPrioButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
-				selectPrio(new PrioSelectedCallback() {
-					public void prioSelected(final int prio) {
+				selectPrio(new Callback1<Integer>() {
+					public void call(final Integer prio) {
 						setDefaultPrio(prio);
 					}
 				});
@@ -294,7 +297,7 @@ public class KTodo extends ListActivity {
 			spinner.setSelection(position);
 
 		getPrioSliderButton().setSelection(editingItem.prio - 1);
-		getProgressSliderButton().setSelection(editingItem.progress / 10);
+		getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
 		updateDueDateButton();
 	}
 
@@ -333,9 +336,9 @@ public class KTodo extends ListActivity {
 		}
 
 		if (hidingCompleted)
-			currentTagItemsCursor = todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID());
+			currentTagItemsCursor = todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
 		else
-			currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID());
+			currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
 
 		final int doneIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DONE);
 		final int prioIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PRIO);
@@ -362,9 +365,10 @@ public class KTodo extends ListActivity {
 			}
 
 			private void initView(final TodoItemView ctv, final Cursor cursor) {
-				ctv.setChecked(cursor.getInt(doneIndex) != 0);
+				final boolean done = cursor.getInt(doneIndex) != 0;
+				ctv.setChecked(done);
 				ctv.setPrio(cursor.getInt(prioIndex));
-				ctv.setProgress(cursor.getInt(progressIndex));
+				ctv.setProgress(done ? 100 : cursor.getInt(progressIndex));
 				final String body = cursor.getString(bodyIndex);
 				ctv.setShowNotesMark(body != null && body.length() > 0);
 				if (cursor.isNull(dueDateIndex))
@@ -387,6 +391,7 @@ public class KTodo extends ListActivity {
 		final SharedPreferences.Editor editor = preferences.edit();
 		editor.putLong("currentTag", getCurrentTagID());
 		editor.putInt("defaultPrio", defaultPrio);
+		editor.putInt("sortingMode", sortingMode.ordinal());
 		editor.putBoolean("hidingCompleted", hidingCompleted).commit();
 		super.onPause();
 	}
@@ -416,6 +421,7 @@ public class KTodo extends ListActivity {
 		outState.putLong("currentTag", getCurrentTagID());
 		outState.putBoolean("hidingCompleted", hidingCompleted);
 		outState.putInt("defaultPrio", defaultPrio);
+		outState.putInt("sortingMode", sortingMode.ordinal());
 		final EditText addTask = getAddTaskWidget();
 		outState.putString("addTaskText", addTask.getText().toString());
 		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
@@ -435,6 +441,7 @@ public class KTodo extends ListActivity {
 		setCurrentTag(savedInstanceState.getLong("currentTag"));
 		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
 		setDefaultPrio(savedInstanceState.getInt("defaultPrio"));
+		sortingMode = TodoItemsSortingMode.fromOrdinal(savedInstanceState.getInt("sortingMode", TodoItemsSortingMode.PRIO_THEN_DUE.ordinal()));
 		final String addTaskText = savedInstanceState.getString("addTaskText");
 		if (addTaskText != null) {
 			final EditText taskWidget = getAddTaskWidget();
@@ -512,10 +519,11 @@ public class KTodo extends ListActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(final Menu menu) {
 		menu.clear();
-		final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
-		item.setIntent(new Intent(this, EditTags.class));
 		menu.add(0, SHOW_HIDE_COMPLETED_MENU_ITEM, Menu.NONE,
 				hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items);
+		menu.add(0, SORTING_MENU_ITEM, Menu.NONE, R.string.sorting);
+		final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
+		item.setIntent(new Intent(this, EditTags.class));
 		menu.add(0, EXPORT_MENU_ITEM, Menu.NONE, R.string.export);
 		menu.add(0, IMPORT_MENU_ITEM, Menu.NONE, R.string._import);
 		return super.onPrepareOptionsMenu(menu);
@@ -527,6 +535,14 @@ public class KTodo extends ListActivity {
 			case SHOW_HIDE_COMPLETED_MENU_ITEM:
 				hidingCompleted = !hidingCompleted;
 				reloadTodoItems();
+				return true;
+			case SORTING_MENU_ITEM:
+				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode>() {
+					public void call(final TodoItemsSortingMode arg) {
+						sortingMode = arg;
+						reloadTodoItems();
+					}
+				});
 				return true;
 			case EXPORT_MENU_ITEM:
 				exportData();
@@ -568,8 +584,8 @@ public class KTodo extends ListActivity {
 				updateView();
 				return true;
 			case CHANGE_PRIO_CONTEXT_MENU_ITEM:
-				selectPrio(new PrioSelectedCallback() {
-					public void prioSelected(final int prio) {
+				selectPrio(new Callback1<Integer>() {
+					public void call(final Integer prio) {
 						todoItem.prio = prio;
 						todoItemsStorage.saveTodoItem(todoItem);
 						updateView();
@@ -630,12 +646,12 @@ public class KTodo extends ListActivity {
 		return super.onContextItemSelected(item);
 	}
 
-	private void selectPrio(final PrioSelectedCallback cb) {
+	private void selectPrio(final Callback1<Integer> cb) {
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string.select_prio_title);
 		b.setItems(new CharSequence[]{"1", "2", "3", "4", "5"}, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialog, final int which) {
-				cb.prioSelected(which + 1);
+				cb.call(which + 1);
 			}
 		});
 		b.show();
@@ -801,10 +817,6 @@ public class KTodo extends ListActivity {
 
 	private Button getDueDateButton() {
 		return (Button) findViewById(R.id.due_date_button);
-	}
-
-	private interface PrioSelectedCallback {
-		void prioSelected(int prio);
 	}
 
 /*	private interface SubActivityCallback {

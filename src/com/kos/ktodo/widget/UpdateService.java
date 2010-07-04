@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.text.format.DateUtils;
 import android.text.format.Time;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.LinkedList;

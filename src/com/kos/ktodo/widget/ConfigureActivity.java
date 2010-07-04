@@ -10,9 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
-import com.kos.ktodo.R;
-import com.kos.ktodo.TagsStorage;
-import com.kos.ktodo.Util;
+import com.kos.ktodo.*;
 
 public class ConfigureActivity extends Activity {
 	private static final String TAG = "ConfigureActivity";
@@ -54,10 +52,12 @@ public class ConfigureActivity extends Activity {
 			return;
 		}
 
+
 		initTagsSelector();
 		initHideCompleted();
 		initDue();
 		initDueIn();
+		initSortingButton();
 		initOKButton();
 	}
 
@@ -130,6 +130,34 @@ public class ConfigureActivity extends Activity {
 				settings.showOnlyDue = isChecked;
 			}
 		});
+	}
+
+	private void initSortingButton() {
+		updateSortingButtonText();
+		final Button b = (Button) findViewById(R.id.conf_sorting);
+		b.setOnClickListener(new View.OnClickListener() {
+			public void onClick(final View v) {
+				TodoItemsSortingMode.selectSortingMode(ConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode>() {
+					public void call(final TodoItemsSortingMode arg) {
+						settings.sortingMode = arg;
+						updateSortingButtonText();
+					}
+				});
+			}
+		});
+	}
+
+	private Button updateSortingButtonText() {
+		final Button b = (Button) findViewById(R.id.conf_sorting);
+		switch (settings.sortingMode) {
+			case PRIO_THEN_DUE:
+				b.setText(R.string.prio_then_due);
+				break;
+			case DUE_THEN_PRIO:
+				b.setText(R.string.due_then_prio);
+				break;
+		}
+		return b;
 	}
 
 	private void initOKButton() {

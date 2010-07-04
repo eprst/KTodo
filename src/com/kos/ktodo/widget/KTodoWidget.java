@@ -95,7 +95,7 @@ public class KTodoWidget extends AppWidgetProvider {
 		itemsStorage.open();
 
 		try {
-			final Cursor c = itemsStorage.getByTagCursor(tagID);
+			final Cursor c = itemsStorage.getByTagCursor(tagID, s.sortingMode);
 			int i = 0;
 			if (c.moveToFirst()) {
 				do {

@@ -1,5 +1,7 @@
 package com.kos.ktodo.widget;
 
+import com.kos.ktodo.TodoItemsSortingMode;
+
 public class WidgetSettings {
 	public final int widgetID;
 	public int tagID = 1;
@@ -7,6 +9,7 @@ public class WidgetSettings {
 	public boolean hideCompleted = true;
 	public boolean showOnlyDue = false;
 	public int showOnlyDueIn = -1;
+	public TodoItemsSortingMode sortingMode = TodoItemsSortingMode.PRIO_THEN_DUE;
 
 	public WidgetSettings(final int widgetID) {
 		this.widgetID = widgetID;
@@ -22,6 +25,7 @@ public class WidgetSettings {
 		sb.append(", hideCompleted=").append(hideCompleted);
 		sb.append(", showOnlyDue=").append(showOnlyDue);
 		sb.append(", showOnlyDueIn=").append(showOnlyDueIn);
+		sb.append(", sortingMode=").append(sortingMode);
 		sb.append('}');
 		return sb.toString();
 	}

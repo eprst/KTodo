@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -21,6 +22,7 @@ public class TodoItemsStorage {
 	private SQLiteDatabase db;
 	private DBHelper helper;
 	private boolean modifiedDB;
+	private SQLiteStatement toggleDoneStmt;
 
 	public TodoItemsStorage(final Context context) {
 		helper = new DBHelper(context);
@@ -28,6 +30,7 @@ public class TodoItemsStorage {
 
 	public void open() {
 		db = helper.getWritableDatabase();
+		toggleDoneStmt = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_DONE + " = NOT " + TODO_DONE + " WHERE " + TODO_ID + "=?");
 		modifiedDB = false;
 	}
 
@@ -65,6 +68,12 @@ public class TodoItemsStorage {
 		return db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
 	}
 
+	public void toggleDone(final long id) {
+		modifiedDB = true;
+		toggleDoneStmt.bindLong(1, id);
+		toggleDoneStmt.execute();
+	}
+
 	public void moveTodoItems(final long fromTag, final long toTag) {
 		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
@@ -87,16 +96,16 @@ public class TodoItemsStorage {
 		return db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
 	}
 
-	public Cursor getByTagCursor(final long tagID) {
-		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, getTagConstraint(tagID), null, null, null, TODO_PRIO + " ASC");
+	public Cursor getByTagCursor(final long tagID, final TodoItemsSortingMode sortingMode) {
+		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, getTagConstraint(tagID), null, null, null, sortingMode.getOrderBy());
 	}
 
-	public Cursor getByTagCursorExcludingCompleted(final long tagID) {
+	public Cursor getByTagCursorExcludingCompleted(final long tagID, final TodoItemsSortingMode sortingMode) {
 		final String tagConstraint = getTagConstraint(tagID);
 		final String doneConstraint = TODO_DONE + " = 0";
 		final String constraint = tagConstraint == null ? doneConstraint :
 		                          tagConstraint + " AND " + doneConstraint;
-		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, constraint, null, null, null, TODO_PRIO + " ASC");
+		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, constraint, null, null, null, sortingMode.getOrderBy());
 	}
 
 	private String getTagConstraint(final long tagID) {

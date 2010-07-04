@@ -1,10 +1,8 @@
 package com.kos.ktodo;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.text.format.DateUtils;
 import android.view.KeyEvent;
 import android.view.View;

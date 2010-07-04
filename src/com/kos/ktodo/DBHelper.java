@@ -15,7 +15,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 3;
+	private static final int DB_VERSION = 4;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
@@ -41,6 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String WIDGET_HIDE_COMPLETED = "hide_completed";
 	public static final String WIDGET_SHOW_ONLY_DUE = "show_only_due";
 	public static final String WIDGET_SHOW_ONLY_DUE_IN = "show_only_due_in";
+	public static final String WIDGET_SORTING_MODE = "sorting_mode";
 	public static final String WIDGET_CONFIGURED = "configured";
 
 	private static final String CREATE_TAG_TABLE = "create table if not exists " + TAG_TABLE_NAME +
@@ -64,6 +65,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	                                                  WIDGET_CONFIGURED + " boolean default 0 not null, " +
 	                                                  WIDGET_SHOW_ONLY_DUE + " boolean default 0 not null, " +
 	                                                  WIDGET_SHOW_ONLY_DUE_IN + " integer default -1 not null, " +
+	                                                  WIDGET_SORTING_MODE + " integer default " + TodoItemsSortingMode.PRIO_THEN_DUE.ordinal() + " not null, " +
 	                                                  WIDGET_HIDE_COMPLETED + " boolean default 1 not null);";
 
 	private final Context context;
@@ -108,6 +110,9 @@ public class DBHelper extends SQLiteOpenHelper {
 			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer nullable;");
 		if (oldv <= 2)
 			sqLiteDatabase.execSQL(CREATE_WIDGET_TABLE);
+		if (oldv == 3)
+			sqLiteDatabase.execSQL("alter table " + WIDGET_TABLE_NAME + " add " + WIDGET_SORTING_MODE +
+			                       " integer default " + TodoItemsSortingMode.PRIO_THEN_DUE.ordinal() + " not null");
 	}
 
 	public static boolean isNullable(final String tableName, final String columnName) {

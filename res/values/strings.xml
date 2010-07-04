@@ -67,4 +67,7 @@ On the edit screen:\n
 * item will be marked by a blue ball on the main screen if you put something in the details\n
 * edit priority, progress and due date using buttons below\n
 * try to slide on priority and progress buttons</string>
+	<string name="sorting">Sorting</string>
+	<string name="prio_then_due">Priority, Due date</string>
+	<string name="due_then_prio">Due date, Priority</string>
 </resources>

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import com.kos.ktodo.DBHelper;
+import com.kos.ktodo.TodoItemsSortingMode;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -40,6 +41,7 @@ public class WidgetSettingsStorage {
 		cv.put(WIDGET_SHOW_ONLY_DUE_IN, s.showOnlyDueIn);
 		cv.put(WIDGET_CONFIGURED, s.configured);
 		cv.put(WIDGET_ID, s.widgetID);
+		cv.put(WIDGET_SORTING_MODE, s.sortingMode.ordinal());
 		db.replace(WIDGET_TABLE_NAME, null, cv);
 	}
 
@@ -51,7 +53,7 @@ public class WidgetSettingsStorage {
 
 	public WidgetSettings load(final int widgetID) {
 		final Cursor c = db.query(WIDGET_TABLE_NAME, new String[]
-				{WIDGET_TAG_ID, WIDGET_CONFIGURED, WIDGET_HIDE_COMPLETED, WIDGET_SHOW_ONLY_DUE, WIDGET_SHOW_ONLY_DUE_IN},
+				{WIDGET_TAG_ID, WIDGET_CONFIGURED, WIDGET_HIDE_COMPLETED, WIDGET_SHOW_ONLY_DUE, WIDGET_SHOW_ONLY_DUE_IN, WIDGET_SORTING_MODE},
 				getWhere(widgetID), null, null, null, null);
 		try {
 			final WidgetSettings res = new WidgetSettings(widgetID);
@@ -61,6 +63,7 @@ public class WidgetSettingsStorage {
 				res.hideCompleted = c.getInt(2) != 0;
 				res.showOnlyDue = c.getInt(3) != 0;
 				res.showOnlyDueIn = c.getInt(4);
+				res.sortingMode = TodoItemsSortingMode.fromOrdinal(c.getInt(5));
 			} else Log.i(TAG, "widget not found: " + widgetID);
 			return res;
 		} finally {c.close();}

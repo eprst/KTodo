@@ -32,7 +32,7 @@ public class TodoItem {
 	public void setDone(final boolean done) {
 		if (this.done != done) {
 			this.done = done;
-			progress = done ? 100 : 0;
+//			progress = done ? 100 : 0;
 		}
 	}
 
@@ -41,6 +41,11 @@ public class TodoItem {
 			this.progress = progress;
 			done = progress == 100;
 		}
+	}
+
+	public int getProgress() {
+		if (done) return 100;
+		return progress;
 	}
 
 	public String toString() {
