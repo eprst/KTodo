@@ -48,6 +48,8 @@
 	<string name="widget_show_only_due">Просроченные</string>
 	<string name="widget_show_only_due_x">Истекающие в ближайшие</string>
 	<string name="widget_days">дней</string>
+	<string name="widget_line1">пересоздай</string>
+	<string name="widget_line2">меня</string>
 	<string name="help_summary">Помощь (тащи меня влево)</string>
 	<string name="help_body">Краткая справка по KTodo\n\n
 Основной экран:\n

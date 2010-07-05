@@ -38,7 +38,7 @@
 				android:id="@+id/widget_item1"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:text="item1"
+				android:text="@string/widget_line1"
 				style="@style/Text.Widget.Item_Compressed"/>
 		<ImageView
 				android:id="@+id/widget_item1_line"
@@ -50,7 +50,7 @@
 				android:id="@+id/widget_item2"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:text="item2"
+				android:text="@string/widget_line2"
 				style="@style/Text.Widget.Item_Compressed"/>
 		<ImageView
 				android:id="@+id/widget_item2_line"

@@ -56,6 +56,8 @@
 	<string name="widget_show_only_due">Due items</string>
 	<string name="widget_show_only_due_x">Due in</string>
 	<string name="widget_days">days</string>
+	<string name="widget_line1">recreate</string>
+	<string name="widget_line2">me</string>
 	<string name="help_summary">Help! Slide me to the left!</string>
 	<string name="help_body">Short KTodo help\n\n
 On the main screen:\n
