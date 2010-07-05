@@ -137,10 +137,11 @@ public class ConfigureActivity extends Activity {
 		final Button b = (Button) findViewById(R.id.conf_sorting);
 		b.setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
-				TodoItemsSortingMode.selectSortingMode(ConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode>() {
-					public void call(final TodoItemsSortingMode arg) {
+				TodoItemsSortingMode.selectSortingMode(ConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode,Unit>() {
+					public Unit call(final TodoItemsSortingMode arg) {
 						settings.sortingMode = arg;
 						updateSortingButtonText();
+						return Unit.u;
 					}
 				});
 			}
