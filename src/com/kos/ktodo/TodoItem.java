@@ -32,6 +32,8 @@ public class TodoItem {
 	public void setDone(final boolean done) {
 		if (this.done != done) {
 			this.done = done;
+			if (!done && progress == 100)
+				progress = 0;
 //			progress = done ? 100 : 0;
 		}
 	}

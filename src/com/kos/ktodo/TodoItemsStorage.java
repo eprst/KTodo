@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -22,7 +21,8 @@ public class TodoItemsStorage {
 	private SQLiteDatabase db;
 	private DBHelper helper;
 	private boolean modifiedDB;
-	private SQLiteStatement toggleDoneStmt;
+//	private SQLiteStatement toggleDoneStmt1;
+//	private SQLiteStatement toggleDoneStmt2;
 
 	public TodoItemsStorage(final Context context) {
 		helper = new DBHelper(context);
@@ -30,7 +30,9 @@ public class TodoItemsStorage {
 
 	public void open() {
 		db = helper.getWritableDatabase();
-		toggleDoneStmt = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_DONE + " = NOT " + TODO_DONE + " WHERE " + TODO_ID + "=?");
+//		toggleDoneStmt1 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_DONE + " = NOT " + TODO_DONE + " WHERE " + TODO_ID + "=?");
+//		toggleDoneStmt2 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_PROGRESS + " = 0 " + " WHERE " +
+//		                                      TODO_ID + "=? AND " + TODO_PROGRESS + " = 100 AND " + TODO_DONE + " = 0");
 		modifiedDB = false;
 	}
 
@@ -68,11 +70,13 @@ public class TodoItemsStorage {
 		return db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
 	}
 
-	public void toggleDone(final long id) {
-		modifiedDB = true;
-		toggleDoneStmt.bindLong(1, id);
-		toggleDoneStmt.execute();
-	}
+//	public void toggleDone(final long id) {
+//		modifiedDB = true;
+//		toggleDoneStmt1.bindLong(1, id);
+//		toggleDoneStmt1.execute();
+//		toggleDoneStmt2.bindLong(1, id);
+//		toggleDoneStmt2.execute();
+//	}
 
 	public void moveTodoItems(final long fromTag, final long toTag) {
 		modifiedDB = true;

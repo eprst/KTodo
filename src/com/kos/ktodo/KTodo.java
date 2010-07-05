@@ -170,10 +170,10 @@ public class KTodo extends ListActivity {
 
 //				handler.post(new Runnable() {
 //					public void run() {
-//				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-//				todoItem.setDone(!todoItem.done);
-//				todoItemsStorage.saveTodoItem(todoItem);
-				todoItemsStorage.toggleDone(id);
+				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+				todoItem.setDone(!todoItem.done);
+				todoItemsStorage.saveTodoItem(todoItem);
+//				todoItemsStorage.toggleDone(id);
 				updateView();
 //					}
 //				});
