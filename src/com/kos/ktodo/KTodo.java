@@ -127,6 +127,12 @@ public class KTodo extends ListActivity {
 		}
 	}
 
+	private void onSlideBack() {
+		saveItemBeingEdited();
+		updateView();
+		getAddTaskWidget().requestFocus();
+	}
+
 	private void setupFirstScreenWidgets() {
 		getAddTaskButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
@@ -190,8 +196,7 @@ public class KTodo extends ListActivity {
 			public void onSlideBack() {
 				//Log.i(TAG, "slide back");
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-				saveItemBeingEdited();
-				updateView();
+				KTodo.this.onSlideBack();
 			}
 		});
 
@@ -202,28 +207,44 @@ public class KTodo extends ListActivity {
 
 			public void onNothingSelected(final AdapterView<?> parent) {}
 		});
-	}
 
-	private void setupSecondScreenWidgets() {
 		getPrioButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
-				selectPrio(new Callback1<Integer>() {
-					public void call(final Integer prio) {
+				selectPrio(new Callback1<Integer, Unit>() {
+					public Unit call(final Integer prio) {
 						setDefaultPrio(prio);
+						return Unit.u;
 					}
 				});
 			}
 		});
+	}
 
-		getPrioSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
-			public void valueChanged(final String newValue) {
+	private void setupSecondScreenWidgets() {
+		final SliderButton prioSliderButton = getPrioSliderButton();
+
+		prioSliderButton.setOnChangeListener(new Callback1<String, Unit>() {
+			public Unit call(final String newValue) {
 				editingItem.prio = Integer.parseInt(newValue);
+				return Unit.u;
 			}
 		});
 
-		getProgressSliderButton().setOnChangeListener(new SliderButton.OnChangeListener() {
-			public void valueChanged(final String newValue) {
+		prioSliderButton.setOnTrackballListener(new Callback1<MotionEvent, Boolean>() {
+			public Boolean call(final MotionEvent evt) {
+				if (evt.getX() < 0) {
+					getSlidingView().switchLeft();
+					onSlideBack();
+					return Boolean.TRUE;
+				}
+				return Boolean.FALSE;
+			}
+		});
+
+		getProgressSliderButton().setOnChangeListener(new Callback1<String, Unit>() {
+			public Unit call(final String newValue) {
 				editingItem.setProgress(Integer.parseInt(newValue));
+				return Unit.u;
 			}
 		});
 
@@ -299,6 +320,11 @@ public class KTodo extends ListActivity {
 		getPrioSliderButton().setSelection(editingItem.prio - 1);
 		getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
 		updateDueDateButton();
+		getSlidingView().setSlideListener(new SlidingView.SlideListener() {
+			public void slidingFinished() {
+				getEditSummaryWidget().requestFocus();
+			}
+		});
 	}
 
 	private void updateDueDateButton() {
@@ -537,10 +563,11 @@ public class KTodo extends ListActivity {
 				reloadTodoItems();
 				return true;
 			case SORTING_MENU_ITEM:
-				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode>() {
-					public void call(final TodoItemsSortingMode arg) {
+				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
+					public Unit call(final TodoItemsSortingMode arg) {
 						sortingMode = arg;
 						reloadTodoItems();
+						return Unit.u;
 					}
 				});
 				return true;
@@ -584,11 +611,12 @@ public class KTodo extends ListActivity {
 				updateView();
 				return true;
 			case CHANGE_PRIO_CONTEXT_MENU_ITEM:
-				selectPrio(new Callback1<Integer>() {
-					public void call(final Integer prio) {
+				selectPrio(new Callback1<Integer, Unit>() {
+					public Unit call(final Integer prio) {
 						todoItem.prio = prio;
 						todoItemsStorage.saveTodoItem(todoItem);
 						updateView();
+						return Unit.u;
 					}
 				});
 				return true;
@@ -646,7 +674,7 @@ public class KTodo extends ListActivity {
 		return super.onContextItemSelected(item);
 	}
 
-	private void selectPrio(final Callback1<Integer> cb) {
+	private void selectPrio(final Callback1<Integer, Unit> cb) {
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string.select_prio_title);
 		b.setItems(new CharSequence[]{"1", "2", "3", "4", "5"}, new DialogInterface.OnClickListener() {

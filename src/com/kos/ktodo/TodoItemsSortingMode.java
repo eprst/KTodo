@@ -27,7 +27,7 @@ public enum TodoItemsSortingMode {
 		return TodoItemsSortingMode.values()[ord];
 	}
 
-	public static void selectSortingMode(final Context c, final TodoItemsSortingMode def, final Callback1<TodoItemsSortingMode> callback) {
+	public static void selectSortingMode(final Context c, final TodoItemsSortingMode def, final Callback1<TodoItemsSortingMode,Unit> callback) {
 		final AlertDialog.Builder b = new AlertDialog.Builder(c);
 		b.setTitle(R.string.sorting);
 		b.setSingleChoiceItems(new CharSequence[]{

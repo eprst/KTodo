@@ -72,8 +72,10 @@ public class SlidingView extends FrameLayout {
 		if (scroller.computeScrollOffset()) {
 			scrollTo(scroller.getCurrX(), 0);
 //			postInvalidate();
-		} else if (slideListener != null)
+		} else if (slideListener != null) {
 			slideListener.slidingFinished();
+			slideListener = null;
+		}
 	}
 
 	@Override

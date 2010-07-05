@@ -233,6 +233,16 @@ public class MyListView extends ListView {
 	}
 
 	@Override
+	public boolean onTrackballEvent(final MotionEvent event) {
+		if (event.getX() > 0 && slideLeftListener != null) {
+			slideLeftListener.slideLeftStarted(getSelectedItemId());
+			slideLeftView.switchRight();
+			return true;
+		} else
+			return super.onTrackballEvent(event);
+	}
+
+	@Override
 	public boolean onTouchEvent(final MotionEvent ev) {
 		if (replaying || deleteItemListener == null) return super.onTouchEvent(ev);
 		boolean processed = false;

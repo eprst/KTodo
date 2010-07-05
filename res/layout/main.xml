@@ -83,6 +83,7 @@
 			<com.kos.ktodo.SliderButton
 					android:id="@+id/prio_sliding_button"
 					android:nextFocusLeft="@id/prio_sliding_button"
+					android:nextFocusDown="@id/prio_sliding_button"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1.0"
@@ -91,6 +92,7 @@
 					kos:valuesList="1,2,3,4,5"/>
 			<com.kos.ktodo.SliderButton
 					android:id="@+id/progress_sliding_button"
+					android:nextFocusDown="@id/progress_sliding_button"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1.0"
@@ -100,6 +102,7 @@
 					kos:valueSuffix="%"/>
 			<Button
 					android:id="@+id/due_date_button"
+					android:nextFocusDown="@id/due_date_button"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="@string/due_date"/>

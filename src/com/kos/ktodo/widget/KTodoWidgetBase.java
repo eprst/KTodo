@@ -141,6 +141,7 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 		showTagIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
 		final PendingIntent showTagPendingIntent = PendingIntent.getActivity(context, 0, showTagIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_list, showTagPendingIntent);
+		views.setOnClickPendingIntent(R.id.widget, showTagPendingIntent);
 
 		return views;
 	}

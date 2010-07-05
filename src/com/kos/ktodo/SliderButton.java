@@ -18,7 +18,8 @@ public class SliderButton extends Button {
 	private final String separator;
 	private final String[] values;
 	private final String[] suffixedValues;
-	private OnChangeListener onChangeListener;
+	private Callback1<String, Unit> onChangeListener;
+	private Callback1<MotionEvent, Boolean> onTrackballListener;
 
 	private final int scaledTouchSlop;
 	private int currentSelection;
@@ -68,8 +69,12 @@ public class SliderButton extends Button {
 		ta.recycle();
 	}
 
-	public void setOnChangeListener(final OnChangeListener onChangeListener) {
+	public void setOnChangeListener(final Callback1<String, Unit> onChangeListener) {
 		this.onChangeListener = onChangeListener;
+	}
+
+	public void setOnTrackballListener(final Callback1<MotionEvent, Boolean> onTrackballListener) {
+		this.onTrackballListener = onTrackballListener;
 	}
 
 	public void setSelection(final int index) {
@@ -83,7 +88,22 @@ public class SliderButton extends Button {
 
 	private void notifyOnChangeListener() {
 		if (onChangeListener != null)
-			onChangeListener.valueChanged(values[currentSelection]);
+			onChangeListener.call(values[currentSelection]);
+	}
+
+	@Override
+	public boolean onTrackballEvent(final MotionEvent event) {
+//		if (event.getX() > 0) {
+//			updateSelection(Math.min(currentSelection + 1, values.length - 1));
+//			return true;
+//		} else if (event.getX() < 0) {
+//			updateSelection(Math.max(currentSelection - 1, 0));
+//			return true;
+//		}
+		if (onTrackballListener != null) {
+			return onTrackballListener.call(event);
+		}
+		return super.onTrackballEvent(event);
 	}
 
 	@Override
@@ -119,10 +139,7 @@ public class SliderButton extends Button {
 						dlg.setMessage(suffixedValues[newSelection]);
 					}
 				}
-				if (newSelection != currentSelection) {
-					setSelection(newSelection);
-					notifyOnChangeListener();
-				}
+				updateSelection(newSelection);
 				break;
 			case MotionEvent.ACTION_UP:
 				if (dlg != null) {
@@ -134,7 +151,10 @@ public class SliderButton extends Button {
 		return super.onTouchEvent(event);
 	}
 
-	public interface OnChangeListener {
-		void valueChanged(final String newValue);
+	private void updateSelection(final int newSelection) {
+		if (newSelection != currentSelection) {
+			setSelection(newSelection);
+			notifyOnChangeListener();
+		}
 	}
 }
