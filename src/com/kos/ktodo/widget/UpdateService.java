@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -67,7 +68,8 @@ public class UpdateService extends Service implements Runnable {
 
 	public static void requestUpdateAll(final Context ctx) {
 		final AppWidgetManager manager = AppWidgetManager.getInstance(ctx);
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget.class)));
+		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget21.class)));
+		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget22.class)));
 	}
 
 	public void run() {
@@ -79,7 +81,8 @@ public class UpdateService extends Service implements Runnable {
 				final int widgetId = getNextUpdate();
 				final WidgetSettings s = settingsStorage.load(widgetId);
 				if (!s.configured) continue;
-				final RemoteViews updViews = KTodoWidget.buildUpdate(this, widgetId);
+				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId);
+				final RemoteViews updViews = KTodoWidgetBase.buildUpdate(this, widgetId, widgetInfo);
 				if (updViews != null)
 					widgetManager.updateAppWidget(widgetId, updViews);
 			}

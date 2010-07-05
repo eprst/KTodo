@@ -3,6 +3,7 @@ package com.kos.ktodo.widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
@@ -10,13 +11,15 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.kos.ktodo.*;
 
-public class KTodoWidget extends AppWidgetProvider {
-	private static final String TAG = "KTodoWidget";
-	private static final int[] ITEMS = new int[]{
+public abstract class KTodoWidgetBase extends AppWidgetProvider {
+	private static final String TAG = "KTodoWidgetBase";
+
+	protected static final int[] ITEMS = new int[]{
 			R.id.widget_item1,
 			R.id.widget_item2,
 			R.id.widget_item3,
@@ -26,7 +29,7 @@ public class KTodoWidget extends AppWidgetProvider {
 			R.id.widget_item7,
 			R.id.widget_item8,
 	};
-	private static final int[] LINES = new int[]{
+	protected static final int[] LINES = new int[]{
 			R.id.widget_item1_line,
 			R.id.widget_item2_line,
 			R.id.widget_item3_line,
@@ -37,13 +40,13 @@ public class KTodoWidget extends AppWidgetProvider {
 			R.id.widget_item7_line,
 	};
 	//implement real content provider?
-	private static final String AUTHORITY = "com.kos.ktodo";
-	private static final Uri WIDGET_URI = Uri.parse("content://" + AUTHORITY + "/appwidgets");
+	protected static final String AUTHORITY = "com.kos.ktodo";
+	protected static final Uri WIDGET_URI = Uri.parse("content://" + AUTHORITY + "/appwidgets");
 
 	@Override
 	public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		if (appWidgetIds == null)
-			appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, KTodoWidget.class));
+			appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, KTodoWidget22.class));
 		UpdateService.requestUpdate(appWidgetIds);
 		context.startService(new Intent(context, UpdateService.class));
 	}
@@ -57,8 +60,15 @@ public class KTodoWidget extends AppWidgetProvider {
 		wss.close();
 	}
 
-	public static RemoteViews buildUpdate(final Context context, final int widgetId) {
-		final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+	public static RemoteViews buildUpdate(final Context context, final int widgetId, final AppWidgetProviderInfo providerInfo) {
+		final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+		final int mh = (int) (72f * displayMetrics.density);
+		final boolean small = providerInfo.minHeight == mh;
+
+		final int numLines = small ? 3 : LINES.length;
+		final int layout = small ? R.layout.widget_2x1 : R.layout.widget_2x2;
+//		Log.i(TAG, "widget: " + widgetId + ", small: " + small + ", minHeight: " + providerInfo.minHeight + ", 72-> " + mh);
+		final RemoteViews views = new RemoteViews(context.getPackageName(), layout);
 
 		views.setImageViewResource(R.id.widget_app_icon, R.drawable.icon_small);
 		views.setImageViewResource(R.id.widget_setup_icon, R.drawable.settings);
@@ -109,7 +119,7 @@ public class KTodoWidget extends AppWidgetProvider {
 					views.setTextViewText(ITEMS[i], item.summary);
 					views.setTextColor(ITEMS[i], getItemColor(r, item));
 					views.setViewVisibility(ITEMS[i], View.VISIBLE);
-					if (++i >= ITEMS.length) break;
+					if (++i >= numLines) break;
 				} while (c.moveToNext());
 			}
 			c.close();
@@ -152,11 +162,16 @@ public class KTodoWidget extends AppWidgetProvider {
 		final int opts = (s.showOnlyDue ? 1 : 0) << 1 | (s.showOnlyDueIn == -1 ? 0 : 1);
 		final Integer dd = Util.getDueInDays(i.dueDate);
 		switch (opts) {
-			case 0: return true;
-			case 1: return dd != null && dd >= 0 && dd <= s.showOnlyDueIn;
-			case 2: return dd != null && dd < 0;
-			case 3: return dd != null && (dd < 0 || (dd <= s.showOnlyDueIn));
-			default: return true; //unreachable
+			case 0:
+				return true;
+			case 1:
+				return dd != null && dd >= 0 && dd <= s.showOnlyDueIn;
+			case 2:
+				return dd != null && dd < 0;
+			case 3:
+				return dd != null && (dd < 0 || (dd <= s.showOnlyDueIn));
+			default:
+				return true; //unreachable
 		}
 	}
 }

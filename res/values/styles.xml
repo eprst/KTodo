@@ -28,4 +28,14 @@
 		<item name="android:includeFontPadding">false</item>
 		<item name="android:ellipsize">end</item>
 	</style>
+	<style name="Text.Widget.Item_Compressed">
+		<item name="android:textColor">@color/white</item>
+		<item name="android:paddingLeft">3dip</item>
+		<item name="android:paddingRight">3dip</item>
+		<item name="android:paddingBottom">1dip</item>
+		<item name="android:paddingTop">0dip</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:includeFontPadding">false</item>
+		<item name="android:ellipsize">end</item>
+	</style>
 </resources>
