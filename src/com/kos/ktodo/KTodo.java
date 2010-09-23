@@ -261,6 +261,8 @@ public class KTodo extends ListActivity {
 			}
 		});
 
+		getEditBodyWidget().setScrollbarFadingEnabled(true);
+		getEditBodyWidget().setVerticalFadingEdgeEnabled(true);
 		setupBodyWidgetFlingDetector();
 	}
 

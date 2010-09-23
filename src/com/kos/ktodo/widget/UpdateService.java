@@ -82,9 +82,11 @@ public class UpdateService extends Service implements Runnable {
 				final WidgetSettings s = settingsStorage.load(widgetId);
 				if (!s.configured) continue;
 				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId);
-				final RemoteViews updViews = KTodoWidgetBase.buildUpdate(this, widgetId, widgetInfo);
-				if (updViews != null)
-					widgetManager.updateAppWidget(widgetId, updViews);
+				if (widgetInfo != null) {
+					final RemoteViews updViews = KTodoWidgetBase.buildUpdate(this, widgetId, widgetInfo);
+					if (updViews != null)
+						widgetManager.updateAppWidget(widgetId, updViews);
+				}
 			}
 			settingsStorage.close();
 
