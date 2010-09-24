@@ -25,6 +25,7 @@ public class KTodo extends ListActivity {
 
 	private static final String TAG = "KTodo";
 	private static final boolean TRACE = false; //enables method tracing
+	private static final Object HIDE_UNDELETE_BUTTON_TOKEN = "HIDE_UNDELETE_BUTTON_TOKEN";
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
@@ -56,7 +57,6 @@ public class KTodo extends ListActivity {
 	private Cursor edititgItemTagsCursor;
 
 	private TodoItem lastDeletedItem;
-	private long lastDeletedTimestamp;
 
 	/**
 	 * Called when the activity is first created.
@@ -162,8 +162,8 @@ public class KTodo extends ListActivity {
 		listView.setDeleteItemListener(new MyListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
 				lastDeletedItem = todoItemsStorage.loadTodoItem(id);
-				lastDeletedTimestamp = System.currentTimeMillis();
 				todoItemsStorage.deleteTodoItem(id);
+				showUndeleteButton();
 				updateView();
 			}
 		});
@@ -216,6 +216,12 @@ public class KTodo extends ListActivity {
 						return Unit.u;
 					}
 				});
+			}
+		});
+
+		getUndeleteButton().setOnClickListener(new View.OnClickListener() {
+			public void onClick(final View v) {
+				undelete();
 			}
 		});
 	}
@@ -495,14 +501,31 @@ public class KTodo extends ListActivity {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if (getMyListView().handleBack())
 				return true;
-			if (lastDeletedItem != null && System.currentTimeMillis() - lastDeletedTimestamp < 3000) {
-				todoItemsStorage.addTodoItem(lastDeletedItem);
-				lastDeletedItem = null;
-				updateView();
-				return true;
-			}
+//			if (lastDeletedItem != null && System.currentTimeMillis() - lastDeletedTimestamp < 3000) {
+//				undelete();
+//				return true;
+//			}
 		}
 		return super.onKeyDown(keyCode, event);
+	}
+
+	private void showUndeleteButton() {
+		getUndeleteButton().setVisibility(View.VISIBLE);
+		handler.removeCallbacksAndMessages(HIDE_UNDELETE_BUTTON_TOKEN);
+		handler.postAtTime(new Runnable() {
+			public void run() {
+				getUndeleteButton().setVisibility(View.GONE);
+			}
+		}, HIDE_UNDELETE_BUTTON_TOKEN, SystemClock.uptimeMillis() + 5000);
+	}
+
+	private void undelete() {
+		if (lastDeletedItem != null) {
+			todoItemsStorage.addTodoItem(lastDeletedItem);
+			lastDeletedItem = null;
+			updateView();
+		}
+		getUndeleteButton().setVisibility(View.GONE);
 	}
 
 	private void addTodoItem() {
@@ -608,8 +631,8 @@ public class KTodo extends ListActivity {
 				return true;
 			case DELETE_ITEM_CONTEXT_MENU_ITEM:
 				lastDeletedItem = todoItemsStorage.loadTodoItem(id);
-				lastDeletedTimestamp = System.currentTimeMillis();
 				todoItemsStorage.deleteTodoItem(id);
+				showUndeleteButton();
 				updateView();
 				return true;
 			case CHANGE_PRIO_CONTEXT_MENU_ITEM:
@@ -815,6 +838,10 @@ public class KTodo extends ListActivity {
 
 	private MyListView getMyListView() {
 		return (MyListView) findViewById(android.R.id.list);
+	}
+
+	private Button getUndeleteButton() {
+		return (Button) findViewById(R.id.undelete_button);
 	}
 
 	private SlidingView getSlidingView() {

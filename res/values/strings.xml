@@ -62,7 +62,7 @@
 	<string name="help_body">Short KTodo help\n\n
 On the main screen:\n
 * slide items to the left to edit (like you just did)\n
-* fling them to the right to delete (you have 3 seconds to undelete using \'back\' key)\n
+* fling them to the right to delete\n
 * long tap for context menu\n
 * items are always sorted by priority\n\n
 On the edit screen:\n
@@ -74,4 +74,5 @@ On the edit screen:\n
 	<string name="sorting">Sorting</string>
 	<string name="prio_then_due">Priority, Due date</string>
 	<string name="due_then_prio">Due date, Priority</string>
+	<string name="undelete">Undelete</string>
 </resources>
