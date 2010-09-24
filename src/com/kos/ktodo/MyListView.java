@@ -268,12 +268,12 @@ public class MyListView extends ListView {
 			return true;
 		} else if (intercepted.size() > 0) {
 			replaying = true;
-			for (final MotionEvent event : intercepted) {
-				try {
+			try {
+				for (final MotionEvent event : intercepted) {
 					super.dispatchTouchEvent(event);
-				} catch (ArrayIndexOutOfBoundsException e) {
-					//failed attempt to replay events, abort
 				}
+			} catch (Exception e) {
+				//failed attempt to replay events, abort
 			}
 			replaying = false;
 			intercepted.clear();
