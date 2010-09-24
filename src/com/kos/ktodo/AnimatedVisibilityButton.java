@@ -2,6 +2,7 @@ package com.kos.ktodo;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.Animation;
@@ -12,8 +13,15 @@ import android.widget.Button;
  * A button that plays animations when shown/hidden.
  */
 public class AnimatedVisibilityButton extends Button {
+	private final Handler h = new Handler();
 	private final Animation inAnimation;
 	private final Animation outAnimation;
+
+	private final Runnable hider = new Runnable() {
+		public void run() {
+			setVisibility(View.GONE);
+		}
+	};
 
 	public AnimatedVisibilityButton(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
@@ -38,5 +46,14 @@ public class AnimatedVisibilityButton extends Button {
 			}
 			super.setVisibility(visibility);
 		}
+	}
+
+	public void hideAfter(final long millis) {
+		h.removeCallbacks(hider);
+		h.postDelayed(hider, millis);
+	}
+
+	public void hideNoAnimation() {
+		super.setVisibility(View.GONE);
 	}
 }

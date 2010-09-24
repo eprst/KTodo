@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.*;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
 import android.os.*;
 import android.util.Log;
 import android.view.*;
@@ -25,7 +26,6 @@ public class KTodo extends ListActivity {
 
 	private static final String TAG = "KTodo";
 	private static final boolean TRACE = false; //enables method tracing
-	private static final Object HIDE_UNDELETE_BUTTON_TOKEN = "HIDE_UNDELETE_BUTTON_TOKEN";
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
@@ -224,6 +224,7 @@ public class KTodo extends ListActivity {
 				undelete();
 			}
 		});
+		getUndeleteButton().getBackground().setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
 	}
 
 	private void setupSecondScreenWidgets() {
@@ -511,12 +512,7 @@ public class KTodo extends ListActivity {
 
 	private void showUndeleteButton() {
 		getUndeleteButton().setVisibility(View.VISIBLE);
-		handler.removeCallbacksAndMessages(HIDE_UNDELETE_BUTTON_TOKEN);
-		handler.postAtTime(new Runnable() {
-			public void run() {
-				getUndeleteButton().setVisibility(View.GONE);
-			}
-		}, HIDE_UNDELETE_BUTTON_TOKEN, SystemClock.uptimeMillis() + 5000);
+		getUndeleteButton().hideAfter(5000);
 	}
 
 	private void undelete() {
@@ -525,7 +521,7 @@ public class KTodo extends ListActivity {
 			lastDeletedItem = null;
 			updateView();
 		}
-		getUndeleteButton().setVisibility(View.GONE);
+		getUndeleteButton().hideNoAnimation();
 	}
 
 	private void addTodoItem() {
@@ -840,8 +836,8 @@ public class KTodo extends ListActivity {
 		return (MyListView) findViewById(android.R.id.list);
 	}
 
-	private Button getUndeleteButton() {
-		return (Button) findViewById(R.id.undelete_button);
+	private AnimatedVisibilityButton getUndeleteButton() {
+		return (AnimatedVisibilityButton) findViewById(R.id.undelete_button);
 	}
 
 	private SlidingView getSlidingView() {
