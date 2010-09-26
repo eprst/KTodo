@@ -26,6 +26,7 @@ public class KTodo extends ListActivity {
 
 	private static final String TAG = "KTodo";
 	private static final boolean TRACE = false; //enables method tracing
+	private static final int HIDE_UNDELETE_AFTER = 4000; //ms
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
@@ -512,7 +513,7 @@ public class KTodo extends ListActivity {
 
 	private void showUndeleteButton() {
 		getUndeleteButton().setVisibility(View.VISIBLE);
-		getUndeleteButton().hideAfter(5000);
+		getUndeleteButton().hideAfter(HIDE_UNDELETE_AFTER);
 	}
 
 	private void undelete() {
