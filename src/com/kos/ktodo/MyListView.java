@@ -272,13 +272,16 @@ public class MyListView extends ListView {
 				for (final MotionEvent event : intercepted) {
 					super.dispatchTouchEvent(event);
 				}
+				return super.onTouchEvent(ev);
 			} catch (Exception e) {
 				//failed attempt to replay events, abort
+			} finally {
+				replaying = false;
+				intercepted.clear();
 			}
-			replaying = false;
-			intercepted.clear();
-		}
-		return super.onTouchEvent(ev);
+			return true;
+		} else
+			return super.onTouchEvent(ev);
 	}
 
 	private boolean processUpEvent() {
