@@ -47,6 +47,7 @@
 	<string name="due_date_format_short">M/d</string>
 	<string name="widget_2x2">KTodo 2x2</string>
 	<string name="widget_2x1">KTodo 2x1</string>
+	<string name="widget_2x4">KTodo 2x4</string>
 	<string name="widget_loading">Loading widget...</string>
 	<string name="widget_configure_title">Configure KTodo widget</string>
 	<string name="widget_ok">OK</string>

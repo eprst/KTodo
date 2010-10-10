@@ -70,6 +70,7 @@ public class UpdateService extends Service implements Runnable {
 		final AppWidgetManager manager = AppWidgetManager.getInstance(ctx);
 		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget21.class)));
 		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget22.class)));
+		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget24.class)));
 	}
 
 	public void run() {

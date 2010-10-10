@@ -12,6 +12,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import com.kos.ktodo.*;
@@ -28,6 +29,16 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 			R.id.widget_item6,
 			R.id.widget_item7,
 			R.id.widget_item8,
+			R.id.widget_item9,
+			R.id.widget_item10,
+			R.id.widget_item11,
+			R.id.widget_item12,
+			R.id.widget_item13,
+			R.id.widget_item14,
+			R.id.widget_item15,
+			R.id.widget_item16,
+			R.id.widget_item17,
+			R.id.widget_item18,
 	};
 	protected static final int[] LINES = new int[]{
 			R.id.widget_item1_line,
@@ -37,7 +48,17 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 			R.id.widget_item5_line,
 			R.id.widget_item6_line,
 			R.id.widget_item7_line,
-			R.id.widget_item7_line,
+			R.id.widget_item8_line,
+			R.id.widget_item9_line,
+			R.id.widget_item10_line,
+			R.id.widget_item11_line,
+			R.id.widget_item12_line,
+			R.id.widget_item13_line,
+			R.id.widget_item14_line,
+			R.id.widget_item15_line,
+			R.id.widget_item16_line,
+			R.id.widget_item17_line,
+			R.id.widget_item17_line,
 	};
 	//implement real content provider?
 	protected static final String AUTHORITY = "com.kos.ktodo";
@@ -61,13 +82,9 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 	}
 
 	public static RemoteViews buildUpdate(final Context context, final int widgetId, final AppWidgetProviderInfo providerInfo) {
-		final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-		final int mh = (int) (72f * displayMetrics.density);
-		final boolean small = providerInfo.minHeight == mh;
-
-		final int numLines = small ? 3 : LINES.length;
-		final int layout = small ? R.layout.widget_2x1 : R.layout.widget_2x2;
-//		Log.i(TAG, "widget: " + widgetId + ", small: " + small + ", minHeight: " + providerInfo.minHeight + ", 72-> " + mh);
+		final WidgetSizeInfo widgetSizeInfo = getWidgetSizeInfo(context, providerInfo);
+		final int layout = widgetSizeInfo.getLayout();
+		final int numLines = widgetSizeInfo.getNumLines();
 		final RemoteViews views = new RemoteViews(context.getPackageName(), layout);
 
 		views.setImageViewResource(R.id.widget_app_icon, R.drawable.icon_small);
@@ -146,6 +163,36 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 		return views;
 	}
 
+	private static WidgetSizeInfo getWidgetSizeInfo(final Context context, final AppWidgetProviderInfo providerInfo) {
+		final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+		final int mh = (int) (72f * displayMetrics.density);
+		final int ratio = providerInfo.minHeight / mh;
+
+		final int numLines; // = small ? 3 : LINES.length;
+		final int layout; // = small ? R.layout.widget_2x1 : R.layout.widget_2x2;
+		switch (ratio) {
+			case 1:
+				numLines = 3;
+				layout = R.layout.widget_2x1;
+				break;
+			case 2:
+				numLines = 8;
+				layout = R.layout.widget_2x2;
+				break;
+			case 4:
+				numLines = LINES.length;
+				layout = R.layout.widget_2x4;
+				break;
+			default:
+				Log.i(TAG, "can't recognize widget size, minHeight: " + providerInfo.minHeight + ", mh: " + mh + ", r: " + ratio);
+				numLines = LINES.length;
+				layout = R.layout.widget_2x4;
+		}
+//		Log.i(TAG, "ratio: " + ratio);
+//		Log.i(TAG, "widget, small: " + small + ", medium: " + medium + ", minHeight: " + providerInfo.minHeight + ", mh -> " + mh);
+		return new WidgetSizeInfo(layout, numLines);
+	}
+
 	private static int getItemColor(final Resources r, final TodoItem i) {
 		switch (Util.getDueStatus(i.dueDate)) {
 			case EXPIRED:
@@ -173,6 +220,24 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 				return dd != null && (dd < 0 || (dd <= s.showOnlyDueIn));
 			default:
 				return true; //unreachable
+		}
+	}
+
+	private static class WidgetSizeInfo {
+		private final int numLines;
+		private final int layout;
+
+		private WidgetSizeInfo(final int layout, final int numLines) {
+			this.layout = layout;
+			this.numLines = numLines;
+		}
+
+		public int getNumLines() {
+			return numLines;
+		}
+
+		public int getLayout() {
+			return layout;
 		}
 	}
 }
