@@ -3,6 +3,11 @@
 		<attr name="maxThrowVelocity" format="integer"/>
 		<attr name="vibrateOnTearOff" format="integer"/>
 	</declare-styleable>
+	<declare-styleable name="SlideLeftButton">
+		<attr name="maxThrowVelocity2" format="integer"/>
+		<!-- why can't we have same attribute name for different styleables?? -->
+		<attr name="waitForSlide" format="integer"/>
+	</declare-styleable>
 	<declare-styleable name="SliderButton">
 		<attr name="valuesList" format="string"/>
 		<attr name="valueSuffix" format="string"/>

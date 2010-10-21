@@ -135,11 +135,29 @@ public class KTodo extends ListActivity {
 	}
 
 	private void setupFirstScreenWidgets() {
-		getAddTaskButton().setOnClickListener(new View.OnClickListener() {
+		final SlideLeftButton addTaskButton = getAddTaskButton();
+		addTaskButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
-				addTodoItem();
+				final long id = addTodoItem();
+				if (id != -1)
+					addTaskButton.setItemID(id);
 			}
 		});
+		final SlideLeftListener slideLeftListener = new SlideLeftListener() {
+			public void slideLeftStarted(final long id) {
+				startEditingItem(id);
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
+			}
+
+			public void onSlideBack() {
+				//Log.i(TAG, "slide back");
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				KTodo.this.onSlideBack();
+			}
+		};
+
+		addTaskButton.setSlideLeftInfo(getSlidingView(), slideLeftListener);
 		getAddTaskWidget().setOnKeyListener(new View.OnKeyListener() {
 			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -187,19 +205,7 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		listView.setSlideLeftInfo(getSlidingView(), new MyListView.SlideLeftListener() {
-			public void slideLeftStarted(final long id) {
-				startEditingItem(id);
-//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
-			}
-
-			public void onSlideBack() {
-				//Log.i(TAG, "slide back");
-//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-				KTodo.this.onSlideBack();
-			}
-		});
+		listView.setSlideLeftInfo(getSlidingView(), slideLeftListener);
 
 		getEditItemTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -332,7 +338,8 @@ public class KTodo extends ListActivity {
 		updateDueDateButton();
 		getSlidingView().setSlideListener(new SlidingView.SlideListener() {
 			public void slidingFinished() {
-				getEditSummaryWidget().requestFocus();
+//				getEditSummaryWidget().requestFocus();
+				getEditBodyWidget().requestFocus();
 			}
 		});
 	}
@@ -525,7 +532,7 @@ public class KTodo extends ListActivity {
 		getUndeleteButton().hideNoAnimation();
 	}
 
-	private void addTodoItem() {
+	private long addTodoItem() {
 		long currentTagID = getCurrentTagID();
 		if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID) {
 			currentTagID = DBHelper.UNFILED_METATAG_ID;
@@ -533,11 +540,13 @@ public class KTodo extends ListActivity {
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
 		if (st.length() > 0) {
-			todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, null));
+			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, null));
 			et.setText("");
 			et.requestFocus();
 			updateView();
+			return todoItem.id;
 		}
+		return -1;
 	}
 
 	private void setDefaultPrio(final int p) {
@@ -829,8 +838,8 @@ public class KTodo extends ListActivity {
 		return (Spinner) findViewById(R.id.tags);
 	}
 
-	private Button getAddTaskButton() {
-		return (Button) findViewById(R.id.add_task_button);
+	private SlideLeftButton getAddTaskButton() {
+		return (SlideLeftButton) findViewById(R.id.add_task_button);
 	}
 
 	private MyListView getMyListView() {

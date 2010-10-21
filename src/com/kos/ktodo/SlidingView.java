@@ -47,7 +47,7 @@ public class SlidingView extends FrameLayout {
 	public void switchRight() {
 		scroller.startScroll(getScrollX(), 0, getWidth() - getScrollX(), 0, 200);
 		invalidate();
-		getChildAt(1).requestFocus();
+//		getChildAt(1).requestFocus();
 		postInvalidate();
 	}
 
@@ -58,7 +58,7 @@ public class SlidingView extends FrameLayout {
 		else
 			scroller.startScroll(startX, 0, -startX, 0, 200);
 		invalidate();
-		getChildAt(0).requestFocus();
+//		getChildAt(0).requestFocus();
 		postInvalidate();
 	}
 

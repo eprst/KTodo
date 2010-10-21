@@ -39,10 +39,11 @@
 						android:layout_weight="5.0"
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"/>
-				<Button android:id="@+id/add_task_button"
-				        android:text="@string/add"
-				        android:layout_width="wrap_content"
-				        android:layout_height="wrap_content"/>
+				<com.kos.ktodo.SlideLeftButton android:id="@+id/add_task_button"
+				                               android:text="@string/add"
+				                               android:layout_width="wrap_content"
+				                               android:layout_height="wrap_content"
+				                               kos:maxThrowVelocity2="1500" />
 				<Button android:id="@+id/prio_button"
 				        android:nextFocusRight="@id/prio_button"
 				        android:layout_weight="0.1"

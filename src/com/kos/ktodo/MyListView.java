@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -101,12 +102,6 @@ public class MyListView extends ListView {
 
 	public interface DeleteItemListener {
 		void deleteItem(final long id);
-	}
-
-	public interface SlideLeftListener {
-		void slideLeftStarted(final long id);
-
-		void onSlideBack();
 	}
 
 	private static enum State {
@@ -263,8 +258,8 @@ public class MyListView extends ListView {
 				break;
 		}
 		if (processed) {
-			if (!(state == State.DRAGGING_ITEM))
-				intercepted.add(ev);
+			if (state != State.DRAGGING_ITEM)
+				intercepted.add(MotionEvent.obtain(ev));
 			return true;
 		} else if (intercepted.size() > 0) {
 			replaying = true;
@@ -274,6 +269,7 @@ public class MyListView extends ListView {
 				}
 				return super.onTouchEvent(ev);
 			} catch (Exception e) {
+				Log.i(TAG, "error replaying " + ev+" : "+e);
 				//failed attempt to replay events, abort
 			} finally {
 				replaying = false;
@@ -281,7 +277,12 @@ public class MyListView extends ListView {
 			}
 			return true;
 		} else
+		try {
 			return super.onTouchEvent(ev);
+		} catch (Exception e) {
+			Log.i(TAG, "Error forwarding " + ev+" : "+e);
+			return true;
+		}
 	}
 
 	private boolean processUpEvent() {
@@ -347,9 +348,10 @@ public class MyListView extends ListView {
 				processed = true;
 				break;
 			case DRAGGING_VIEW_LEFT:
-				final int correctedX = rawX - coordOffsetX; //don't know how to compute it for real, using x only. Scrolling affects it somehow
+//				final int correctedX = rawX - coordOffsetX; //don't know how to compute it for real, using x only. Scrolling affects it somehow
 				dragVelocityTracker.addMovement(ev, true);
-				off = dragPointX - correctedX - coordOffsetX;
+//				off = dragPointX - correctedX - coordOffsetX;
+				off = dragPointX - rawX;
 				if (off < 0) {
 					slideLeft(0);
 					if (startPreDragging(ev))
@@ -396,8 +398,10 @@ public class MyListView extends ListView {
 			goRight = xVelocity < 0;
 		if (goRight)
 			slideLeftView.switchRight();
-		else
+		else {
 			slideLeftView.switchLeft();
+			slideLeftListener.onSlideBack();
+		}
 		setState(State.NORMAL);
 	}
 
