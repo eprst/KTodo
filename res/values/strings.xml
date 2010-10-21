@@ -65,6 +65,7 @@ On the main screen:\n
 * slide items to the left to edit (like you just did)\n
 * fling them to the right to delete\n
 * long tap for context menu\n
+* drag "Add" button to the left to add an item and go to the edit screen\n
 * items are always sorted by priority\n\n
 On the edit screen:\n
 * change tag using combo on top\n
