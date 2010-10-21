@@ -21,6 +21,13 @@
 		<attr name="todayDueDateColor" format="color"/>
 		<attr name="expiredDueDateColor" format="color"/>
 		<attr name="notesDrawable" format="reference"/>
+		<attr name="prioStripeWidth" format="dimension"/>
+		<attr name="prio0Color" format="color"/> <!-- 0 = item done -->
+		<attr name="prio1Color" format="color"/>
+		<attr name="prio2Color" format="color"/>
+		<attr name="prio3Color" format="color"/>
+		<attr name="prio4Color" format="color"/>
+		<attr name="prio5Color" format="color"/>
 	</declare-styleable>
 	<declare-styleable name="AnimatedVisibilityButton">
 		<attr name="inAnim" format="reference"/>

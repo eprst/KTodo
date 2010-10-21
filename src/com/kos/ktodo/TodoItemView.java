@@ -22,9 +22,10 @@ public class TodoItemView extends CheckedTextView {
 	private int checkMarkWidth;
 	private int minHeight;
 
-	private final TwoColorDrawable tcd;
+	private final TodoItemBackgroundDrawable tcd;
 	private final Drawable notesDrawable;
 	private final int dueDateColor, todayDueDateColor, expiredDueDateColor;
+	private final int[] prioToColor;
 
 	public TodoItemView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
@@ -34,7 +35,18 @@ public class TodoItemView extends CheckedTextView {
 		dueDateColor = ta.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE);
 		todayDueDateColor = ta.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW);
 		expiredDueDateColor = ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED);
-		tcd = new TwoColorDrawable(c1, c2);
+
+		prioToColor = new int[]{
+				ta.getColor(R.styleable.TodoItemView_prio0Color, Color.TRANSPARENT),
+				ta.getColor(R.styleable.TodoItemView_prio1Color, Color.RED),
+				ta.getColor(R.styleable.TodoItemView_prio2Color, Color.argb(0, 0xff, 0x99, 0x66)),
+				ta.getColor(R.styleable.TodoItemView_prio3Color, Color.YELLOW),
+				ta.getColor(R.styleable.TodoItemView_prio4Color, Color.argb(0, 0x99, 0xcc, 0)),
+				ta.getColor(R.styleable.TodoItemView_prio5Color, Color.GREEN),
+		};
+
+		tcd = new TodoItemBackgroundDrawable(c1, c2, Color.GRAY);
+		tcd.setPrioStripeWidth((int) ta.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2));
 		notesDrawable = ta.getDrawable(R.styleable.TodoItemView_notesDrawable);
 		ta.recycle();
 		setBackgroundDrawable(tcd);
@@ -42,6 +54,10 @@ public class TodoItemView extends CheckedTextView {
 
 	public void setPrio(final int prio) {
 		this.prio = PRIO_TO_STRING[prio];
+		if (!isChecked())
+			tcd.setPrioColor(prioToColor[prio]);
+		else
+			tcd.setPrioColor(prioToColor[0]);
 	}
 
 	public void setProgress(final int progress) {

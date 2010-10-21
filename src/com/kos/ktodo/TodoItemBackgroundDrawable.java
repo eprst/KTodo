@@ -2,7 +2,6 @@ package com.kos.ktodo;
 
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 /**
  * A drawable that fills backround using two colors, with a changeable proportion between them.
@@ -10,26 +9,35 @@ import android.util.Log;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-public class TwoColorDrawable extends Drawable {
-	private TwoColorState s;
+public class TodoItemBackgroundDrawable extends Drawable {
+	private TodoItemBackgroundState s;
 	private final Paint p = new Paint();
 	private int percent;
+	private int prioStripeWidth = 2;
 
-	public TwoColorDrawable() {
+	public TodoItemBackgroundDrawable() {
 		this(null);
 	}
 
-	public TwoColorDrawable(final TwoColorState s) {
-		this.s = new TwoColorState(s);
+	public TodoItemBackgroundDrawable(final TodoItemBackgroundState s) {
+		this.s = new TodoItemBackgroundState(s);
 		p.setStyle(Paint.Style.FILL);
 	}
 
-	public TwoColorDrawable(final int c1, final int c2) {
-		this.s = new TwoColorState(c1, c2);
+	public TodoItemBackgroundDrawable(final int c1, final int c2, final int pc) {
+		this.s = new TodoItemBackgroundState(c1, c2, pc);
 	}
 
 	public void setPercent(final int percent) {
 		this.percent = percent;
+	}
+
+	public void setPrioColor(final int prioColor) {
+		this.s = new TodoItemBackgroundState(s.c1, s.c2, prioColor);
+	}
+
+	public void setPrioStripeWidth(final int prioStripeWidth) {
+		this.prioStripeWidth = prioStripeWidth;
 	}
 
 	@Override
@@ -50,6 +58,10 @@ public class TwoColorDrawable extends Drawable {
 				canvas.drawRect(d, 0, width, height, p);
 			}
 		}
+
+		//draw prio stripe
+		p.setColor(s.pc);
+		canvas.drawRect(0, 0, prioStripeWidth, canvas.getHeight(), p);
 	}
 
 	@Override
@@ -75,26 +87,29 @@ public class TwoColorDrawable extends Drawable {
 //	public void inflate(final Resources r, final XmlPullParser parser, final AttributeSet attrs) throws XmlPullParserException, IOException {
 //		super.inflate(r, parser, attrs);
 //
-//		final TypedArray a = r.obtainAttributes(attrs, R.styleable.TwoColorDrawable);
+//		final TypedArray a = r.obtainAttributes(attrs, R.styleable.TodoItemBackgroundDrawable);
 //		s.c1 = a.getColor(R.styleable.TwoColorDrawable_color1, Color.BLACK);
 //		s.c2 = a.getColor(R.styleable.TwoColorDrawable_color1, Color.GRAY);
 //
 //		a.recycle();
 //	}
 
-	final class TwoColorState extends ConstantState {
+	final class TodoItemBackgroundState extends ConstantState {
 		int c1, c2;
+		int pc;
 		int changingConf;
 
-		TwoColorState(final int c1, final int c2) {
+		TodoItemBackgroundState(final int c1, final int c2, final int pc) {
 			this.c1 = c1;
 			this.c2 = c2;
+			this.pc = pc;
 		}
 
-		TwoColorState(final TwoColorState s) {
+		TodoItemBackgroundState(final TodoItemBackgroundState s) {
 			if (s != null) {
 				c1 = s.c1;
 				c2 = s.c2;
+				pc = s.pc;
 			}
 		}
 
@@ -105,7 +120,7 @@ public class TwoColorDrawable extends Drawable {
 
 		@Override
 		public Drawable newDrawable() {
-			return new TwoColorDrawable(this);
+			return new TodoItemBackgroundDrawable(this);
 		}
 	}
 }

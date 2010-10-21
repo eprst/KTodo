@@ -9,4 +9,11 @@
 	<color name="white">#ffff</color>
 	<color name="widget_sep">#f07e7efa</color>
 	<color name="widget_completed">#90a0a0a0</color>
+
+	<color name="prio_0">#00000000</color> <!-- prio 0 = item done -->
+	<color name="prio_1">#ffdc0000</color>
+	<color name="prio_2">#ffffff00</color>
+	<color name="prio_3">#ff00ffcc</color>
+	<color name="prio_4">#ff99ff33</color>
+	<color name="prio_5">#ffcccccc</color>
 </resources>
