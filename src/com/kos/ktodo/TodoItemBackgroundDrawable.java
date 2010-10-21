@@ -13,7 +13,7 @@ public class TodoItemBackgroundDrawable extends Drawable {
 	private TodoItemBackgroundState s;
 	private final Paint p = new Paint();
 	private int percent;
-	private int prioStripeWidth = 2;
+	private int prioColor;
 
 	public TodoItemBackgroundDrawable() {
 		this(null);
@@ -24,8 +24,8 @@ public class TodoItemBackgroundDrawable extends Drawable {
 		p.setStyle(Paint.Style.FILL);
 	}
 
-	public TodoItemBackgroundDrawable(final int c1, final int c2, final int pc) {
-		this.s = new TodoItemBackgroundState(c1, c2, pc);
+	public TodoItemBackgroundDrawable(final int c1, final int c2, final int prioStripeWidth) {
+		this.s = new TodoItemBackgroundState(c1, c2, prioStripeWidth);
 	}
 
 	public void setPercent(final int percent) {
@@ -33,11 +33,7 @@ public class TodoItemBackgroundDrawable extends Drawable {
 	}
 
 	public void setPrioColor(final int prioColor) {
-		this.s = new TodoItemBackgroundState(s.c1, s.c2, prioColor);
-	}
-
-	public void setPrioStripeWidth(final int prioStripeWidth) {
-		this.prioStripeWidth = prioStripeWidth;
+		this.prioColor = prioColor;
 	}
 
 	@Override
@@ -60,8 +56,8 @@ public class TodoItemBackgroundDrawable extends Drawable {
 		}
 
 		//draw prio stripe
-		p.setColor(s.pc);
-		canvas.drawRect(0, 0, prioStripeWidth, canvas.getHeight(), p);
+		p.setColor(prioColor);
+		canvas.drawRect(0, 0, s.prioStripeWidth, canvas.getHeight(), p);
 	}
 
 	@Override
@@ -96,20 +92,20 @@ public class TodoItemBackgroundDrawable extends Drawable {
 
 	final class TodoItemBackgroundState extends ConstantState {
 		int c1, c2;
-		int pc;
+		int prioStripeWidth;
 		int changingConf;
 
-		TodoItemBackgroundState(final int c1, final int c2, final int pc) {
+		TodoItemBackgroundState(final int c1, final int c2, final int prioStripeWidth) {
 			this.c1 = c1;
 			this.c2 = c2;
-			this.pc = pc;
+			this.prioStripeWidth = prioStripeWidth;
 		}
 
 		TodoItemBackgroundState(final TodoItemBackgroundState s) {
 			if (s != null) {
 				c1 = s.c1;
 				c2 = s.c2;
-				pc = s.pc;
+				prioStripeWidth = s.prioStripeWidth;
 			}
 		}
 

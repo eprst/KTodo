@@ -240,6 +240,14 @@ public class MyListView extends ListView {
 	@Override
 	public boolean onTouchEvent(final MotionEvent ev) {
 		if (replaying || deleteItemListener == null) return super.onTouchEvent(ev);
+		if (state == State.ITEM_FLYING) {
+			//temporary workaround. Problem:
+			//fling an item. While it flies click on another item. Observe some other item becoming invisible.
+			//(looks if we click on i'th item, and there are N total items, than N-i'th item will become invisible).
+			//I was unable to find a reason after a day of debugging.. todo: fix it later
+			if (dragItemNum != pointToPositionWithInvisible((int) (ev.getX()), (int) (ev.getY())))
+				return true; //ignore event
+		}
 		boolean processed = false;
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_UP:
@@ -269,7 +277,7 @@ public class MyListView extends ListView {
 				}
 				return super.onTouchEvent(ev);
 			} catch (Exception e) {
-				Log.i(TAG, "error replaying " + ev+" : "+e);
+				Log.i(TAG, "error replaying " + ev + " : " + e);
 				//failed attempt to replay events, abort
 			} finally {
 				replaying = false;
@@ -277,12 +285,12 @@ public class MyListView extends ListView {
 			}
 			return true;
 		} else
-		try {
-			return super.onTouchEvent(ev);
-		} catch (Exception e) {
-			Log.i(TAG, "Error forwarding " + ev+" : "+e);
-			return true;
-		}
+			try {
+				return super.onTouchEvent(ev);
+			} catch (Exception e) {
+				Log.i(TAG, "Error forwarding " + ev + " : " + e);
+				return true;
+			}
 	}
 
 	private boolean processUpEvent() {
@@ -530,8 +538,10 @@ public class MyListView extends ListView {
 				setState(State.NORMAL); //we're out of screen; todo: this could be a flight
 			else {
 				final View item = getDragItem();
-				dragView.setVisibility(View.VISIBLE);
-				if (item != null) item.setVisibility(View.INVISIBLE);
+				if (item != null && item.getVisibility() == View.VISIBLE) {
+					dragView.setVisibility(View.VISIBLE);
+					item.setVisibility(View.INVISIBLE);
+				}
 				windowParams.y = getDragItemY();
 				windowManager.updateViewLayout(dragView, windowParams);
 				lastDragX = x;
@@ -558,7 +568,7 @@ public class MyListView extends ListView {
 		if (dragView != null) {
 			final Context mContext = getContext();
 			final WindowManager wm = (WindowManager) mContext.getSystemService("window");
-			dragView.setVisibility(View.INVISIBLE);
+			dragView.setVisibility(View.GONE);
 			wm.removeView(dragView);
 			dragView.setImageDrawable(null);
 			dragView = null;

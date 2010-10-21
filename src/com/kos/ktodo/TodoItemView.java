@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.CheckedTextView;
 
 public class TodoItemView extends CheckedTextView {
@@ -45,8 +46,8 @@ public class TodoItemView extends CheckedTextView {
 				ta.getColor(R.styleable.TodoItemView_prio5Color, Color.GREEN),
 		};
 
-		tcd = new TodoItemBackgroundDrawable(c1, c2, Color.GRAY);
-		tcd.setPrioStripeWidth((int) ta.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2));
+		final int prioStripeWidth = (int) ta.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2);
+		tcd = new TodoItemBackgroundDrawable(c1, c2, prioStripeWidth);
 		notesDrawable = ta.getDrawable(R.styleable.TodoItemView_notesDrawable);
 		ta.recycle();
 		setBackgroundDrawable(tcd);
