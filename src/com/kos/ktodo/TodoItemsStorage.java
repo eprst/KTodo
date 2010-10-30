@@ -16,7 +16,8 @@ public class TodoItemsStorage {
 	private static final String TAG = "TodoItemsStorage";
 
 	private static final String[] ALL_COLUMNS = new String[]{
-			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE};
+			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE,
+            TODO_CARET_POSITION};
 
 	private SQLiteDatabase db;
 	private DBHelper helper;
@@ -44,7 +45,7 @@ public class TodoItemsStorage {
 		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
-		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress, item.dueDate);
+		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress, item.dueDate, item.caretPos);
 	}
 
 	private ContentValues fillValues(final TodoItem item) {
@@ -61,6 +62,7 @@ public class TodoItemsStorage {
 			cv.put(TODO_DUE_DATE, item.dueDate);
 		else
 			cv.putNull(TODO_DUE_DATE);
+		cv.put(TODO_CARET_POSITION, item.caretPos);
 		return cv;
 	}
 
@@ -134,7 +136,8 @@ public class TodoItemsStorage {
 				cursor.getString(4),
 				cursor.getInt(5),
 				cursor.getInt(6),
-				cursor.isNull(7) ? null : cursor.getLong(7)
+				cursor.isNull(7) ? null : cursor.getLong(7),
+				cursor.isNull(8) ? null : cursor.getInt(8)
 		);
 	}
 

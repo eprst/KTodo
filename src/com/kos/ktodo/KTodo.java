@@ -9,6 +9,8 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.os.*;
+import android.text.Editable;
+import android.text.Selection;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -339,7 +341,12 @@ public class KTodo extends ListActivity {
 		getSlidingView().setSlideListener(new SlidingView.SlideListener() {
 			public void slidingFinished() {
 //				getEditSummaryWidget().requestFocus();
-				getEditBodyWidget().requestFocus();
+				final EditText editText = getEditBodyWidget();
+				if (editingItem.caretPos != null) {
+					final Editable text = editText.getText();
+					Selection.setSelection(text, editingItem.caretPos);
+				}
+				editText.requestFocus();
 			}
 		});
 	}
@@ -355,7 +362,9 @@ public class KTodo extends ListActivity {
 		final String summary = getEditSummaryWidget().getText().toString();
 		if (editingItem != null && summary.length() > 0) {
 			editingItem.summary = summary;
-			editingItem.body = getEditBodyWidget().getText().toString();
+			final Editable editBodyText = getEditBodyWidget().getText();
+			editingItem.body = editBodyText.toString();
+			editingItem.caretPos = Selection.getSelectionEnd(editBodyText);
 			todoItemsStorage.saveTodoItem(editingItem);
 		}
 	}
@@ -540,7 +549,7 @@ public class KTodo extends ListActivity {
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
 		if (st.length() > 0) {
-			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, null));
+			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, null, null));
 			et.setText("");
 			et.requestFocus();
 			updateView();

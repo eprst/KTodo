@@ -15,7 +15,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 4;
+	private static final int DB_VERSION = 5;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
@@ -34,6 +34,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TODO_PRIO = "prio";
 	public static final String TODO_PROGRESS = "progress";
 	public static final String TODO_DUE_DATE = "due_date";
+	public static final String TODO_CARET_POSITION = "caret_pos";
 
 	public static final String WIDGET_TABLE_NAME = "widget";
 	public static final String WIDGET_ID = "_id";
@@ -56,8 +57,9 @@ public class DBHelper extends SQLiteOpenHelper {
 	                                                TODO_SUMMARY + " text not null, " +
 	                                                TODO_PRIO + " integer default 1 not null, " +
 	                                                TODO_PROGRESS + " integer default 0 not null, " +
-	                                                TODO_DUE_DATE + " integer nullable, " +
-	                                                TODO_BODY + " text nullable);";
+	                                                TODO_DUE_DATE + " integer null, " +
+	                                                TODO_BODY + " text null, " +
+	                                                TODO_CARET_POSITION + " integer default 0 null);";
 
 	private static final String CREATE_WIDGET_TABLE = "create table if not exists " + WIDGET_TABLE_NAME +
 	                                                  " (" + WIDGET_ID + " integer primary key autoincrement, " +
@@ -107,17 +109,19 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onUpgrade(final SQLiteDatabase sqLiteDatabase, final int oldv, final int newv) {
 		Log.i(TAG, "onUpgrade: " + oldv + " -> " + newv);
 		if (oldv == 1)
-			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer nullable;");
+			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer null;");
 		if (oldv <= 2)
 			sqLiteDatabase.execSQL(CREATE_WIDGET_TABLE);
 		if (oldv == 3)
 			sqLiteDatabase.execSQL("alter table " + WIDGET_TABLE_NAME + " add " + WIDGET_SORTING_MODE +
 			                       " integer default " + TodoItemsSortingMode.PRIO_THEN_DUE.ordinal() + " not null");
+		if (oldv <= 4)
+			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_CARET_POSITION + " integer default 0 null;");
 	}
 
 	public static boolean isNullable(final String tableName, final String columnName) {
 		if (TODO_TABLE_NAME.equals(tableName))
-			return TODO_DUE_DATE.equals(columnName) || TODO_BODY.equals(columnName);
+			return TODO_DUE_DATE.equals(columnName) || TODO_BODY.equals(columnName) || TODO_CARET_POSITION.equals(columnName);
 		return false;
 	}
 }

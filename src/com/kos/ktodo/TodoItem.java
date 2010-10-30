@@ -11,6 +11,7 @@ public class TodoItem {
 	public int prio = 1;
 	public int progress = 0;
 	public Long dueDate = null;
+	public Integer caretPos = null;
 
 	public TodoItem(final long id, final long tagID) {
 		this.id = id;
@@ -18,7 +19,7 @@ public class TodoItem {
 	}
 
 	public TodoItem(final long id, final long tagID, final boolean done, final String summary, final String body, final int prio, final int progress,
-	                final Long dueDate) {
+	                final Long dueDate, final Integer caretPos) {
 		this.id = id;
 		this.tagID = tagID;
 		this.done = done;
@@ -27,6 +28,7 @@ public class TodoItem {
 		this.prio = prio;
 		this.progress = progress;
 		this.dueDate = dueDate;
+		this.caretPos = caretPos;
 	}
 
 	public void setDone(final boolean done) {
@@ -62,6 +64,8 @@ public class TodoItem {
 		sb.append(", progress=").append(prio);
 		if (dueDate != null)
 			sb.append(", dueDate=").append(new Date(dueDate));
+		if (caretPos != null)
+			sb.append(", caretPos=").append(caretPos);
 		sb.append('}');
 		return sb.toString();
 	}
