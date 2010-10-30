@@ -10,10 +10,7 @@ import com.kos.ktodo.DBHelper;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +28,15 @@ public class XmlImporter extends XmlBase {
 
 	public static void importData(final Context ctx, final File f, final boolean overwrite) throws IOException {
 		final FileInputStream fis = new FileInputStream(f);
-		final InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+		try {
+			importData(ctx, fis, overwrite);
+		} finally {
+			fis.close();
+		}
+	}
+
+	public static void importData(final Context ctx, final InputStream is, final boolean overwrite) throws IOException {
+		final InputStreamReader isr = new InputStreamReader(is, "UTF8");
 		final DBHelper dbh = new DBHelper(ctx);
 		final SQLiteDatabase db = dbh.getWritableDatabase();
 		try {
@@ -46,7 +51,6 @@ public class XmlImporter extends XmlBase {
 			db.close();
 			dbh.close();
 			isr.close();
-			fis.close();
 		}
 	}
 

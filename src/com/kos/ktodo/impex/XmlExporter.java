@@ -18,7 +18,11 @@ public class XmlExporter extends XmlBase {
 	private final BufferedWriter w;
 
 	public XmlExporter(final File outFile) throws IOException { //I hate checked exceptions
-		w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF8"));
+		this(new FileOutputStream(outFile));
+	}
+
+	public XmlExporter(final OutputStream os) throws IOException {
+		w = new BufferedWriter(new OutputStreamWriter(os, "UTF8"));
 		w.append(HEADER);
 		w.newLine();
 		openTag(DATABASE_TAG);
@@ -68,6 +72,24 @@ public class XmlExporter extends XmlBase {
 
 	private static void exportData(final SQLiteDatabase database, final File f) throws IOException {
 		final XmlExporter x = new XmlExporter(f);
+		x.writeTable(database, DBHelper.TAG_TABLE_NAME, DBHelper.TAG_ID);
+		x.writeTable(database, DBHelper.TODO_TABLE_NAME, DBHelper.TODO_ID);
+		x.close();
+	}
+
+	public static void exportData(final Context ctx, final OutputStream os) throws IOException {
+		final DBHelper hlp = new DBHelper(ctx);
+		final SQLiteDatabase database = hlp.getReadableDatabase();
+		try {
+			exportData(database, os);
+		} finally {
+			database.close();
+			hlp.close();
+		}
+	}
+
+	private static void exportData(final SQLiteDatabase database, final OutputStream os) throws IOException {
+		final XmlExporter x = new XmlExporter(os);
 		x.writeTable(database, DBHelper.TAG_TABLE_NAME, DBHelper.TAG_ID);
 		x.writeTable(database, DBHelper.TODO_TABLE_NAME, DBHelper.TODO_ID);
 		x.close();

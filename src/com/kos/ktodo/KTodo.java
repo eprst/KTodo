@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.app.backup.BackupManager;
 import android.content.*;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -438,7 +439,7 @@ public class KTodo extends ListActivity {
 
 	@Override
 	protected void onPause() {
-		updateWidgetsIfNeeded();
+		checkDataChanged();
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		final SharedPreferences.Editor editor = preferences.edit();
 		editor.putLong("currentTag", getCurrentTagID());
@@ -450,7 +451,7 @@ public class KTodo extends ListActivity {
 
 	@Override
 	protected void onDestroy() {
-		updateWidgetsIfNeeded();
+		checkDataChanged();
 
 		todoItemsStorage.close();
 		tagsStorage.close();
@@ -459,12 +460,22 @@ public class KTodo extends ListActivity {
 		if (TRACE) Debug.stopMethodTracing();
 	}
 
-	private void updateWidgetsIfNeeded() {
-		if (todoItemsStorage.hasModifiedDB() || tagsStorage.hasModifiedDB()) {
-			UpdateService.requestUpdateAll(this);
-			startService(new Intent(this, UpdateService.class));
-			todoItemsStorage.resetModifiedDB();
-			tagsStorage.resetModifiedDB();
+	private void checkDataChanged() {
+		if (todoItemsStorage.hasModifiedDB() || tagsStorage.hasModifiedDB())
+			onDataChanged();
+	}
+
+	private void onDataChanged() {
+		UpdateService.requestUpdateAll(this);
+		startService(new Intent(this, UpdateService.class));
+		todoItemsStorage.resetModifiedDB();
+		tagsStorage.resetModifiedDB();
+		LastModifiedState.touch(this);
+		Log.i(TAG, "data changed");
+		try {
+			new BackupManager(this).dataChanged(); //todo: make it work on 2.0 somehow
+		} catch (NoClassDefFoundError e) {
+			//android < 2.2, ignore..
 		}
 	}
 
@@ -476,7 +487,8 @@ public class KTodo extends ListActivity {
 		outState.putInt("sortingMode", sortingMode.ordinal());
 		final EditText addTask = getAddTaskWidget();
 		outState.putString("addTaskText", addTask.getText().toString());
-		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
+		outState.
+				putInt("addTaskSelStart", addTask.getSelectionStart());
 		outState.putInt("addTaskSelEnd", addTask.getSelectionEnd());
 		final boolean onLeft = getSlidingView().isOnLeft();
 		outState.putBoolean("onLeft", onLeft);
