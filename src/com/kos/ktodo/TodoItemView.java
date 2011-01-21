@@ -8,10 +8,24 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.widget.CheckedTextView;
+
+import java.lang.reflect.Field;
 
 public class TodoItemView extends CheckedTextView {
 	private static final String[] PRIO_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
+	private static final Field mPaddingRightFld;
+
+	static {
+		try {
+			mPaddingRightFld = View.class.getDeclaredField("mPaddingRight");
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException("failed to initialize", e);
+		}
+		mPaddingRightFld.setAccessible(true);
+	}
+
 	private String prio;
 	private boolean showNotesMark;
 
@@ -98,7 +112,12 @@ public class TodoItemView extends CheckedTextView {
 			dueDateWidth = paint.measureText(dueDate) + sz;
 			p += dueDateWidth;
 		}
-		setPadding(getPaddingLeft(), getPaddingTop(), p, getPaddingBottom());
+		//mPaddingRight = p;
+		try {
+			mPaddingRightFld.set(this, p);
+		} catch (IllegalAccessException e) {
+			Log.i("KTodo", e.toString());
+		}
 	}
 
 	@Override
