@@ -51,7 +51,7 @@ public class UpdateService extends Service implements Runnable {
 	@Override
 	public int onStartCommand(final Intent intent, final int flags, final int startId) {
 		// If requested, trigger update of all widgets
-		if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
+		if (intent != null && ACTION_UPDATE_ALL.equals(intent.getAction())) {
 			requestUpdateAll(this);
 		}
 
