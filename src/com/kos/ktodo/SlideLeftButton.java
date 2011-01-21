@@ -27,7 +27,7 @@ public class SlideLeftButton extends Button {
 
 	private SlidingView slidingView;
 	private SlideLeftListener slideLeftListener;
-	private Long itemID;
+	private Long itemID; //ID of the added item
 
 	private boolean sliding;
 	private int dragPointX;
@@ -128,8 +128,8 @@ public class SlideLeftButton extends Button {
 			return true;
 		}
 
-		if (itemID == null && mOnClickListener != null) {
-			mOnClickListener.onClick(this);
+		if (itemID == null) {
+			performClick(); //this call can change itemID!
 			if (itemID == null) {
 				sliding = false;
 				return false;
@@ -137,7 +137,7 @@ public class SlideLeftButton extends Button {
 			slideLeftListener.slideLeftStarted(itemID);
 		}
 
-		dragVelocityTracker.addMovement(ev, false);
+		dragVelocityTracker.addMovement(ev, true);
 		slidingView.scrollTo(off, 0);
 		return true;
 	}

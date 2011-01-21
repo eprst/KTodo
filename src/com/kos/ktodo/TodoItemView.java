@@ -98,7 +98,7 @@ public class TodoItemView extends CheckedTextView {
 			dueDateWidth = paint.measureText(dueDate) + sz;
 			p += dueDateWidth;
 		}
-		mPaddingRight = p;
+		setPadding(getPaddingLeft(), getPaddingTop(), p, getPaddingBottom());
 	}
 
 	@Override
