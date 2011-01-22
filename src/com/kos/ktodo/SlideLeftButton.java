@@ -36,7 +36,7 @@ public class SlideLeftButton extends Button {
 		super(context, attrs);
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlideLeftButton);
-		maxThrowVelocity = ta.getInt(R.styleable.SlideLeftButton_maxThrowVelocity2, 1500);
+		maxThrowVelocity = ta.getInt(R.styleable.SlideLeftButton_maxThrowVelocity, 1500);
 		waitForSlide = ta.getInt(R.styleable.SlideLeftButton_waitForSlide, 300);
 		ta.recycle();
 

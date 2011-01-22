@@ -52,12 +52,12 @@ public class TodoItemView extends CheckedTextView {
 		expiredDueDateColor = ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED);
 
 		prioToColor = new int[]{
-				ta.getColor(R.styleable.TodoItemView_prio0Color, Color.TRANSPARENT),
-				ta.getColor(R.styleable.TodoItemView_prio1Color, Color.RED),
-				ta.getColor(R.styleable.TodoItemView_prio2Color, Color.argb(0, 0xff, 0x99, 0x66)),
-				ta.getColor(R.styleable.TodoItemView_prio3Color, Color.YELLOW),
-				ta.getColor(R.styleable.TodoItemView_prio4Color, Color.argb(0, 0x99, 0xcc, 0)),
-				ta.getColor(R.styleable.TodoItemView_prio5Color, Color.GREEN),
+				ta.getColor(R.styleable.TodoItemView_prio0Color, context.getResources().getColor(R.color.prio_0)),
+				ta.getColor(R.styleable.TodoItemView_prio1Color, context.getResources().getColor(R.color.prio_1)),
+				ta.getColor(R.styleable.TodoItemView_prio2Color, context.getResources().getColor(R.color.prio_2)),
+				ta.getColor(R.styleable.TodoItemView_prio3Color, context.getResources().getColor(R.color.prio_3)),
+				ta.getColor(R.styleable.TodoItemView_prio4Color, context.getResources().getColor(R.color.prio_4)),
+				ta.getColor(R.styleable.TodoItemView_prio5Color, context.getResources().getColor(R.color.prio_5)),
 		};
 
 		final int prioStripeWidth = (int) ta.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2);

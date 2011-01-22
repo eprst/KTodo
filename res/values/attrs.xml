@@ -4,8 +4,7 @@
 		<attr name="vibrateOnTearOff" format="integer"/>
 	</declare-styleable>
 	<declare-styleable name="SlideLeftButton">
-		<attr name="maxThrowVelocity2" format="integer"/>
-		<!-- why can't we have same attribute name for different styleables?? -->
+		<attr name="maxThrowVelocity"/>
 		<attr name="waitForSlide" format="integer"/>
 	</declare-styleable>
 	<declare-styleable name="SliderButton">
@@ -28,6 +27,15 @@
 		<attr name="prio3Color" format="color"/>
 		<attr name="prio4Color" format="color"/>
 		<attr name="prio5Color" format="color"/>
+	</declare-styleable>
+	<declare-styleable name="WidgetTextView">
+		<attr name="prioStripeWidth"/>
+		<attr name="prio0Color"/>
+		<attr name="prio1Color"/>
+		<attr name="prio2Color"/>
+		<attr name="prio3Color"/>
+		<attr name="prio4Color"/>
+		<attr name="prio5Color"/>
 	</declare-styleable>
 	<declare-styleable name="AnimatedVisibilityButton">
 		<attr name="inAnim" format="reference"/>
