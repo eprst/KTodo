@@ -4,13 +4,11 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.appwidget.AppWidgetProviderInfo;
-import android.content.ComponentName;
-import android.content.ContentUris;
-import android.content.Context;
-import android.content.Intent;
+import android.content.*;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -118,6 +116,12 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 		tagsStorage.close();
 		settingsStorage.close();
 
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		final int todayDueDateColor = prefs.getInt("dueTodayColor", r.getColor(R.color.today_due_date_color));
+		final int expiredDueDateColor = prefs.getInt("overdueColor", r.getColor(R.color.expired_due_date_color));
+		final int completedColor = r.getColor(R.color.widget_completed);
+		final int defaultColor = r.getColor(R.color.white);
+
 		final TodoItemsStorage itemsStorage = new TodoItemsStorage(context);
 		itemsStorage.open();
 
@@ -134,7 +138,7 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 
 					views.setImageViewResource(LINES[i], R.drawable.line);
 					views.setTextViewText(ITEMS[i], item.summary);
-					views.setTextColor(ITEMS[i], getItemColor(r, item));
+					views.setTextColor(ITEMS[i], getItemColor(defaultColor, completedColor, todayDueDateColor, expiredDueDateColor, item));
 					views.setViewVisibility(ITEMS[i], View.VISIBLE);
 					if (++i >= numLines) break;
 				} while (c.moveToNext());
@@ -193,15 +197,17 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 		return new WidgetSizeInfo(layout, numLines);
 	}
 
-	private static int getItemColor(final Resources r, final TodoItem i) {
+	private static int getItemColor(final int defaultColor, final int completedColor,
+	                                final int dueTodayColor, final int expiredColor,
+	                                final TodoItem i) {
 		switch (Util.getDueStatus(i.dueDate)) {
 			case EXPIRED:
-				return r.getColor(R.color.expired_due_date_color);
+				return expiredColor;
 			case TODAY:
-				return r.getColor(R.color.today_due_date_color);
+				return dueTodayColor;
 			default:
-				if (i.done) return r.getColor(R.color.widget_completed);
-				return r.getColor(R.color.white);
+				if (i.done) return completedColor;
+				return defaultColor;
 		}
 	}
 

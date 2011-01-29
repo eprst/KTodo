@@ -1,11 +1,13 @@
 package com.kos.ktodo;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -44,20 +46,31 @@ public class TodoItemView extends CheckedTextView {
 
 	public TodoItemView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
+
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.TodoItemView);
+
+		final int prio1Color = prefs.getInt("prio1Color", ta.getColor(R.styleable.TodoItemView_prio1Color, context.getResources().getColor(R.color.prio_1)));
+		final int prio2Color = prefs.getInt("prio2Color", ta.getColor(R.styleable.TodoItemView_prio2Color, context.getResources().getColor(R.color.prio_2)));
+		final int prio3Color = prefs.getInt("prio3Color", ta.getColor(R.styleable.TodoItemView_prio3Color, context.getResources().getColor(R.color.prio_3)));
+		final int prio4Color = prefs.getInt("prio4Color", ta.getColor(R.styleable.TodoItemView_prio4Color, context.getResources().getColor(R.color.prio_4)));
+		final int prio5Color = prefs.getInt("prio5Color", ta.getColor(R.styleable.TodoItemView_prio5Color, context.getResources().getColor(R.color.prio_5)));
+
+
 		final int c1 = ta.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
-		final int c2 = ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY);
-		dueDateColor = ta.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE);
-		todayDueDateColor = ta.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW);
-		expiredDueDateColor = ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED);
+		final int c2 = prefs.getInt("progressColor", ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY));
+		dueDateColor = prefs.getInt("dueDateColor", ta.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE));
+		todayDueDateColor = prefs.getInt("dueTodayColor", ta.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW));
+		expiredDueDateColor = prefs.getInt("overdueColor", ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED));
 
 		prioToColor = new int[]{
 				ta.getColor(R.styleable.TodoItemView_prio0Color, context.getResources().getColor(R.color.prio_0)),
-				ta.getColor(R.styleable.TodoItemView_prio1Color, context.getResources().getColor(R.color.prio_1)),
-				ta.getColor(R.styleable.TodoItemView_prio2Color, context.getResources().getColor(R.color.prio_2)),
-				ta.getColor(R.styleable.TodoItemView_prio3Color, context.getResources().getColor(R.color.prio_3)),
-				ta.getColor(R.styleable.TodoItemView_prio4Color, context.getResources().getColor(R.color.prio_4)),
-				ta.getColor(R.styleable.TodoItemView_prio5Color, context.getResources().getColor(R.color.prio_5)),
+				prio1Color,
+				prio2Color,
+				prio3Color,
+				prio4Color,
+				prio5Color,
 		};
 
 		final int prioStripeWidth = (int) ta.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2);

@@ -509,7 +509,7 @@ public class KTodo extends ListActivity {
 		todoItemsStorage.resetModifiedDB();
 		tagsStorage.resetModifiedDB();
 		LastModifiedState.touch(this);
-		Log.i(TAG, "data changed");
+//		Log.i(TAG, "data changed");
 		try {
 			new BackupManager(this).dataChanged(); //todo: make it work on 2.0 somehow
 		} catch (NoClassDefFoundError e) {

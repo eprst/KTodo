@@ -8,6 +8,9 @@
 	<integer name="prio_4">0xff99ff33</integer>
 	<integer name="prio_5">0xffcccccc</integer>
 
+	<integer name="due_date_color">0xffbfbfbf</integer>
 	<integer name="today_due_date">0xffffcc00</integer>
 	<integer name="expired_due_date">0xffff1f4f</integer>
+
+	<integer name="progress_100">0xff3a3a3a</integer>
 </resources>

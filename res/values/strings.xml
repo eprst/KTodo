@@ -21,11 +21,11 @@
 	<string name="select_tag_title">Select tag</string>
 	<string name="priority">Priority</string>
 	<string name="select_prio_title">Select priority</string>
-	<string name="change_prio">Change priority</string>
-	<string name="change_progress">Change progress</string>
+	<string name="change_prio">Priority</string>
+	<string name="change_progress">Progress</string>
 	<string name="select_progress_title">Select progress</string>
-	<string name="change_tag">Change tag</string>
-	<string name="change_due_date">Change due date</string>
+	<string name="change_tag">Tag</string>
+	<string name="change_due_date">Due date</string>
 	<string name="all">All</string>
 	<string name="unfiled">Unfiled</string>
 	<string name="export">Export</string>
@@ -79,13 +79,14 @@ On the edit screen:\n
 	<string name="undelete">Undelete</string>
 
 	<string name="choose_color_dlg_title">Choose color</string>
+	<string name="prefs_reset_to_defaults">Reset to defaults</string>
 	<string name="prefs_title">Preferences</string>
 	<string name="prefs_bg_color_confirm">bg_col_conf</string>
 	<string name="prefs_default_color_confirm">default_col_conf</string>
 	<string name="prefs_enable_fling_delete">Delete by fling</string>
-	<string name="prefs_enable_fling_delete_s">Allow to delete items by throwing them to the right</string>
+	<string name="prefs_enable_fling_delete_s">Delete items by throwing them to the right</string>
 	<string name="prefs_enable_slide_edit">Slide to edit</string>
-	<string name="prefs_enable_slide_edit_s">Allow to edit items by sliding them to the left</string>
+	<string name="prefs_enable_slide_edit_s">Edit items by sliding them to the left</string>
 	<string name="prefs_main_list_font_size">List font size</string>
 	<string name="prefs_main_list_font_size_s">Todo list items font size</string>
 	<string name="prefs_show_due_date_as_days_left">Due date as days left</string>
@@ -98,6 +99,15 @@ On the edit screen:\n
 	<string name="prefs_prio3_color">Priority 3 color</string>
 	<string name="prefs_prio4_color">Priority 4 color</string>
 	<string name="prefs_prio5_color">Priority 5 color</string>
+	<string name="prefs_due_date_color">Due date color</string>
 	<string name="prefs_due_today_color">Due today color</string>
 	<string name="prefs_overdue_color">Overdue color</string>
+	<string name="prefs_progress_color">Progress bar color</string>
+
+	<string name="day0">%1d days</string>
+	<string name="day1">%1d day</string>
+	<string name="day2">%1d days</string>
+	<string name="day3">%1d days</string>
+	<string name="day4">%1d days</string>
+	<string name="day5">%1d days</string>
 </resources>

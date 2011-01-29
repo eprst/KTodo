@@ -165,8 +165,9 @@ public class SlideLeftButton extends Button {
 
 		dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
 		final float xVelocity = dragVelocityTracker.getXVelocity();
+//		Log.i("ktodo", "xvel: " + xVelocity);
 		final boolean goRight;
-		if (xVelocity > -50 && xVelocity < 50)
+		if (xVelocity > -200 && xVelocity < 200)
 			goRight = slidingView.getScrollX() > slidingView.getWidth() / 2;
 		else
 			goRight = xVelocity < 0;

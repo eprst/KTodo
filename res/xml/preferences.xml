@@ -52,6 +52,10 @@
 				android:key="dueColors"
 				android:title="@string/prefs_due_date_colors">
 			<com.att.preference.colorpicker.ColorPickerPreference
+					android:key="dueDateColor"
+					android:title="@string/prefs_due_date_color"
+					android:defaultValue="@integer/due_date_color"/>
+			<com.att.preference.colorpicker.ColorPickerPreference
 					android:key="dueTodayColor"
 					android:title="@string/prefs_due_today_color"
 					android:defaultValue="@integer/today_due_date"/>
@@ -59,6 +63,14 @@
 					android:key="overdueColor"
 					android:title="@string/prefs_overdue_color"
 					android:defaultValue="@integer/expired_due_date"/>
+		</android.preference.PreferenceCategory>
+		<android.preference.PreferenceCategory
+				android:key="progressColors"
+				android:title="@string/prefs_progress_color">
+			<com.att.preference.colorpicker.ColorPickerPreference
+					android:key="progressColor"
+					android:title="@string/prefs_progress_color"
+					android:defaultValue="@integer/progress_100"/>
 		</android.preference.PreferenceCategory>
 	</PreferenceScreen>
 </PreferenceScreen>

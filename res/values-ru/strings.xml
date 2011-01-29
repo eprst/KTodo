@@ -16,11 +16,11 @@
 	<string name="select_tag_title">Выберите тэг</string>
 	<string name="priority">Приоритет</string>
 	<string name="select_prio_title">Выберите приоритет</string>
-	<string name="change_prio">Изменить приоритет</string>
-	<string name="change_progress">Изменить прогресс</string>
+	<string name="change_prio">Приоритет</string>
+	<string name="change_progress">Прогресс</string>
 	<string name="select_progress_title">Выберите прогресс</string>
-	<string name="change_tag">Изменить тэг</string>
-	<string name="change_due_date">Изменить срок выполнения</string>
+	<string name="change_tag">Тэг</string>
+	<string name="change_due_date">Срок выполнения</string>
 	<string name="all">Все</string>
 	<string name="unfiled">Без тэга</string>
 	<string name="export">Экспорт</string>
@@ -68,4 +68,37 @@
 	<string name="prio_then_due">Приоритет, срок</string>
 	<string name="due_then_prio">Срок, приоритет</string>
 	<string name="undelete">Восстановить</string>
+
+	<string name="choose_color_dlg_title">Выбор цвета</string>
+	<string name="prefs_reset_to_defaults">Восстановить значения по умолчанию</string>
+	<string name="prefs_title">Настройки</string>
+	<string name="prefs_bg_color_confirm">bg_col_conf</string>
+	<string name="prefs_default_color_confirm">default_col_conf</string>
+	<string name="prefs_enable_fling_delete">Удаление броском</string>
+	<string name="prefs_enable_fling_delete_s">Удалять элементы выбрасыванием за правый край</string>
+	<string name="prefs_enable_slide_edit">Ред. сдвигом</string>
+	<string name="prefs_enable_slide_edit_s">Редактировать элементы сдвиганием за левый край</string>
+	<string name="prefs_main_list_font_size">Размер элементов</string>
+	<string name="prefs_main_list_font_size_s">Размер шрифта элементов списка</string>
+	<string name="prefs_show_due_date_as_days_left">Срок как кол-во дней</string>
+	<string name="prefs_show_due_date_as_days_left_s">Показывать срок как количество дней до окончания</string>
+	<string name="prefs_colors">Цвета</string>
+	<string name="prefs_prio_colors">Цвета приоритетов</string>
+	<string name="prefs_due_date_colors">Цвета срока</string>
+	<string name="prefs_prio1_color">Цвет приоритета 1</string>
+	<string name="prefs_prio2_color">Цвет приоритета 2</string>
+	<string name="prefs_prio3_color">Цвет приоритета 3</string>
+	<string name="prefs_prio4_color">Цвет приоритета 4</string>
+	<string name="prefs_prio5_color">Цвет приоритета 5</string>
+	<string name="prefs_due_date_color">Цвет срока</string>
+	<string name="prefs_due_today_color">Срок истекает сегодня</string>
+	<string name="prefs_overdue_color">Просроченные</string>
+	<string name="prefs_progress_color">Прогресс</string>
+
+	<string name="day0">%1d дней</string>
+	<string name="day1">%1d день</string>
+	<string name="day2">%1d дня</string>
+	<string name="day3">%1d дня</string>
+	<string name="day4">%1d дня</string>
+	<string name="day5">%1d дней</string>
 </resources>

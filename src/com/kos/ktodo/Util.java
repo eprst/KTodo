@@ -2,7 +2,9 @@ package com.kos.ktodo;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -93,9 +95,24 @@ public class Util {
 
 	public static String showDueDate(final Context ctx, final Long dueDate) {
 		if (dueDate == null) return null;
+
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+		if (prefs.getBoolean("dueAsDaysLeft", false)) {
+			final Integer dueInDays = getDueInDays(dueDate);
+			switch (Math.abs(dueInDays)) {
+				case 0:  return ctx.getString(R.string.day0, dueInDays);
+				case 1:  return ctx.getString(R.string.day1, dueInDays);
+				case 2:  return ctx.getString(R.string.day2, dueInDays);
+				case 3:  return ctx.getString(R.string.day3, dueInDays);
+				case 4:  return ctx.getString(R.string.day4, dueInDays);
+				default: return ctx.getString(R.string.day5, dueInDays);
+			}
+		}
+
 		final Calendar due = Calendar.getInstance();
 		due.setTimeInMillis(dueDate);
 		final Calendar now = Calendar.getInstance();
+
 		final int year = due.get(Calendar.YEAR);
 		if (now.get(Calendar.YEAR) != year)
 			return getLongFormat().format(dueDate);
