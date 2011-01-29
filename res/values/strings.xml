@@ -77,4 +77,27 @@ On the edit screen:\n
 	<string name="prio_then_due">Priority, Due date</string>
 	<string name="due_then_prio">Due date, Priority</string>
 	<string name="undelete">Undelete</string>
+
+	<string name="choose_color_dlg_title">Choose color</string>
+	<string name="prefs_title">Preferences</string>
+	<string name="prefs_bg_color_confirm">bg_col_conf</string>
+	<string name="prefs_default_color_confirm">default_col_conf</string>
+	<string name="prefs_enable_fling_delete">Delete by fling</string>
+	<string name="prefs_enable_fling_delete_s">Allow to delete items by throwing them to the right</string>
+	<string name="prefs_enable_slide_edit">Slide to edit</string>
+	<string name="prefs_enable_slide_edit_s">Allow to edit items by sliding them to the left</string>
+	<string name="prefs_main_list_font_size">List font size</string>
+	<string name="prefs_main_list_font_size_s">Todo list items font size</string>
+	<string name="prefs_show_due_date_as_days_left">Due date as days left</string>
+	<string name="prefs_show_due_date_as_days_left_s">Show due dates as days left</string>
+	<string name="prefs_colors">Colors</string>
+	<string name="prefs_prio_colors">Priority colors</string>
+	<string name="prefs_due_date_colors">Due date colors</string>
+	<string name="prefs_prio1_color">Priority 1 color</string>
+	<string name="prefs_prio2_color">Priority 2 color</string>
+	<string name="prefs_prio3_color">Priority 3 color</string>
+	<string name="prefs_prio4_color">Priority 4 color</string>
+	<string name="prefs_prio5_color">Priority 5 color</string>
+	<string name="prefs_due_today_color">Due today color</string>
+	<string name="prefs_overdue_color">Overdue color</string>
 </resources>

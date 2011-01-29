@@ -239,7 +239,7 @@ public class MyListView extends ListView {
 
 	@Override
 	public boolean onTouchEvent(final MotionEvent ev) {
-		if (replaying || deleteItemListener == null) return super.onTouchEvent(ev);
+		if (replaying || (deleteItemListener == null && slideLeftListener == null)) return super.onTouchEvent(ev);
 		if (state == State.ITEM_FLYING) {
 			//temporary workaround. Problem:
 			//fling an item. While it flies click on another item. Observe some other item becoming invisible.
@@ -379,7 +379,10 @@ public class MyListView extends ListView {
 				final int itemnum = pointToPositionWithInvisible(x, y);
 				if (!scrolling) {
 					dragVelocityTracker.addMovement(ev, false);
-					if (state == State.PRESSED_ON_ITEM && itemInBounds(dragItemNum) && deltaXFromDown > scaledTouchSlop) {
+					if (state == State.PRESSED_ON_ITEM &&
+					    itemInBounds(dragItemNum) &&
+					    deltaXFromDown > scaledTouchSlop &&
+					    deleteItemListener != null) {
 						setState(State.DRAGGING_ITEM);
 						processed = true;
 					} else if (state == State.PRESSED_ON_ITEM &&
@@ -446,6 +449,7 @@ public class MyListView extends ListView {
 	}
 
 	private boolean startDragging() {
+		if (deleteItemListener == null) return false;
 		final View item = getDragItem();
 		if (item == null) return false;
 		if (!itemInBounds(dragItemNum)) return false;

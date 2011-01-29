@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Selection;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
+import com.kos.ktodo.preferences.Preferences;
 import com.kos.ktodo.widget.UpdateService;
 import com.kos.ktodo.widget.WidgetSettingsStorage;
 
@@ -36,6 +38,7 @@ public class KTodo extends ListActivity {
 	private final int SORTING_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 2;
 	private final int EXPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 3;
 	private final int IMPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 4;
+	private final int PREFERNCES_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 5;
 
 	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
@@ -61,6 +64,36 @@ public class KTodo extends ListActivity {
 	private Cursor edititgItemTagsCursor;
 
 	private TodoItem lastDeletedItem;
+
+	private final MyListView.DeleteItemListener deleteItemListener;
+	private final SlideLeftListener slideLeftListener;
+
+	//prefs
+	private Float listFontSize = null;
+
+	public KTodo() {
+		deleteItemListener = new MyListView.DeleteItemListener() {
+			public void deleteItem(final long id) {
+				lastDeletedItem = todoItemsStorage.loadTodoItem(id);
+				todoItemsStorage.deleteTodoItem(id);
+				showUndeleteButton();
+				updateView();
+			}
+		};
+		slideLeftListener = new SlideLeftListener() {
+			public void slideLeftStarted(final long id) {
+				startEditingItem(id);
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
+			}
+
+			public void onSlideBack() {
+				//Log.i(TAG, "slide back");
+//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				KTodo.this.onSlideBack();
+			}
+		};
+	}
 
 	/**
 	 * Called when the activity is first created.
@@ -146,21 +179,7 @@ public class KTodo extends ListActivity {
 					addTaskButton.setItemID(id);
 			}
 		});
-		final SlideLeftListener slideLeftListener = new SlideLeftListener() {
-			public void slideLeftStarted(final long id) {
-				startEditingItem(id);
-//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
-			}
 
-			public void onSlideBack() {
-				//Log.i(TAG, "slide back");
-//				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-				KTodo.this.onSlideBack();
-			}
-		};
-
-		addTaskButton.setSlideLeftInfo(getSlidingView(), slideLeftListener);
 		getAddTaskWidget().setOnKeyListener(new View.OnKeyListener() {
 			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -181,14 +200,6 @@ public class KTodo extends ListActivity {
 		});
 
 		final MyListView listView = getMyListView();
-		listView.setDeleteItemListener(new MyListView.DeleteItemListener() {
-			public void deleteItem(final long id) {
-				lastDeletedItem = todoItemsStorage.loadTodoItem(id);
-				todoItemsStorage.deleteTodoItem(id);
-				showUndeleteButton();
-				updateView();
-			}
-		});
 
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -207,8 +218,6 @@ public class KTodo extends ListActivity {
 //				});
 			}
 		});
-
-		listView.setSlideLeftInfo(getSlidingView(), slideLeftListener);
 
 		getEditItemTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -317,6 +326,33 @@ public class KTodo extends ListActivity {
 	public void onConfigurationChanged(final Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		getSlidingView().fixAfterOrientationChange();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		//re-load settings
+		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+		final MyListView listView = (MyListView) getListView();
+		listView.setDeleteItemListener(
+				prefs.getBoolean("delByFling", true) ?
+				deleteItemListener : null);
+
+		if (prefs.getBoolean("slideToEdit", true)) {
+			getAddTaskButton().setSlideLeftInfo(getSlidingView(), slideLeftListener);
+			listView.setSlideLeftInfo(getSlidingView(), slideLeftListener);
+		} else {
+			getAddTaskButton().setSlideLeftInfo(null, null);
+			listView.setSlideLeftInfo(null, null);
+		}
+
+		final String _default = "default";
+		final String fsize = prefs.getString("mainListFontSize", _default);
+		if (_default.equals(fsize))
+			listFontSize = null;
+		else
+			listFontSize = Float.parseFloat(fsize);
 	}
 
 	private void startEditingItem(final long id) {
@@ -430,6 +466,8 @@ public class KTodo extends ListActivity {
 					final Long dd = cursor.getLong(dueDateIndex);
 					ctv.setDueDate(Util.showDueDate(KTodo.this, dd), Util.getDueStatus(dd));
 				}
+				if (listFontSize != null)
+					ctv.setTextSize(listFontSize);
 			}
 		};
 
@@ -604,6 +642,7 @@ public class KTodo extends ListActivity {
 		item.setIntent(new Intent(this, EditTags.class));
 		menu.add(0, EXPORT_MENU_ITEM, Menu.NONE, R.string.export);
 		menu.add(0, IMPORT_MENU_ITEM, Menu.NONE, R.string._import);
+		menu.add(0, PREFERNCES_MENU_ITEM, Menu.NONE, R.string.prefs_title);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -628,6 +667,9 @@ public class KTodo extends ListActivity {
 				return true;
 			case IMPORT_MENU_ITEM:
 				importData();
+				return true;
+			case PREFERNCES_MENU_ITEM:
+				startActivity(new Intent(getBaseContext(), Preferences.class));
 				return true;
 		}
 		return super.onOptionsItemSelected(item);

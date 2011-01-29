@@ -1,0 +1,13 @@
+<resources>
+	<integer name="COLOR_BLACK">0xff000000</integer>
+
+	<integer name="prio_0">0x00000000</integer>
+	<integer name="prio_1">0xffdc0000</integer>
+	<integer name="prio_2">0xffffff00</integer>
+	<integer name="prio_3">0xff00ffcc</integer>
+	<integer name="prio_4">0xff99ff33</integer>
+	<integer name="prio_5">0xffcccccc</integer>
+
+	<integer name="today_due_date">0xffffcc00</integer>
+	<integer name="expired_due_date">0xffff1f4f</integer>
+</resources>
