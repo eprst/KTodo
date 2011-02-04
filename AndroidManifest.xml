@@ -9,8 +9,7 @@
 	<application
 			android:icon="@drawable/icon"
 			android:label="@string/app_name"
-			android:backupAgent="com.kos.ktodo.MyBackupAgent"
-			android:debuggable="true">
+			android:backupAgent="com.kos.ktodo.MyBackupAgent">
 		<meta-data android:name="com.google.android.backup.api_key"
 		           android:value="AEdPqrEAAAAIEBz6YvAP7vPDajfXEpDWoYAwRrANAakiO3xJCw"/>
 
