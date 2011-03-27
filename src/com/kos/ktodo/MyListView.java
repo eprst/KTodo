@@ -384,15 +384,16 @@ public class MyListView extends ListView {
 					    deltaXFromDown > scaledTouchSlop &&
 					    deleteItemListener != null) {
 						setState(State.DRAGGING_ITEM);
-						processed = true;
+//						processed = true;
 					} else if (state == State.PRESSED_ON_ITEM &&
 					           deltaXFromDown < -scaledTouchSlop &&
 					           slideLeftListener != null && itemnum != AdapterView.INVALID_POSITION) {
 						setState(State.DRAGGING_VIEW_LEFT);
 						dragPointX = x;
 						slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemnum));
-						processed = true;
+//						processed = true;
 					}
+					processed = true;
 				}
 		}
 		return processed;
