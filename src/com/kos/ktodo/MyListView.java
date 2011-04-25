@@ -266,8 +266,8 @@ public class MyListView extends ListView {
 				break;
 		}
 		if (processed) {
-			if (state != State.DRAGGING_ITEM)
-				intercepted.add(MotionEvent.obtain(ev));
+//			if (state != State.DRAGGING_ITEM)
+//				intercepted.add(MotionEvent.obtain(ev));
 			return true;
 		} else if (intercepted.size() > 0) {
 			replaying = true;
