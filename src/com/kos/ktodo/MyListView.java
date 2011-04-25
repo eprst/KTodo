@@ -381,7 +381,7 @@ public class MyListView extends ListView {
 			default:
 				final int deltaXFromDown = x - dragStartX;
 				final int deltaYFromDown = y - dragStartY;
-				if (deltaYFromDown >= scaledTouchSlop)
+				if (Math.abs(deltaYFromDown) >= scaledTouchSlop)
 					scrolling = true;
 				final int itemnum = pointToPositionWithInvisible(x, y);
 				if (!scrolling) {
