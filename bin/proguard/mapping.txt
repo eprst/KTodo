@@ -219,6 +219,7 @@ com.kos.ktodo.KTodo -> com.kos.ktodo.KTodo:
     com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> y
     com.kos.ktodo.SlideLeftListener slideLeftListener -> z
     java.lang.Float listFontSize -> A
+    boolean clickAnywhereToCheck -> B
     void onCreate(android.os.Bundle) -> onCreate
     void onNewIntent(android.content.Intent) -> onNewIntent
     void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
@@ -264,20 +265,21 @@ com.kos.ktodo.KTodo -> com.kos.ktodo.KTodo:
     void access$600(com.kos.ktodo.KTodo,long) -> b
     void access$700(com.kos.ktodo.KTodo) -> e
     long access$800(com.kos.ktodo.KTodo) -> f
-    com.kos.ktodo.TodoItem access$900(com.kos.ktodo.KTodo) -> g
-    void access$1000(com.kos.ktodo.KTodo,int) -> a
-    void access$1100(com.kos.ktodo.KTodo,com.kos.ktodo.Callback1) -> a
-    void access$1200(com.kos.ktodo.KTodo) -> h
-    com.kos.ktodo.SlidingView access$1300(com.kos.ktodo.KTodo) -> i
-    void access$1400(com.kos.ktodo.KTodo) -> j
-    android.widget.EditText access$1500(com.kos.ktodo.KTodo) -> k
-    com.kos.ktodo.MyListView access$1600(com.kos.ktodo.KTodo) -> l
-    java.lang.Float access$1700(com.kos.ktodo.KTodo) -> m
-    com.kos.ktodo.TodoItemsSortingMode access$1802(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItemsSortingMode) -> a
-    void access$1900(com.kos.ktodo.KTodo,java.lang.String) -> a
-    void access$2000(com.kos.ktodo.KTodo,int,int,java.lang.Runnable) -> a
-    com.kos.ktodo.TagsStorage access$2100(com.kos.ktodo.KTodo) -> n
-    void access$2200(com.kos.ktodo.KTodo) -> o
+    boolean access$900(com.kos.ktodo.KTodo) -> g
+    com.kos.ktodo.TodoItem access$1000(com.kos.ktodo.KTodo) -> h
+    void access$1100(com.kos.ktodo.KTodo,int) -> a
+    void access$1200(com.kos.ktodo.KTodo,com.kos.ktodo.Callback1) -> a
+    void access$1300(com.kos.ktodo.KTodo) -> i
+    com.kos.ktodo.SlidingView access$1400(com.kos.ktodo.KTodo) -> j
+    void access$1500(com.kos.ktodo.KTodo) -> k
+    android.widget.EditText access$1600(com.kos.ktodo.KTodo) -> l
+    com.kos.ktodo.MyListView access$1700(com.kos.ktodo.KTodo) -> m
+    java.lang.Float access$1800(com.kos.ktodo.KTodo) -> n
+    com.kos.ktodo.TodoItemsSortingMode access$1902(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItemsSortingMode) -> a
+    void access$2000(com.kos.ktodo.KTodo,java.lang.String) -> a
+    void access$2100(com.kos.ktodo.KTodo,int,int,java.lang.Runnable) -> a
+    com.kos.ktodo.TagsStorage access$2200(com.kos.ktodo.KTodo) -> o
+    void access$2300(com.kos.ktodo.KTodo) -> p
 com.kos.ktodo.KTodo$1 -> com.kos.ktodo.f:
     com.kos.ktodo.KTodo this$0 -> a
     void deleteItem(long) -> a
@@ -403,7 +405,8 @@ com.kos.ktodo.KTodo$6 -> com.kos.ktodo.e:
     void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
     void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
 com.kos.ktodo.KTodo$7 -> com.kos.ktodo.h:
-    com.kos.ktodo.KTodo this$0 -> a
+    com.kos.ktodo.MyListView val$listView -> a
+    com.kos.ktodo.KTodo this$0 -> b
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
 com.kos.ktodo.KTodo$8 -> com.kos.ktodo.i:
     com.kos.ktodo.KTodo this$0 -> a
@@ -443,28 +446,30 @@ com.kos.ktodo.MyListView -> com.kos.ktodo.MyListView:
     com.kos.ktodo.MyListView$State state -> q
     com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> r
     int dragItemY -> s
-    com.kos.ktodo.SlidingView slideLeftView -> t
-    com.kos.ktodo.SlideLeftListener slideLeftListener -> u
-    java.util.ArrayList intercepted -> v
-    boolean replaying -> w
-    java.lang.Runnable itemFlinger -> x
+    boolean clickedOnCheckMark -> t
+    com.kos.ktodo.SlidingView slideLeftView -> u
+    com.kos.ktodo.SlideLeftListener slideLeftListener -> v
+    java.util.ArrayList intercepted -> w
+    boolean replaying -> x
+    java.lang.Runnable itemFlinger -> y
     void onDetachedFromWindow() -> onDetachedFromWindow
     void onWindowFocusChanged(boolean) -> onWindowFocusChanged
     void setDeleteItemListener(com.kos.ktodo.MyListView$DeleteItemListener) -> a
     void setSlideLeftInfo(com.kos.ktodo.SlidingView,com.kos.ktodo.SlideLeftListener) -> a
     void setState(com.kos.ktodo.MyListView$State) -> a
-    void superCancel() -> b
+    void superCancel() -> c
     boolean handleBack() -> a
     boolean onTrackballEvent(android.view.MotionEvent) -> onTrackballEvent
+    boolean isClickedOnCheckMark() -> b
     boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
     int pointToPositionWithInvisible(int,int) -> a
     boolean startPreDragging(android.view.MotionEvent) -> a
-    android.view.View getDragItem() -> c
-    int getDragItemY() -> d
+    android.view.View getDragItem() -> d
+    int getDragItemY() -> e
     void dragView(int) -> a
     void slideLeft(int) -> b
     boolean itemInBounds(int) -> c
-    void stopDragging() -> e
+    void stopDragging() -> f
     void createContextMenu(android.view.ContextMenu) -> createContextMenu
     com.kos.ktodo.MyListView$State access$000(com.kos.ktodo.MyListView) -> a
     com.kos.ktodo.MyScroller access$100(com.kos.ktodo.MyListView) -> b
@@ -699,10 +704,11 @@ com.kos.ktodo.TodoItemView -> com.kos.ktodo.TodoItemView:
     void setDueDate(java.lang.String,com.kos.ktodo.DueStatus) -> a
     void setPadding(int,int,int,int) -> setPadding
     void setCheckMarkDrawable(android.graphics.drawable.Drawable) -> setCheckMarkDrawable
-    void updateSuperPadding() -> a
+    int getCheckMarkWidth() -> a
+    void updateSuperPadding() -> b
     void setSelected(boolean) -> setSelected
     void setPressed(boolean) -> setPressed
-    void updateBackground() -> b
+    void updateBackground() -> c
     void setMinHeight(int) -> setMinHeight
     void onDraw(android.graphics.Canvas) -> onDraw
 com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.av:
