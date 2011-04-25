@@ -78,6 +78,8 @@
 	<string name="prefs_enable_fling_delete_s">Удалять элементы выбрасыванием за правый край</string>
 	<string name="prefs_enable_slide_edit">Ред. сдвигом</string>
 	<string name="prefs_enable_slide_edit_s">Редактировать элементы сдвиганием за левый край</string>
+	<string name="prefs_click_anywhere_to_check">Клик где угодно</string>
+	<string name="prefs_click_anywhere_to_check_s">Элемент помечается кликом где угодно или только по галке</string>
 	<string name="prefs_main_list_font_size">Размер элементов</string>
 	<string name="prefs_main_list_font_size_s">Размер шрифта элементов списка</string>
 	<string name="prefs_show_due_date_as_days_left">Срок как кол-во дней</string>

@@ -116,6 +116,10 @@ public class TodoItemView extends CheckedTextView {
 		updateSuperPadding();
 	}
 
+	public int getCheckMarkWidth() {
+		return checkMarkWidth;
+	}
+
 	private void updateSuperPadding() {
 		int p = 2 * checkMarkWidth;
 		if (dueDate != null) {

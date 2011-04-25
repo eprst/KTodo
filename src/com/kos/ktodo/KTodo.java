@@ -70,6 +70,7 @@ public class KTodo extends ListActivity {
 
 	//prefs
 	private Float listFontSize = null;
+	private boolean clickAnywhereToCheck = true;
 
 	public KTodo() {
 		deleteItemListener = new MyListView.DeleteItemListener() {
@@ -209,11 +210,13 @@ public class KTodo extends ListActivity {
 
 //				handler.post(new Runnable() {
 //					public void run() {
-				final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-				todoItem.setDone(!todoItem.done);
-				todoItemsStorage.saveTodoItem(todoItem);
-//				todoItemsStorage.toggleDone(id);
-				updateView();
+				if (clickAnywhereToCheck || listView.isClickedOnCheckMark()) { //why the heck I can't get event coordinates here
+					final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+					todoItem.setDone(!todoItem.done);
+					todoItemsStorage.saveTodoItem(todoItem);
+//				    todoItemsStorage.toggleDone(id);
+					updateView();
+				}
 //					}
 //				});
 			}
@@ -353,6 +356,8 @@ public class KTodo extends ListActivity {
 			listFontSize = null;
 		else
 			listFontSize = Float.parseFloat(fsize);
+
+		clickAnywhereToCheck = prefs.getBoolean("clickAnywhereToCheck", true);
 	}
 
 	private void startEditingItem(final long id) {

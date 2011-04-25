@@ -12,6 +12,11 @@
 			android:defaultValue="true"
 			android:key="slideToEdit"/>
 	<CheckBoxPreference
+			android:title="@string/prefs_click_anywhere_to_check"
+			android:summary="@string/prefs_click_anywhere_to_check_s"
+			android:defaultValue="true"
+			android:key="clickAnywhereToCheck"/>
+	<CheckBoxPreference
 			android:title="@string/prefs_show_due_date_as_days_left"
 			android:summary="@string/prefs_show_due_date_as_days_left_s"
 			android:defaultValue="false"

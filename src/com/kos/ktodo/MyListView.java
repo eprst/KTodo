@@ -41,6 +41,7 @@ public class MyListView extends ListView {
 	private State state = State.NORMAL;
 	private DeleteItemListener deleteItemListener;
 	private int dragItemY = -1;
+	private boolean clickedOnCheckMark = false;
 
 	//slide left stuff
 	private SlidingView slideLeftView;
@@ -237,6 +238,10 @@ public class MyListView extends ListView {
 			return super.onTrackballEvent(event);
 	}
 
+	public boolean isClickedOnCheckMark() {
+		return clickedOnCheckMark;
+	}
+
 	@Override
 	public boolean onTouchEvent(final MotionEvent ev) {
 		if (replaying || (deleteItemListener == null && slideLeftListener == null)) return super.onTouchEvent(ev);
@@ -251,6 +256,8 @@ public class MyListView extends ListView {
 		boolean processed = false;
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_UP:
+				if (getChildCount() > 0)
+					clickedOnCheckMark = getWidth() - ev.getRawX() < 2*((TodoItemView) getChildAt(0)).getCheckMarkWidth();
 			case MotionEvent.ACTION_CANCEL:
 				processed = processUpEvent();
 				break;

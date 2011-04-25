@@ -87,6 +87,8 @@ On the edit screen:\n
 	<string name="prefs_enable_fling_delete_s">Delete items by throwing them to the right</string>
 	<string name="prefs_enable_slide_edit">Slide to edit</string>
 	<string name="prefs_enable_slide_edit_s">Edit items by sliding them to the left</string>
+	<string name="prefs_click_anywhere_to_check">Click anywhere to check</string>
+	<string name="prefs_click_anywhere_to_check_s">Click anywhere or on the checkmark only to check/uncheck items</string>
 	<string name="prefs_main_list_font_size">List font size</string>
 	<string name="prefs_main_list_font_size_s">Todo list items font size</string>
 	<string name="prefs_show_due_date_as_days_left">Due date as days left</string>
