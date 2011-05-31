@@ -256,8 +256,14 @@ public class MyListView extends ListView {
 		boolean processed = false;
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_UP:
-				if (getChildCount() > 0)
-					clickedOnCheckMark = getWidth() - ev.getRawX() < 2*((TodoItemView) getChildAt(0)).getCheckMarkWidth();
+				if (getChildCount() > 0) {
+					final View view = getChildAt(0);
+					if (view instanceof TodoItemView) {
+						final TodoItemView todoItemView = (TodoItemView) view;
+						clickedOnCheckMark = getWidth() - ev.getRawX() < 2*todoItemView.getCheckMarkWidth();
+					}
+
+				}
 			case MotionEvent.ACTION_CANCEL:
 				processed = processUpEvent();
 				break;

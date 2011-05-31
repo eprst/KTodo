@@ -6,7 +6,7 @@ set fp [open "keypass" r]
 set pass [read $fp]
 close $fp
 
-spawn ant release
+spawn ant clean release
 expect {
     "Please enter"    {send -- "$pass\n"; exp_continue}
 }
