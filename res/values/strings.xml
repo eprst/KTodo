@@ -48,6 +48,7 @@
 	<string name="widget_2x2">KTodo 2x2</string>
 	<string name="widget_2x1">KTodo 2x1</string>
 	<string name="widget_2x4">KTodo 2x4</string>
+	<string name="widget_4x2">KTodo 4x2</string>
 	<string name="widget_loading">Loading widget...</string>
 	<string name="widget_configure_title">Configure KTodo widget</string>
 	<string name="widget_ok">OK</string>
@@ -74,8 +75,12 @@ On the edit screen:\n
 * edit priority, progress and due date using buttons below\n
 * try to slide on priority and progress buttons</string>
 	<string name="sorting">Sorting</string>
-	<string name="prio_then_due">Priority, Due date</string>
-	<string name="due_then_prio">Due date, Priority</string>
+	<string name="prio_due_summary">Priority, Due date, Summary</string>
+	<string name="due_prio_summary">Due date, Priority, Summary</string>
+	<string name="prio_summary_due">Priority, Summary, Due date</string>
+	<string name="summary_prio_due">Summary, Priority, Due date</string>
+	<string name="due_summary_prio">Due date, Summary, Priority</string>
+	<string name="summary_due_prio">Summary, Due date, Priority</string>
 	<string name="undelete">Undelete</string>
 
 	<string name="choose_color_dlg_title">Choose color</string>

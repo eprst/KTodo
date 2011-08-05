@@ -67,7 +67,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	                                                  WIDGET_CONFIGURED + " boolean default 0 not null, " +
 	                                                  WIDGET_SHOW_ONLY_DUE + " boolean default 0 not null, " +
 	                                                  WIDGET_SHOW_ONLY_DUE_IN + " integer default -1 not null, " +
-	                                                  WIDGET_SORTING_MODE + " integer default " + TodoItemsSortingMode.PRIO_THEN_DUE.ordinal() + " not null, " +
+	                                                  WIDGET_SORTING_MODE + " integer default " + TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal() + " not null, " +
 	                                                  WIDGET_HIDE_COMPLETED + " boolean default 1 not null);";
 
 	private final Context context;
@@ -114,7 +114,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			sqLiteDatabase.execSQL(CREATE_WIDGET_TABLE);
 		if (oldv == 3)
 			sqLiteDatabase.execSQL("alter table " + WIDGET_TABLE_NAME + " add " + WIDGET_SORTING_MODE +
-			                       " integer default " + TodoItemsSortingMode.PRIO_THEN_DUE.ordinal() + " not null");
+			                       " integer default " + TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal() + " not null");
 		if (oldv <= 4)
 			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_CARET_POSITION + " integer default 0 null;");
 	}

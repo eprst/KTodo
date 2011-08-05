@@ -150,14 +150,7 @@ public class ConfigureActivity extends Activity {
 
 	private Button updateSortingButtonText() {
 		final Button b = (Button) findViewById(R.id.conf_sorting);
-		switch (settings.sortingMode) {
-			case PRIO_THEN_DUE:
-				b.setText(R.string.prio_then_due);
-				break;
-			case DUE_THEN_PRIO:
-				b.setText(R.string.due_then_prio);
-				break;
-		}
+		b.setText(settings.sortingMode.getResId());
 		return b;
 	}
 

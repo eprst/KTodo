@@ -9,7 +9,7 @@ public class WidgetSettings {
 	public boolean hideCompleted = true;
 	public boolean showOnlyDue = false;
 	public int showOnlyDueIn = -1;
-	public TodoItemsSortingMode sortingMode = TodoItemsSortingMode.PRIO_THEN_DUE;
+	public TodoItemsSortingMode sortingMode = TodoItemsSortingMode.PRIO_DUE_SUMMARY;
 
 	public WidgetSettings(final int widgetID) {
 		this.widgetID = widgetID;

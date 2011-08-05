@@ -121,7 +121,7 @@ public class EditTags extends ListActivity {
 		final TodoItemsStorage todoStorage = new TodoItemsStorage(this);
 		todoStorage.open();
 		try {
-			final int byTag = todoStorage.getByTagCursor(id, TodoItemsSortingMode.PRIO_THEN_DUE).getCount();
+			final int byTag = todoStorage.getByTagCursor(id, TodoItemsSortingMode.PRIO_DUE_SUMMARY).getCount();
 			if (byTag == 0) {
 				tagsStorage.deleteTag(id);
 			} else {

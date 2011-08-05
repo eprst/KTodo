@@ -65,8 +65,12 @@
 * три кнопки ниже меняют приоритет, прогресс и срок выполнения\n
 * попробуйте провести пальцем вдоль кнопок приоритета или прогресса</string>
 	<string name="sorting">Сортировка</string>
-	<string name="prio_then_due">Приоритет, срок</string>
-	<string name="due_then_prio">Срок, приоритет</string>
+	<string name="prio_due_summary">Приоритет, срок, имя</string>
+	<string name="due_prio_summary">Срок, приоритет, имя</string>
+	<string name="prio_summary_due">Приоритет, имя, срок</string>
+	<string name="summary_prio_due">Имя, приоритет, срок</string>
+	<string name="due_summary_prio">Срок, имя, приоритет</string>
+	<string name="summary_due_prio">Имя, срок, приоритет</string>
 	<string name="undelete">Восстановить</string>
 
 	<string name="choose_color_dlg_title">Выбор цвета</string>

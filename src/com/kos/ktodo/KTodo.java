@@ -131,7 +131,7 @@ public class KTodo extends ListActivity {
 		setCurrentTag(currentTag);
 		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
 		setDefaultPrio(preferences.getInt("defaultPrio", 1));
-		sortingMode = TodoItemsSortingMode.fromOrdinal(preferences.getInt("sortingMode", TodoItemsSortingMode.PRIO_THEN_DUE.ordinal()));
+		sortingMode = TodoItemsSortingMode.fromOrdinal(preferences.getInt("sortingMode", TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal()));
 
 		setupFirstScreenWidgets();
 		setupSecondScreenWidgets();
@@ -548,7 +548,7 @@ public class KTodo extends ListActivity {
 		setCurrentTag(savedInstanceState.getLong("currentTag"));
 		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
 		setDefaultPrio(savedInstanceState.getInt("defaultPrio"));
-		sortingMode = TodoItemsSortingMode.fromOrdinal(savedInstanceState.getInt("sortingMode", TodoItemsSortingMode.PRIO_THEN_DUE.ordinal()));
+		sortingMode = TodoItemsSortingMode.fromOrdinal(savedInstanceState.getInt("sortingMode", TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal()));
 		final String addTaskText = savedInstanceState.getString("addTaskText");
 		if (addTaskText != null) {
 			final EditText taskWidget = getAddTaskWidget();

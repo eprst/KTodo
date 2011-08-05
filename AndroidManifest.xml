@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.kos.ktodo"
-          android:versionName="1.5.7.3"
-          android:versionCode="19">
+          android:versionName="1.6"
+          android:versionCode="20">
 	<uses-sdk android:minSdkVersion="7"/>
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -15,6 +15,7 @@
 
 		<activity android:name=".KTodo"
 		          android:launchMode="singleTop"
+		          android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
 		          android:windowSoftInputMode="stateHidden|adjustResize"
 		          android:configChanges="keyboardHidden|orientation">
 			<intent-filter>
@@ -63,6 +64,14 @@
 			</intent-filter>
 			<meta-data android:name="android.appwidget.provider"
 			           android:resource="@xml/appwidget_2x4_info"/>
+		</receiver>
+
+		<receiver android:name=".widget.KTodoWidget42" android:label="@string/widget_4x2">
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+			</intent-filter>
+			<meta-data android:name="android.appwidget.provider"
+			           android:resource="@xml/appwidget_4x2_info"/>
 		</receiver>
 
 		<service android:name=".widget.UpdateService"/>
