@@ -24,9 +24,8 @@ public enum TodoItemsSortingMode {
 			if (sb.length() != 0)
 				sb.append(", ");
 			if (col.equals(TODO_DUE_DATE))
-				sb.append("(").append(TODO_DUE_DATE).append(" is null)");
-			else
-				sb.append(col);
+				sb.append("(").append(TODO_DUE_DATE).append(" is null) ASC, ");
+			sb.append(col);
 			sb.append(" ASC");
 		}
 		orderBy = sb.toString();
