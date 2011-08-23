@@ -131,6 +131,7 @@ public class SliderButton extends Button {
 						dlg = b.create();
 						dlg.show();
 						final Window dwin = dlg.getWindow();
+						dwin.setGravity(Gravity.TOP);
 						final WindowManager.LayoutParams lp = dwin.getAttributes();
 						lp.dimAmount = 0f;
 						lp.windowAnimations = 0;
