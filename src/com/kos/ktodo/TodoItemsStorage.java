@@ -17,7 +17,7 @@ public class TodoItemsStorage {
 
 	private static final String[] ALL_COLUMNS = new String[]{
 			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE,
-            TODO_CARET_POSITION};
+			TODO_CARET_POSITION};
 
 	private SQLiteDatabase db;
 	private DBHelper helper;
@@ -35,6 +35,10 @@ public class TodoItemsStorage {
 //		toggleDoneStmt2 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_PROGRESS + " = 0 " + " WHERE " +
 //		                                      TODO_ID + "=? AND " + TODO_PROGRESS + " = 100 AND " + TODO_DONE + " = 0");
 		modifiedDB = false;
+		if (helper.isNeedToRecreateAllItems()) {
+			recreateAllItems();
+			helper.resetNeedToRecreateAllItems();
+		}
 	}
 
 	public void close() {
@@ -139,6 +143,17 @@ public class TodoItemsStorage {
 				cursor.isNull(7) ? null : cursor.getLong(7),
 				cursor.isNull(8) ? null : cursor.getInt(8)
 		);
+	}
+
+	public void recreateAllItems() {
+		final Cursor cursor = db.query(TODO_TABLE_NAME, ALL_COLUMNS, null, null, null, null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			final TodoItem item = loadTodoItemFromCursor(cursor);
+			saveTodoItem(item);
+			cursor.moveToNext();
+		}
+		cursor.close();
 	}
 
 	public boolean hasModifiedDB() {

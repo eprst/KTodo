@@ -1,5 +1,6 @@
 package com.kos.ktodo;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class TodoItem {
@@ -13,10 +14,10 @@ public class TodoItem {
 	public Long dueDate = null;
 	public Integer caretPos = null;
 
-	public TodoItem(final long id, final long tagID) {
-		this.id = id;
-		this.tagID = tagID;
-	}
+//	public TodoItem(final long id, final long tagID) {
+//		this.id = id;
+//		this.tagID = tagID;
+//	}
 
 	public TodoItem(final long id, final long tagID, final boolean done, final String summary, final String body, final int prio, final int progress,
 	                final Long dueDate, final Integer caretPos) {
@@ -27,8 +28,19 @@ public class TodoItem {
 		this.body = body;
 		this.prio = prio;
 		this.progress = progress;
-		this.dueDate = dueDate;
+		this.dueDate = resetTime(dueDate);
 		this.caretPos = caretPos;
+	}
+
+	private Long resetTime(final Long date) {
+		if (date == null) return null;
+		final Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(date);
+		c.set(Calendar.MILLISECOND, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		return c.getTimeInMillis();
 	}
 
 	public void setDone(final boolean done) {
