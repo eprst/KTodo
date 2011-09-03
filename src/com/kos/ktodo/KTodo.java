@@ -386,7 +386,9 @@ public class KTodo extends ListActivity {
 				final EditText editText = getEditBodyWidget();
 				if (editingItem.caretPos != null) {
 					final Editable text = editText.getText();
-					Selection.setSelection(text, editingItem.caretPos);
+					final int savedCaretPos = editingItem.caretPos;
+					if (savedCaretPos >= 0 && savedCaretPos < text.length())
+						Selection.setSelection(text, savedCaretPos);
 				}
 				editText.requestFocus();
 			}
