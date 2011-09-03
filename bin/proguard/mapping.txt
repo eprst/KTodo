@@ -118,18 +118,21 @@ com.kos.ktodo.Callback1 -> com.kos.ktodo.bd:
 com.kos.ktodo.DBHelper -> com.kos.ktodo.bu:
     java.lang.String CREATE_WIDGET_TABLE -> a
     android.content.Context context -> b
+    boolean needToRecreateAllItems -> c
     void onCreate(android.database.sqlite.SQLiteDatabase) -> onCreate
     void onUpgrade(android.database.sqlite.SQLiteDatabase,int,int) -> onUpgrade
+    boolean isNeedToRecreateAllItems() -> a
+    void resetNeedToRecreateAllItems() -> b
     boolean isNullable(java.lang.String,java.lang.String) -> a
 com.kos.ktodo.DueDateSelector -> com.kos.ktodo.as:
     void onClick(android.view.View) -> onClick
     java.lang.Long getCurrentDueDate() -> a
     void onDueDateSelected(java.lang.Long) -> a
-com.kos.ktodo.DueDateSelector$1 -> com.kos.ktodo.bz:
+com.kos.ktodo.DueDateSelector$1 -> com.kos.ktodo.by:
     android.content.Context val$c -> a
     com.kos.ktodo.DueDateSelector this$0 -> b
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.DueDateSelector$2 -> com.kos.ktodo.by:
+com.kos.ktodo.DueDateSelector$2 -> com.kos.ktodo.bx:
     com.kos.ktodo.DueDateSelector this$0 -> a
     void onDateSet(android.widget.DatePicker,int,int,int) -> onDateSet
 com.kos.ktodo.DueStatus -> com.kos.ktodo.s:
@@ -712,19 +715,24 @@ com.kos.ktodo.TodoItemView -> com.kos.ktodo.TodoItemView:
     void setMinHeight(int) -> setMinHeight
     void onDraw(android.graphics.Canvas) -> onDraw
 com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.av:
-    com.kos.ktodo.TodoItemsSortingMode PRIO_THEN_DUE -> a
-    com.kos.ktodo.TodoItemsSortingMode DUE_THEN_PRIO -> b
-    com.kos.ktodo.TodoItemsSortingMode[] $VALUES -> c
+    com.kos.ktodo.TodoItemsSortingMode PRIO_DUE_SUMMARY -> a
+    com.kos.ktodo.TodoItemsSortingMode DUE_PRIO_SUMMARY -> b
+    com.kos.ktodo.TodoItemsSortingMode PRIO_SUMMARY_DUE -> c
+    com.kos.ktodo.TodoItemsSortingMode SUMMARY_PRIO_DUE -> d
+    com.kos.ktodo.TodoItemsSortingMode DUE_SUMMARY_PRIO -> e
+    com.kos.ktodo.TodoItemsSortingMode SUMMARY_DUE_PRIO -> f
+    int resId -> g
+    java.lang.String orderBy -> h
+    com.kos.ktodo.TodoItemsSortingMode[] $VALUES -> i
     com.kos.ktodo.TodoItemsSortingMode[] values() -> values
     com.kos.ktodo.TodoItemsSortingMode valueOf(java.lang.String) -> valueOf
-    java.lang.String getOrderBy() -> a
+    int getResId() -> a
+    java.lang.String getOrderBy() -> b
     com.kos.ktodo.TodoItemsSortingMode fromOrdinal(int) -> a
     void selectSortingMode(android.content.Context,com.kos.ktodo.TodoItemsSortingMode,com.kos.ktodo.Callback1) -> a
-com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.bx:
+com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.bw:
     com.kos.ktodo.Callback1 val$callback -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.TodoItemsSortingMode$2 -> com.kos.ktodo.bw:
-    int[] $SwitchMap$com$kos$ktodo$TodoItemsSortingMode -> a
 com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.ba:
     java.lang.String[] ALL_COLUMNS -> a
     android.database.sqlite.SQLiteDatabase db -> b
@@ -826,20 +834,19 @@ com.kos.ktodo.widget.ConfigureActivity$4 -> com.kos.ktodo.widget.e:
 com.kos.ktodo.widget.ConfigureActivity$5 -> com.kos.ktodo.widget.f:
     com.kos.ktodo.widget.ConfigureActivity this$0 -> a
     void onCheckedChanged(android.widget.CompoundButton,boolean) -> onCheckedChanged
-com.kos.ktodo.widget.ConfigureActivity$6 -> com.kos.ktodo.widget.j:
+com.kos.ktodo.widget.ConfigureActivity$6 -> com.kos.ktodo.widget.i:
     com.kos.ktodo.widget.ConfigureActivity this$0 -> a
     void onClick(android.view.View) -> onClick
 com.kos.ktodo.widget.ConfigureActivity$6$1 -> com.kos.ktodo.widget.a:
     com.kos.ktodo.widget.ConfigureActivity$6 this$1 -> a
     java.lang.Object call(java.lang.Object) -> a
-com.kos.ktodo.widget.ConfigureActivity$7 -> com.kos.ktodo.widget.k:
+com.kos.ktodo.widget.ConfigureActivity$7 -> com.kos.ktodo.widget.j:
     com.kos.ktodo.widget.ConfigureActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-com.kos.ktodo.widget.ConfigureActivity$8 -> com.kos.ktodo.widget.i:
-    int[] $SwitchMap$com$kos$ktodo$TodoItemsSortingMode -> a
 com.kos.ktodo.widget.KTodoWidget21 -> com.kos.ktodo.widget.KTodoWidget21:
 com.kos.ktodo.widget.KTodoWidget22 -> com.kos.ktodo.widget.KTodoWidget22:
 com.kos.ktodo.widget.KTodoWidget24 -> com.kos.ktodo.widget.KTodoWidget24:
+com.kos.ktodo.widget.KTodoWidget42 -> com.kos.ktodo.widget.KTodoWidget42:
 com.kos.ktodo.widget.KTodoWidgetBase -> com.kos.ktodo.widget.KTodoWidgetBase:
     int[] ITEMS -> a
     int[] LINES -> b
@@ -849,7 +856,7 @@ com.kos.ktodo.widget.KTodoWidgetBase -> com.kos.ktodo.widget.KTodoWidgetBase:
     android.widget.RemoteViews buildUpdate(android.content.Context,int,android.appwidget.AppWidgetProviderInfo) -> a
 com.kos.ktodo.widget.KTodoWidgetBase$1 -> com.kos.ktodo.widget.d:
     int[] $SwitchMap$com$kos$ktodo$DueStatus -> a
-com.kos.ktodo.widget.KTodoWidgetBase$WidgetSizeInfo -> com.kos.ktodo.widget.m:
+com.kos.ktodo.widget.KTodoWidgetBase$WidgetSizeInfo -> com.kos.ktodo.widget.l:
     int numLines -> a
     int layout -> b
     int getNumLines() -> a
@@ -865,7 +872,7 @@ com.kos.ktodo.widget.UpdateService -> com.kos.ktodo.widget.UpdateService:
     void requestUpdateAll(android.content.Context) -> a
     void run() -> run
     android.os.IBinder onBind(android.content.Intent) -> onBind
-com.kos.ktodo.widget.WidgetSettings -> com.kos.ktodo.widget.l:
+com.kos.ktodo.widget.WidgetSettings -> com.kos.ktodo.widget.k:
     int widgetID -> a
     int tagID -> b
     boolean configured -> c
