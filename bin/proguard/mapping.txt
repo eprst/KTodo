@@ -655,14 +655,20 @@ com.kos.ktodo.TagsStorage -> com.kos.ktodo.am:
 com.kos.ktodo.TodoItem -> com.kos.ktodo.ay:
     long id -> a
     long tagID -> b
-    boolean done -> c
-    java.lang.String summary -> d
-    java.lang.String body -> e
-    int prio -> f
-    int progress -> g
-    java.lang.Long dueDate -> h
-    java.lang.Integer caretPos -> i
+    boolean done -> g
+    java.lang.String summary -> c
+    java.lang.String body -> d
+    int prio -> e
+    int progress -> h
+    java.lang.Long dueDate -> i
+    java.lang.Integer caretPos -> f
+    java.lang.Long resetTime(java.lang.Long) -> b
+    java.lang.Long getDueDate() -> a
+    void setDueDate(java.lang.Long) -> a
+    boolean isDone() -> b
+    void setDone(boolean) -> a
     void setProgress(int) -> a
+    int getProgress() -> c
     java.lang.String toString() -> toString
 com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.aq:
     com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState s -> a
