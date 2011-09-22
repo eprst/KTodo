@@ -200,21 +200,21 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 	private static int getItemColor(final int defaultColor, final int completedColor,
 	                                final int dueTodayColor, final int expiredColor,
 	                                final TodoItem i) {
-		switch (Util.getDueStatus(i.dueDate)) {
+		switch (Util.getDueStatus(i.getDueDate())) {
 			case EXPIRED:
 				return expiredColor;
 			case TODAY:
 				return dueTodayColor;
 			default:
-				if (i.done) return completedColor;
+				if (i.isDone()) return completedColor;
 				return defaultColor;
 		}
 	}
 
 	private static boolean showItem(final TodoItem i, final WidgetSettings s) {
-		if (s.hideCompleted && i.done) return false;
+		if (s.hideCompleted && i.isDone()) return false;
 		final int opts = (s.showOnlyDue ? 1 : 0) << 1 | (s.showOnlyDueIn == -1 ? 0 : 1);
-		final Integer dd = Util.getDueInDays(i.dueDate);
+		final Integer dd = Util.getDueInDays(i.getDueDate());
 		switch (opts) {
 			case 0:
 				return true;

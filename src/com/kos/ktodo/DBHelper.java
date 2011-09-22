@@ -15,7 +15,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 6;
+	private static final int DB_VERSION = 7;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
@@ -118,7 +118,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			                       " integer default " + TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal() + " not null");
 		if (oldv <= 4)
 			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_CARET_POSITION + " integer default 0 null;");
-		if (oldv < 6)
+		if (oldv < 7)
 			needToRecreateAllItems = true;
 	}
 

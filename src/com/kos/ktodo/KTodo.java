@@ -212,7 +212,7 @@ public class KTodo extends ListActivity {
 //					public void run() {
 				if (clickAnywhereToCheck || listView.isClickedOnCheckMark()) { //why the heck I can't get event coordinates here
 					final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-					todoItem.setDone(!todoItem.done);
+					todoItem.setDone(!todoItem.isDone());
 					todoItemsStorage.saveTodoItem(todoItem);
 //				    todoItemsStorage.toggleDone(id);
 					updateView();
@@ -280,13 +280,13 @@ public class KTodo extends ListActivity {
 		getDueDateButton().setOnClickListener(new DueDateSelector() {
 			@Override
 			public void onDueDateSelected(final Long dueDate) {
-				editingItem.dueDate = dueDate;
+				editingItem.setDueDate(dueDate);
 				updateDueDateButton();
 			}
 
 			@Override
 			public Long getCurrentDueDate() {
-				return editingItem.dueDate;
+				return editingItem.getDueDate();
 			}
 		});
 
@@ -396,10 +396,10 @@ public class KTodo extends ListActivity {
 	}
 
 	private void updateDueDateButton() {
-		if (editingItem.dueDate == null)
+		if (editingItem.getDueDate() == null)
 			getDueDateButton().setText(R.string.due_date);
 		else
-			getDueDateButton().setText(Util.showDueDate(this, editingItem.dueDate));
+			getDueDateButton().setText(Util.showDueDate(this, editingItem.getDueDate()));
 	}
 
 	private void saveItemBeingEdited() {
@@ -739,14 +739,14 @@ public class KTodo extends ListActivity {
 				new DueDateSelector() {
 					@Override
 					public void onDueDateSelected(final Long dueDate) {
-						todoItem.dueDate = dueDate;
+						todoItem.setDueDate(dueDate);
 						todoItemsStorage.saveTodoItem(todoItem);
 						updateView();
 					}
 
 					@Override
 					public Long getCurrentDueDate() {
-						return todoItem.dueDate;
+						return todoItem.getDueDate();
 					}
 				}.onClick(getMyListView());
 				return true;

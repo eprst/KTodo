@@ -49,7 +49,7 @@ public class TodoItemsStorage {
 		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
-		return new TodoItem(id, item.tagID, item.done, item.summary, item.body, item.prio, item.progress, item.dueDate, item.caretPos);
+		return new TodoItem(id, item.tagID, item.isDone(), item.summary, item.body, item.prio, item.getProgress(), item.getDueDate(), item.caretPos);
 	}
 
 	private ContentValues fillValues(final TodoItem item) {
@@ -57,13 +57,13 @@ public class TodoItemsStorage {
 		if (item.id != -1)
 			cv.put(TODO_ID, item.id);
 		cv.put(TODO_TAG_ID, item.tagID);
-		cv.put(TODO_DONE, item.done);
+		cv.put(TODO_DONE, item.isDone());
 		cv.put(TODO_SUMMARY, item.summary);
 		cv.put(TODO_BODY, item.body);
 		cv.put(TODO_PRIO, item.prio);
-		cv.put(TODO_PROGRESS, item.progress);
-		if (item.dueDate != null)
-			cv.put(TODO_DUE_DATE, item.dueDate);
+		cv.put(TODO_PROGRESS, item.getProgress());
+		if (item.getDueDate() != null)
+			cv.put(TODO_DUE_DATE, item.getDueDate());
 		else
 			cv.putNull(TODO_DUE_DATE);
 		cv.put(TODO_CARET_POSITION, item.caretPos);

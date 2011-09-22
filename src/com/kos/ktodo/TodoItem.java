@@ -6,12 +6,12 @@ import java.util.Date;
 public class TodoItem {
 	public final long id;
 	public long tagID;
-	public boolean done;
+	private boolean done;
 	public String summary;
 	public String body;
 	public int prio = 1;
-	public int progress = 0;
-	public Long dueDate = null;
+	private int progress = 0;
+	private Long dueDate = null;
 	public Integer caretPos = null;
 
 //	public TodoItem(final long id, final long tagID) {
@@ -41,6 +41,18 @@ public class TodoItem {
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		return c.getTimeInMillis();
+	}
+
+	public Long getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(final Long dueDate) {
+		this.dueDate = resetTime(dueDate);
+	}
+
+	public boolean isDone() {
+		return done;
 	}
 
 	public void setDone(final boolean done) {
