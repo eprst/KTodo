@@ -59,6 +59,7 @@ public class KTodo extends ListActivity {
 	private boolean hidingCompleted;
 	private int defaultPrio;
 	private TodoItemsSortingMode sortingMode;
+	private boolean customTitleSupported;
 
 	private TodoItem editingItem;
 	private Cursor edititgItemTagsCursor;
@@ -84,6 +85,7 @@ public class KTodo extends ListActivity {
 		slideLeftListener = new SlideLeftListener() {
 			public void slideLeftStarted(final long id) {
 				startEditingItem(id);
+				updateTitle(true);
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
 			}
@@ -103,7 +105,16 @@ public class KTodo extends ListActivity {
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if (TRACE) Debug.startMethodTracing("ktodo");
+
+		customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+
 		setContentView(R.layout.main);
+
+		if (customTitleSupported) {
+			getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
+			getTitleLeft().setText(R.string.app_name);
+		}
+
 		handler = new Handler();
 
 		todoItemsStorage = new TodoItemsStorage(this);
@@ -140,6 +151,7 @@ public class KTodo extends ListActivity {
 
 //		reloadTodoItems(); //will be called from spinner.onMeasure->fireOnSelected->KTodo$4.onItemSelected
 
+		updateTitle(false);
 		setResult(Activity.RESULT_OK);
 	}
 
@@ -168,6 +180,7 @@ public class KTodo extends ListActivity {
 	private void onSlideBack() {
 		saveItemBeingEdited();
 		updateView();
+		updateTitle(false);
 		getAddTaskWidget().requestFocus();
 	}
 
@@ -323,6 +336,19 @@ public class KTodo extends ListActivity {
 			}
 		};
 		getEditBodyWidget().setOnTouchListener(gestureListener);
+	}
+
+	private void updateTitle(final boolean setToEmpty) {
+		if (customTitleSupported) {
+			if (setToEmpty) {
+				getTitleRight().setText("");
+			} else {
+				if (sortingMode == null)
+					getTitleRight().setText("");
+				else
+					getTitleRight().setText(sortingMode.getTitleResId());
+			}
+		}
 	}
 
 	@Override
@@ -490,7 +516,9 @@ public class KTodo extends ListActivity {
 		editor.putLong("currentTag", getCurrentTagID());
 		editor.putInt("defaultPrio", defaultPrio);
 		editor.putInt("sortingMode", sortingMode.ordinal());
-		editor.putBoolean("hidingCompleted", hidingCompleted).commit();
+		editor.putBoolean("hidingCompleted", hidingCompleted);
+		editor.putBoolean("customTitleSupported", customTitleSupported);
+		editor.commit();
 		super.onPause();
 	}
 
@@ -541,6 +569,7 @@ public class KTodo extends ListActivity {
 			outState.putLong("itemBeingEditedID", editingItem.id);
 			saveItemBeingEdited();
 		}
+		outState.putBoolean("customTitleSupported", customTitleSupported);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -568,6 +597,8 @@ public class KTodo extends ListActivity {
 				}
 			}, 100);
 		}
+		if(savedInstanceState.containsKey("customTitleSupported"))
+			customTitleSupported = savedInstanceState.getBoolean("customTitleSupported");
 		reloadTodoItems();
 	}
 
@@ -665,6 +696,7 @@ public class KTodo extends ListActivity {
 					public Unit call(final TodoItemsSortingMode arg) {
 						sortingMode = arg;
 						reloadTodoItems();
+						updateTitle(false);
 						return Unit.u;
 					}
 				});
@@ -950,6 +982,14 @@ public class KTodo extends ListActivity {
 
 	private Button getDueDateButton() {
 		return (Button) findViewById(R.id.due_date_button);
+	}
+
+	private TextView getTitleLeft() {
+		return (TextView) findViewById(R.id.titleLeft);
+	}
+
+	private TextView getTitleRight() {
+		return (TextView) findViewById(R.id.titleRight);
 	}
 
 /*	private interface SubActivityCallback {

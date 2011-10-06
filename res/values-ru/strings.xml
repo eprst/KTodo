@@ -71,6 +71,12 @@
 	<string name="summary_prio_due">Имя, приоритет, срок</string>
 	<string name="due_summary_prio">Срок, имя, приоритет</string>
 	<string name="summary_due_prio">Имя, срок, приоритет</string>
+	<string name="prio_due_summary_t">прио, срок, имя</string>
+	<string name="due_prio_summary_t">срок, прио, имя</string>
+	<string name="prio_summary_due_t">прио, имя, срок</string>
+	<string name="summary_prio_due_t">имя, прио, срок</string>
+	<string name="due_summary_prio_t">срок, имя, прио</string>
+	<string name="summary_due_prio_t">имя, срок, прио</string>
 	<string name="undelete">Восстановить</string>
 
 	<string name="choose_color_dlg_title">Выбор цвета</string>

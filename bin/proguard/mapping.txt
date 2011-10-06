@@ -216,15 +216,17 @@ com.kos.ktodo.KTodo -> com.kos.ktodo.KTodo:
     boolean hidingCompleted -> s
     int defaultPrio -> t
     com.kos.ktodo.TodoItemsSortingMode sortingMode -> u
-    com.kos.ktodo.TodoItem editingItem -> v
-    android.database.Cursor edititgItemTagsCursor -> w
-    com.kos.ktodo.TodoItem lastDeletedItem -> x
-    com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> y
-    com.kos.ktodo.SlideLeftListener slideLeftListener -> z
-    java.lang.Float listFontSize -> A
-    boolean clickAnywhereToCheck -> B
+    boolean customTitleSupported -> v
+    com.kos.ktodo.TodoItem editingItem -> w
+    android.database.Cursor edititgItemTagsCursor -> x
+    com.kos.ktodo.TodoItem lastDeletedItem -> y
+    com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> z
+    com.kos.ktodo.SlideLeftListener slideLeftListener -> A
+    java.lang.Float listFontSize -> B
+    boolean clickAnywhereToCheck -> C
     void onCreate(android.os.Bundle) -> onCreate
     void onNewIntent(android.content.Intent) -> onNewIntent
+    void updateTitle(boolean) -> a
     void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
     void onStart() -> onStart
     void startEditingItem(long) -> a
@@ -259,30 +261,32 @@ com.kos.ktodo.KTodo -> com.kos.ktodo.KTodo:
     com.kos.ktodo.SliderButton getPrioSliderButton() -> q
     com.kos.ktodo.SliderButton getProgressSliderButton() -> r
     android.widget.Button getDueDateButton() -> s
+    android.widget.TextView getTitleRight() -> t
     com.kos.ktodo.TodoItem access$002(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItem) -> a
     com.kos.ktodo.TodoItemsStorage access$100(com.kos.ktodo.KTodo) -> a
     void access$200(com.kos.ktodo.KTodo) -> b
     void access$300(com.kos.ktodo.KTodo) -> c
     void access$400(com.kos.ktodo.KTodo,long) -> a
-    void access$500(com.kos.ktodo.KTodo) -> d
-    void access$600(com.kos.ktodo.KTodo,long) -> b
-    void access$700(com.kos.ktodo.KTodo) -> e
-    long access$800(com.kos.ktodo.KTodo) -> f
-    boolean access$900(com.kos.ktodo.KTodo) -> g
-    com.kos.ktodo.TodoItem access$1000(com.kos.ktodo.KTodo) -> h
-    void access$1100(com.kos.ktodo.KTodo,int) -> a
-    void access$1200(com.kos.ktodo.KTodo,com.kos.ktodo.Callback1) -> a
-    void access$1300(com.kos.ktodo.KTodo) -> i
-    com.kos.ktodo.SlidingView access$1400(com.kos.ktodo.KTodo) -> j
-    void access$1500(com.kos.ktodo.KTodo) -> k
-    android.widget.EditText access$1600(com.kos.ktodo.KTodo) -> l
-    com.kos.ktodo.MyListView access$1700(com.kos.ktodo.KTodo) -> m
-    java.lang.Float access$1800(com.kos.ktodo.KTodo) -> n
-    com.kos.ktodo.TodoItemsSortingMode access$1902(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItemsSortingMode) -> a
-    void access$2000(com.kos.ktodo.KTodo,java.lang.String) -> a
-    void access$2100(com.kos.ktodo.KTodo,int,int,java.lang.Runnable) -> a
-    com.kos.ktodo.TagsStorage access$2200(com.kos.ktodo.KTodo) -> o
-    void access$2300(com.kos.ktodo.KTodo) -> p
+    void access$500(com.kos.ktodo.KTodo,boolean) -> a
+    void access$600(com.kos.ktodo.KTodo) -> d
+    void access$700(com.kos.ktodo.KTodo,long) -> b
+    void access$800(com.kos.ktodo.KTodo) -> e
+    long access$900(com.kos.ktodo.KTodo) -> f
+    boolean access$1000(com.kos.ktodo.KTodo) -> g
+    com.kos.ktodo.TodoItem access$1100(com.kos.ktodo.KTodo) -> h
+    void access$1200(com.kos.ktodo.KTodo,int) -> a
+    void access$1300(com.kos.ktodo.KTodo,com.kos.ktodo.Callback1) -> a
+    void access$1400(com.kos.ktodo.KTodo) -> i
+    com.kos.ktodo.SlidingView access$1500(com.kos.ktodo.KTodo) -> j
+    void access$1600(com.kos.ktodo.KTodo) -> k
+    android.widget.EditText access$1700(com.kos.ktodo.KTodo) -> l
+    com.kos.ktodo.MyListView access$1800(com.kos.ktodo.KTodo) -> m
+    java.lang.Float access$1900(com.kos.ktodo.KTodo) -> n
+    com.kos.ktodo.TodoItemsSortingMode access$2002(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItemsSortingMode) -> a
+    void access$2100(com.kos.ktodo.KTodo,java.lang.String) -> a
+    void access$2200(com.kos.ktodo.KTodo,int,int,java.lang.Runnable) -> a
+    com.kos.ktodo.TagsStorage access$2300(com.kos.ktodo.KTodo) -> o
+    void access$2400(com.kos.ktodo.KTodo) -> p
 com.kos.ktodo.KTodo$1 -> com.kos.ktodo.f:
     com.kos.ktodo.KTodo this$0 -> a
     void deleteItem(long) -> a
@@ -727,13 +731,15 @@ com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.av:
     com.kos.ktodo.TodoItemsSortingMode SUMMARY_PRIO_DUE -> d
     com.kos.ktodo.TodoItemsSortingMode DUE_SUMMARY_PRIO -> e
     com.kos.ktodo.TodoItemsSortingMode SUMMARY_DUE_PRIO -> f
-    int resId -> g
-    java.lang.String orderBy -> h
-    com.kos.ktodo.TodoItemsSortingMode[] $VALUES -> i
+    int nameResId -> g
+    int titleResId -> h
+    java.lang.String orderBy -> i
+    com.kos.ktodo.TodoItemsSortingMode[] $VALUES -> j
     com.kos.ktodo.TodoItemsSortingMode[] values() -> values
     com.kos.ktodo.TodoItemsSortingMode valueOf(java.lang.String) -> valueOf
-    int getResId() -> a
-    java.lang.String getOrderBy() -> b
+    int getNameResId() -> a
+    int getTitleResId() -> b
+    java.lang.String getOrderBy() -> c
     com.kos.ktodo.TodoItemsSortingMode fromOrdinal(int) -> a
     void selectSortingMode(android.content.Context,com.kos.ktodo.TodoItemsSortingMode,com.kos.ktodo.Callback1) -> a
 com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.bw:

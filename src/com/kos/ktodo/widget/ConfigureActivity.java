@@ -150,7 +150,7 @@ public class ConfigureActivity extends Activity {
 
 	private Button updateSortingButtonText() {
 		final Button b = (Button) findViewById(R.id.conf_sorting);
-		b.setText(settings.sortingMode.getResId());
+		b.setText(settings.sortingMode.getNameResId());
 		return b;
 	}
 
