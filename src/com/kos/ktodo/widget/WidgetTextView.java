@@ -31,22 +31,23 @@ public class WidgetTextView extends TextView {
 
 	public WidgetTextView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
-		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.WidgetTextView);
+		final TypedArray ta_wtv = context.obtainStyledAttributes(attrs, R.styleable.WidgetTextView);
+		final TypedArray ta_prio = context.obtainStyledAttributes(attrs, R.styleable.PrioColor);
 
 		prioToColor = new int[]{
-				ta.getColor(R.styleable.WidgetTextView_prio0Color, context.getResources().getColor(R.color.prio_0)),
-				ta.getColor(R.styleable.WidgetTextView_prio1Color, context.getResources().getColor(R.color.prio_1)),
-				ta.getColor(R.styleable.WidgetTextView_prio2Color, context.getResources().getColor(R.color.prio_2)),
-				ta.getColor(R.styleable.WidgetTextView_prio3Color, context.getResources().getColor(R.color.prio_3)),
-				ta.getColor(R.styleable.WidgetTextView_prio4Color, context.getResources().getColor(R.color.prio_4)),
-				ta.getColor(R.styleable.WidgetTextView_prio5Color, context.getResources().getColor(R.color.prio_5)),
+				ta_prio.getColor(R.styleable.PrioColor_prio0Color, context.getResources().getColor(R.color.prio_0)),
+				ta_prio.getColor(R.styleable.PrioColor_prio1Color, context.getResources().getColor(R.color.prio_1)),
+				ta_prio.getColor(R.styleable.PrioColor_prio2Color, context.getResources().getColor(R.color.prio_2)),
+				ta_prio.getColor(R.styleable.PrioColor_prio3Color, context.getResources().getColor(R.color.prio_3)),
+				ta_prio.getColor(R.styleable.PrioColor_prio4Color, context.getResources().getColor(R.color.prio_4)),
+				ta_prio.getColor(R.styleable.PrioColor_prio5Color, context.getResources().getColor(R.color.prio_5)),
 		};
 
-		final int prioStripeWidth = (int) ta.getDimension(R.styleable.WidgetTextView_prioStripeWidth, 1);
+		final int prioStripeWidth = (int) ta_wtv.getDimension(R.styleable.WidgetTextView_prioStripeWidth, 1);
 		bg = new TodoItemBackgroundDrawable(Color.TRANSPARENT, Color.TRANSPARENT, prioStripeWidth);
 		bg.setPercent(0);
 		setBackgroundDrawable(bg);
-		ta.recycle();
+		ta_wtv.recycle();
 	}
 
 	public void setPrio(final int prio) {

@@ -1,21 +1,23 @@
 package com.kos.ktodo;
 
+
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.Button;
+import android.widget.ImageButton;
 
-import java.util.ArrayList;
 
 /**
  * A button that can be used slide the view left. Should be a View mixin actually..
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com" title="">Konstantin Sobolev</a>
  */
-public class SlideLeftButton extends Button {
+public class SlideLeftImageButton extends ImageButton {
 	private static final String TAG = "SlideLeftButton";
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
@@ -32,7 +34,7 @@ public class SlideLeftButton extends Button {
 	private boolean sliding;
 	private int dragPointX;
 
-	public SlideLeftButton(final Context context, final AttributeSet attrs) {
+	public SlideLeftImageButton(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 
 		final TypedArray ta_slide = context.obtainStyledAttributes(attrs, R.styleable.SlideLeftButton);
@@ -44,7 +46,7 @@ public class SlideLeftButton extends Button {
 
 		slideExpiredHandler = new Runnable() {
 			public void run() {
-				synchronized (SlideLeftButton.this) {
+				synchronized (SlideLeftImageButton.this) {
 					if (itemID == null) {
 						sliding = false;
 						replayIntercepted();

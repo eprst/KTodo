@@ -32,6 +32,7 @@
 	<string name="error">Ошибка</string>
 	<string name="wipe">Удалить имеющиеся данные</string>
 	<string name="progress">Прогресс</string>
+	<string name="default_due_date">Срок по умолчанию</string>
 	<string name="due_date">Срок</string>
 	<string name="today">Сегодня</string>
 	<string name="tomorrow">Завтра</string>

@@ -39,14 +39,30 @@
 						android:layout_weight="5.0"
 						android:layout_width="0dip"
 						android:layout_height="wrap_content"/>
-				<com.kos.ktodo.SlideLeftButton android:id="@+id/add_task_button"
-				                               android:text="@string/add"
+				<com.kos.ktodo.SlideLeftImageButton android:id="@+id/add_task_button"
+				                               android:src="@drawable/ic_menu_mark"
 				                               android:layout_width="wrap_content"
 				                               android:layout_height="wrap_content"
+				                               android:padding="4dp"
+				                               android:contentDescription="@string/add"
 				                               kos:maxThrowVelocity="1500" />
-				<Button android:id="@+id/prio_button"
-				        android:nextFocusRight="@id/prio_button"
+				<Button android:id="@+id/default_due_txt_button"
 				        android:layout_weight="0.1"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:padding="6dp"
+				        android:visibility="gone"
+				        android:contentDescription="@string/default_due_date"/>
+				<ImageButton android:id="@+id/default_due_img_button"
+				        android:src="@drawable/ic_menu_my_calendar"
+				        android:layout_width="wrap_content"
+				        android:layout_height="wrap_content"
+				        android:padding="4dp"
+				        android:contentDescription="@string/default_due_date"/>
+				<Button android:id="@+id/default_prio_button"
+				        android:nextFocusRight="@id/default_prio_button"
+				        android:layout_weight="0.1"
+				        android:padding="4dp"
 				        android:layout_width="wrap_content"
 				        android:layout_height="wrap_content"/>
 			</LinearLayout>
@@ -117,12 +133,23 @@
 					kos:separator=" "
 					kos:valuesList="0,10,20,30,40,50,60,70,80,90,100"
 					kos:valueSuffix="%"/>
-			<Button
-					android:id="@+id/due_date_button"
-					android:nextFocusDown="@id/due_date_button"
+			<ImageButton
+					android:id="@+id/due_date_img_button"
+					android:nextFocusDown="@id/due_date_img_button"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:text="@string/due_date"/>
+					android:src="@drawable/ic_menu_my_calendar"
+					android:layout_weight="0.1"
+					android:padding="4dp"
+			        android:contentDescription="@string/due_date"/>
+			<Button
+					android:id="@+id/due_date_txt_button"
+					android:nextFocusDown="@id/due_date_txt_button"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="0.1"
+					android:visibility="gone"
+					android:contentDescription="@string/due_date"/>
 		</LinearLayout>
 	</LinearLayout>
 </com.kos.ktodo.SlidingView>

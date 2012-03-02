@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.kos.ktodo"
-          android:versionName="1.6.2"
-          android:versionCode="22">
+          android:versionName="1.6.3"
+          android:versionCode="23">
 	<uses-sdk android:minSdkVersion="7"/>
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -26,8 +26,8 @@
 
 		<activity android:name=".EditTags"
 		          android:label="@string/edit_tags"
-		          android:launchMode="singleTop"
-		          android:windowSoftInputMode="adjustResize"/>
+		          android:launchMode="standard"
+		          android:windowSoftInputMode="adjustResize"/> <!-- was: singleTop -->
 
 		<activity android:name=".widget.ConfigureActivity"
 		          android:label="@string/widget_configure_title"

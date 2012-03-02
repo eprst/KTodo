@@ -126,10 +126,12 @@ public class MyListView extends ListView {
 			}
 		});
 
-		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.MyListView);
-		maxThrowVelocity = ta.getInt(R.styleable.MyListView_maxThrowVelocity, 1500);
-		vibrateOnTearOff = ta.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
-		ta.recycle();
+		final TypedArray ta_mlv = context.obtainStyledAttributes(attrs, R.styleable.MyListView);
+		final TypedArray ta_thr = context.obtainStyledAttributes(attrs, R.styleable.Throwable);
+		maxThrowVelocity = ta_thr.getInt(R.styleable.Throwable_maxThrowVelocity, 1500);
+		vibrateOnTearOff = ta_mlv.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
+		ta_mlv.recycle();
+		ta_thr.recycle();
 	}
 
 	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {

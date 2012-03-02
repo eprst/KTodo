@@ -49,23 +49,24 @@ public class TodoItemView extends CheckedTextView {
 
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.TodoItemView);
+		final TypedArray ta_tiv = context.obtainStyledAttributes(attrs, R.styleable.TodoItemView);
+		final TypedArray ta_prio = context.obtainStyledAttributes(attrs, R.styleable.PrioColor);
 
-		final int prio1Color = prefs.getInt("prio1Color", ta.getColor(R.styleable.TodoItemView_prio1Color, context.getResources().getColor(R.color.prio_1)));
-		final int prio2Color = prefs.getInt("prio2Color", ta.getColor(R.styleable.TodoItemView_prio2Color, context.getResources().getColor(R.color.prio_2)));
-		final int prio3Color = prefs.getInt("prio3Color", ta.getColor(R.styleable.TodoItemView_prio3Color, context.getResources().getColor(R.color.prio_3)));
-		final int prio4Color = prefs.getInt("prio4Color", ta.getColor(R.styleable.TodoItemView_prio4Color, context.getResources().getColor(R.color.prio_4)));
-		final int prio5Color = prefs.getInt("prio5Color", ta.getColor(R.styleable.TodoItemView_prio5Color, context.getResources().getColor(R.color.prio_5)));
+		final int prio1Color = prefs.getInt("prio1Color", ta_prio.getColor(R.styleable.PrioColor_prio1Color, context.getResources().getColor(R.color.prio_1)));
+		final int prio2Color = prefs.getInt("prio2Color", ta_prio.getColor(R.styleable.PrioColor_prio2Color, context.getResources().getColor(R.color.prio_2)));
+		final int prio3Color = prefs.getInt("prio3Color", ta_prio.getColor(R.styleable.PrioColor_prio3Color, context.getResources().getColor(R.color.prio_3)));
+		final int prio4Color = prefs.getInt("prio4Color", ta_prio.getColor(R.styleable.PrioColor_prio4Color, context.getResources().getColor(R.color.prio_4)));
+		final int prio5Color = prefs.getInt("prio5Color", ta_prio.getColor(R.styleable.PrioColor_prio5Color, context.getResources().getColor(R.color.prio_5)));
 
 
-		final int c1 = ta.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
-		final int c2 = prefs.getInt("progressColor", ta.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY));
-		dueDateColor = prefs.getInt("dueDateColor", ta.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE));
-		todayDueDateColor = prefs.getInt("dueTodayColor", ta.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW));
-		expiredDueDateColor = prefs.getInt("overdueColor", ta.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED));
+		final int c1 = ta_tiv.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
+		final int c2 = prefs.getInt("progressColor", ta_tiv.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY));
+		dueDateColor = prefs.getInt("dueDateColor", ta_tiv.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE));
+		todayDueDateColor = prefs.getInt("dueTodayColor", ta_tiv.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW));
+		expiredDueDateColor = prefs.getInt("overdueColor", ta_tiv.getColor(R.styleable.TodoItemView_expiredDueDateColor, Color.RED));
 
 		prioToColor = new int[]{
-				ta.getColor(R.styleable.TodoItemView_prio0Color, context.getResources().getColor(R.color.prio_0)),
+				ta_prio.getColor(R.styleable.PrioColor_prio0Color, context.getResources().getColor(R.color.prio_0)),
 				prio1Color,
 				prio2Color,
 				prio3Color,
@@ -73,10 +74,13 @@ public class TodoItemView extends CheckedTextView {
 				prio5Color,
 		};
 
-		final int prioStripeWidth = (int) ta.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2);
+		final int prioStripeWidth = (int) ta_tiv.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2);
 		tcd = new TodoItemBackgroundDrawable(c1, c2, prioStripeWidth);
-		notesDrawable = ta.getDrawable(R.styleable.TodoItemView_notesDrawable);
-		ta.recycle();
+		notesDrawable = ta_tiv.getDrawable(R.styleable.TodoItemView_notesDrawable);
+
+		ta_tiv.recycle();
+		ta_prio.recycle();
+
 		setBackgroundDrawable(tcd);
 	}
 

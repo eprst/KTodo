@@ -57,6 +57,7 @@ public class KTodo extends ListActivity {
 	private Cursor allTagsCursor;
 	private Cursor currentTagItemsCursor;
 	private boolean hidingCompleted;
+	private long defaultDue;
 	private int defaultPrio;
 	private TodoItemsSortingMode sortingMode;
 	private boolean customTitleSupported;
@@ -141,6 +142,7 @@ public class KTodo extends ListActivity {
 			currentTag = preferences.getLong("currentTag", 0);
 		setCurrentTag(currentTag);
 		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
+		setDefaultDue(preferences.getLong("defaultDue", -1));
 		setDefaultPrio(preferences.getInt("defaultPrio", 1));
 		sortingMode = TodoItemsSortingMode.fromOrdinal(preferences.getInt("sortingMode", TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal()));
 
@@ -185,7 +187,7 @@ public class KTodo extends ListActivity {
 	}
 
 	private void setupFirstScreenWidgets() {
-		final SlideLeftButton addTaskButton = getAddTaskButton();
+		final SlideLeftImageButton addTaskButton = getAddTaskButton();
 		addTaskButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
 				final long id = addTodoItem();
@@ -243,7 +245,21 @@ public class KTodo extends ListActivity {
 			public void onNothingSelected(final AdapterView<?> parent) {}
 		});
 
-		getPrioButton().setOnClickListener(new View.OnClickListener() {
+		final DueDateSelector dueDateSelector = new DueDateSelector() {
+			@Override
+			public void onDueDateSelected(final Long dueDate) {
+				setDefaultDue(dueDate == null ? -1 : dueDate);
+			}
+
+			@Override
+			public Long getCurrentDueDate() {
+				return defaultDue == -1 ? null : defaultDue;
+			}
+		};
+		getDefaultDueTxtButton().setOnClickListener(dueDateSelector);
+		getDefaultDueImgButton().setOnClickListener(dueDateSelector);
+
+		getDefaultPrioButton().setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
 				selectPrio(new Callback1<Integer, Unit>() {
 					public Unit call(final Integer prio) {
@@ -290,7 +306,7 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		getDueDateButton().setOnClickListener(new DueDateSelector() {
+		final DueDateSelector dueDateSelector = new DueDateSelector() {
 			@Override
 			public void onDueDateSelected(final Long dueDate) {
 				editingItem.setDueDate(dueDate);
@@ -301,7 +317,9 @@ public class KTodo extends ListActivity {
 			public Long getCurrentDueDate() {
 				return editingItem.getDueDate();
 			}
-		});
+		};
+		getDueDateTxtButton().setOnClickListener(dueDateSelector);
+		getDueDateImgButton().setOnClickListener(dueDateSelector);
 
 		getEditBodyWidget().setScrollbarFadingEnabled(true);
 		getEditBodyWidget().setVerticalFadingEdgeEnabled(true);
@@ -422,10 +440,21 @@ public class KTodo extends ListActivity {
 	}
 
 	private void updateDueDateButton() {
-		if (editingItem.getDueDate() == null)
-			getDueDateButton().setText(R.string.due_date);
-		else
-			getDueDateButton().setText(Util.showDueDate(this, editingItem.getDueDate()));
+		final Long dueDate = editingItem.getDueDate();
+		updateImgButton(getDueDateTxtButton(), getDueDateImgButton(), dueDate == null ? null : Util.showDueDate(this, dueDate));
+	}
+
+	private void updateImgButton(Button txtButton, ImageButton imgButton, String text) {
+		if (text == null) {
+			txtButton.setVisibility(View.GONE);
+			imgButton.setVisibility(View.VISIBLE);
+		} else {
+			txtButton.setText(text);
+			txtButton.setVisibility(View.VISIBLE);
+			imgButton.setVisibility(View.GONE);
+		}
+//		txtButton.invalidate();
+//		imgButton.invalidate();
 	}
 
 	private void saveItemBeingEdited() {
@@ -514,6 +543,7 @@ public class KTodo extends ListActivity {
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		final SharedPreferences.Editor editor = preferences.edit();
 		editor.putLong("currentTag", getCurrentTagID());
+		editor.putLong("defaultDue", defaultDue);
 		editor.putInt("defaultPrio", defaultPrio);
 		editor.putInt("sortingMode", sortingMode.ordinal());
 		editor.putBoolean("hidingCompleted", hidingCompleted);
@@ -556,6 +586,7 @@ public class KTodo extends ListActivity {
 	protected void onSaveInstanceState(final Bundle outState) {
 		outState.putLong("currentTag", getCurrentTagID());
 		outState.putBoolean("hidingCompleted", hidingCompleted);
+		outState.putLong("defaultDue", defaultDue);
 		outState.putInt("defaultPrio", defaultPrio);
 		outState.putInt("sortingMode", sortingMode.ordinal());
 		final EditText addTask = getAddTaskWidget();
@@ -578,6 +609,7 @@ public class KTodo extends ListActivity {
 		super.onRestoreInstanceState(savedInstanceState);
 		setCurrentTag(savedInstanceState.getLong("currentTag"));
 		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
+		setDefaultDue(savedInstanceState.getLong("defaultDue", -1));
 		setDefaultPrio(savedInstanceState.getInt("defaultPrio"));
 		sortingMode = TodoItemsSortingMode.fromOrdinal(savedInstanceState.getInt("sortingMode", TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal()));
 		final String addTaskText = savedInstanceState.getString("addTaskText");
@@ -637,7 +669,8 @@ public class KTodo extends ListActivity {
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
 		if (st.length() > 0) {
-			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, null, null));
+			final Long due = defaultDue == -1 ? null : defaultDue;
+			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, due, null));
 			et.setText("");
 			et.requestFocus();
 			updateView();
@@ -646,10 +679,17 @@ public class KTodo extends ListActivity {
 		return -1;
 	}
 
+	private void setDefaultDue(final long d) {
+		if (defaultDue != d) {
+			defaultDue = d;
+			updateImgButton(getDefaultDueTxtButton(), getDefaultDueImgButton(), d == -1 ? null : Util.showDueDate(this, d));
+		}
+	}
+
 	private void setDefaultPrio(final int p) {
 		if (defaultPrio != p) {
 			defaultPrio = p;
-			final Button button = getPrioButton();
+			final Button button = getDefaultPrioButton();
 			button.setText(Integer.toString(p));
 			button.invalidate();
 		}
@@ -756,15 +796,14 @@ public class KTodo extends ListActivity {
 			case CHANGE_PROGRESS_CONTEXT_MENU_ITEM:
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_progress_title);
-				b.setItems(new CharSequence[]{
-						"0%", "10%", "20%", "30%", "40%", "50%",
-						"60%", "70%", "80%", "90%", "100%"}, new DialogInterface.OnClickListener() {
-					public void onClick(final DialogInterface dialog, final int which) {
-						todoItem.setProgress(which * 10);
-						todoItemsStorage.saveTodoItem(todoItem);
-						updateView();
-					}
-				});
+				b.setItems(new CharSequence[]{"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"},
+				           new DialogInterface.OnClickListener() {
+					           public void onClick(final DialogInterface dialog, final int which) {
+						           todoItem.setProgress(which * 10);
+						           todoItemsStorage.saveTodoItem(todoItem);
+						           updateView();
+					           }
+				           });
 				b.show();
 				return true;
 			case CHANGE_DUE_DATE_CONTEXT_MENU_ITEM:
@@ -940,8 +979,8 @@ public class KTodo extends ListActivity {
 		return (Spinner) findViewById(R.id.tags);
 	}
 
-	private SlideLeftButton getAddTaskButton() {
-		return (SlideLeftButton) findViewById(R.id.add_task_button);
+	private SlideLeftImageButton getAddTaskButton() {
+		return (SlideLeftImageButton) findViewById(R.id.add_task_button);
 	}
 
 	private MyListView getMyListView() {
@@ -964,8 +1003,16 @@ public class KTodo extends ListActivity {
 		return (EditText) findViewById(R.id.edit_task_body);
 	}
 
-	private Button getPrioButton() {
-		return (Button) findViewById(R.id.prio_button);
+	private Button getDefaultDueTxtButton() {
+		return (Button) findViewById(R.id.default_due_txt_button);
+	}
+
+	private ImageButton getDefaultDueImgButton() {
+		return (ImageButton) findViewById(R.id.default_due_img_button);
+	}
+
+	private Button getDefaultPrioButton() {
+		return (Button) findViewById(R.id.default_prio_button);
 	}
 
 	private Spinner getEditItemTagsWidget() {
@@ -980,8 +1027,12 @@ public class KTodo extends ListActivity {
 		return (SliderButton) findViewById(R.id.progress_sliding_button);
 	}
 
-	private Button getDueDateButton() {
-		return (Button) findViewById(R.id.due_date_button);
+	private ImageButton getDueDateImgButton() {
+		return (ImageButton) findViewById(R.id.due_date_img_button);
+	}
+
+	private Button getDueDateTxtButton() {
+		return (Button) findViewById(R.id.due_date_txt_button);
 	}
 
 	private TextView getTitleLeft() {

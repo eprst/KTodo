@@ -38,6 +38,7 @@
 	<string name="wipe">Wipe existing data</string>
 	<string name="progress">Progress</string>
 	<!-- Complete? Finished? Done? -->
+	<string name="default_due_date">Default due date</string>
 	<string name="due_date">Due date</string>
 	<string name="today">Today</string>
 	<string name="tomorrow">Tomorrow</string>
