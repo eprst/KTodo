@@ -860,7 +860,8 @@ public class KTodo extends ListActivity {
 	private void exportData() { //any good reason to export/import in background? It's very quick anyways
 		final LayoutInflater inf = LayoutInflater.from(this);
 		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
-		final String currentName = "/sdcard/ktodo.xml"; //todo use real Save As dialog
+		final File currentPath = new File(Environment.getExternalStorageDirectory(), "ktodo.xml");
+		final String currentName = currentPath.getAbsolutePath(); //todo use real Save As dialog
 		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
 		editText.setText(currentName);
 
@@ -901,7 +902,8 @@ public class KTodo extends ListActivity {
 	private void importData() {
 		final LayoutInflater inf = LayoutInflater.from(this);
 		final View dialogView = inf.inflate(R.layout.import_dialog, null);
-		final String currentName = "/sdcard/ktodo.xml"; //todo use real Open dialog
+		final File currentPath = new File(Environment.getExternalStorageDirectory(), "ktodo.xml");
+		final String currentName = currentPath.getAbsolutePath(); //todo use real Open dialog
 		final EditText editText = (EditText) dialogView.findViewById(R.id.text_entry);
 		editText.setText(currentName);
 		final CheckBox wipe = (CheckBox) dialogView.findViewById(R.id.wipe_checkbox);
