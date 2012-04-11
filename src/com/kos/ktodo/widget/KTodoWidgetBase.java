@@ -148,18 +148,19 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 			itemsStorage.close();
 		}
 
+		final int FLAG_ACTIVITY_CLEAR_TASK = 32768; //In intent since API level 11
 
 		final Intent configureIntent = new Intent(context, ConfigureActivity.class);
 		configureIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
 		configureIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
-		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
 		final PendingIntent configurePendingIntent = PendingIntent.getActivity(context, 0, configureIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_setup_icon, configurePendingIntent);
 
 		final Intent showTagIntent = new Intent(context, KTodo.class);
 		showTagIntent.setAction(KTodo.SHOW_WIDGET_DATA);
 		showTagIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
-		showTagIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
+		showTagIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
 		final PendingIntent showTagPendingIntent = PendingIntent.getActivity(context, 0, showTagIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_list, showTagPendingIntent);
 		views.setOnClickPendingIntent(R.id.widget, showTagPendingIntent);
