@@ -32,23 +32,23 @@
 			android:title="@string/prefs_colors">
 		<android.preference.PreferenceCategory
 				android:title="@string/prefs_prio_colors">
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="prio1Color"
 					android:title="@string/prefs_prio1_color"
 					android:defaultValue="@integer/prio_1"/>
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="prio2Color"
 					android:title="@string/prefs_prio2_color"
 					android:defaultValue="@integer/prio_2"/>
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="prio3Color"
 					android:title="@string/prefs_prio3_color"
 					android:defaultValue="@integer/prio_3"/>
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="prio4Color"
 					android:title="@string/prefs_prio4_color"
 					android:defaultValue="@integer/prio_4"/>
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="prio5Color"
 					android:title="@string/prefs_prio5_color"
 					android:defaultValue="@integer/prio_5"/>
@@ -56,15 +56,15 @@
 		<android.preference.PreferenceCategory
 				android:key="dueColors"
 				android:title="@string/prefs_due_date_colors">
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="dueDateColor"
 					android:title="@string/prefs_due_date_color"
 					android:defaultValue="@integer/due_date_color"/>
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="dueTodayColor"
 					android:title="@string/prefs_due_today_color"
 					android:defaultValue="@integer/today_due_date"/>
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="overdueColor"
 					android:title="@string/prefs_overdue_color"
 					android:defaultValue="@integer/expired_due_date"/>
@@ -72,7 +72,7 @@
 		<android.preference.PreferenceCategory
 				android:key="progressColors"
 				android:title="@string/prefs_progress_color">
-			<com.att.preference.colorpicker.ColorPickerPreference
+			<net.margaritov.preference.colorpicker.ColorPickerPreference
 					android:key="progressColor"
 					android:title="@string/prefs_progress_color"
 					android:defaultValue="@integer/progress_100"/>

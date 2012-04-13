@@ -5,3 +5,4 @@
 cd ..
 git checkout https://github.com/attenzione/android-ColorPickerPreference.git
 cp ktodo/android-ColorPickerPreference.iml android-ColorPickerPreference
+cp ktodo/android-ColorPickerPreference_project.properties android-ColorPickerPreference/project.properties
