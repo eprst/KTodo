@@ -38,14 +38,14 @@
 	<string name="tomorrow">Завтра</string>
 	<string name="one_week_later">Через неделю</string>
 	<string name="no_date">Без срока</string>
-	<string name="choose_date">Выбрать дату...</string>
+	<string name="choose_date">Выбрать дату…</string>
 	<string name="due_date_format_short">dd.MM</string>
-	<string name="widget_loading">Загрузка виджета..</string>
+	<string name="widget_loading">Загрузка виджета…</string>
 	<string name="widget_configure_title">Настройка виджета KTodo</string>
 	<string name="widget_ok">Готово</string>
 	<string name="widget_filtering_options">Фильтрация элементов</string>
 	<string name="widget_hide_completed">Скрыть выполненные</string>
-	<string name="widget_show_only">Показывать только...</string>
+	<string name="widget_show_only">Показывать только…</string>
 	<string name="widget_show_only_due">Просроченные</string>
 	<string name="widget_show_only_due_x">Истекающие в ближайшие</string>
 	<string name="widget_days">дней</string>
