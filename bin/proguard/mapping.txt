@@ -879,6 +879,7 @@ com.kos.ktodo.widget.KTodoWidget21 -> com.kos.ktodo.widget.KTodoWidget21:
 com.kos.ktodo.widget.KTodoWidget22 -> com.kos.ktodo.widget.KTodoWidget22:
 com.kos.ktodo.widget.KTodoWidget24 -> com.kos.ktodo.widget.KTodoWidget24:
 com.kos.ktodo.widget.KTodoWidget42 -> com.kos.ktodo.widget.KTodoWidget42:
+com.kos.ktodo.widget.KTodoWidget44 -> com.kos.ktodo.widget.KTodoWidget44:
 com.kos.ktodo.widget.KTodoWidgetBase -> com.kos.ktodo.widget.KTodoWidgetBase:
     int[] ITEMS -> a
     int[] LINES -> b
@@ -1152,6 +1153,7 @@ net.margaritov.preference.colorpicker.R$layout -> net.margaritov.preference.colo
     int widget_2x2 -> widget_2x2
     int widget_2x4 -> widget_2x4
     int widget_4x2 -> widget_4x2
+    int widget_4x4 -> widget_4x4
     int widget_loading -> widget_loading
 net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colorpicker.h:
     int _import -> _import
@@ -1261,6 +1263,7 @@ net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colo
     int widget_2x2 -> widget_2x2
     int widget_2x4 -> widget_2x4
     int widget_4x2 -> widget_4x2
+    int widget_4x4 -> widget_4x4
     int widget_configure_title -> widget_configure_title
     int widget_days -> widget_days
     int widget_filtering_options -> widget_filtering_options
@@ -1278,6 +1281,7 @@ net.margaritov.preference.colorpicker.R$xml -> net.margaritov.preference.colorpi
     int appwidget_2x2_info -> appwidget_2x2_info
     int appwidget_2x4_info -> appwidget_2x4_info
     int appwidget_4x2_info -> appwidget_4x2_info
+    int appwidget_4x4_info -> appwidget_4x4_info
     int preferences -> preferences
     int settings -> settings
 net.margaritov.preference.colorpicker.Test -> net.margaritov.preference.colorpicker.Test:

@@ -171,29 +171,50 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 	private static WidgetSizeInfo getWidgetSizeInfo(final Context context, final AppWidgetProviderInfo providerInfo) {
 		final DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
 		final int mh = (int) (72f * displayMetrics.density);
-		final int ratio = providerInfo.minHeight / mh;
+		final int xRatio = providerInfo.minWidth / mh;
+		final int yRatio = providerInfo.minHeight / mh;
 
-		final int numLines; // = small ? 3 : LINES.length;
-		final int layout; // = small ? R.layout.widget_2x1 : R.layout.widget_2x2;
-		switch (ratio) {
+		final int numLines;
+		final int layout;
+		switch (yRatio) {
 			case 1:
 				numLines = 3;
 				layout = R.layout.widget_2x1;
 				break;
 			case 2:
 				numLines = 8;
-				layout = R.layout.widget_2x2;
+				switch (xRatio) {
+					case 2:
+						layout = R.layout.widget_2x2;
+						break;
+					case 4:
+						layout = R.layout.widget_4x2;
+						break;
+					default:
+						Log.w(TAG, "can't recognize widget size, minHeight: " + providerInfo.minHeight + ", mh: " + mh + ", yr: " + yRatio + ", xr: " + xRatio);
+						layout = R.layout.widget_4x2;
+				}
 				break;
 			case 4:
 				numLines = LINES.length;
-				layout = R.layout.widget_2x4;
+				switch (xRatio) {
+					case 2:
+						layout = R.layout.widget_2x4;
+						break;
+					case 4:
+						layout = R.layout.widget_4x4;
+						break;
+					default:
+						Log.w(TAG, "can't recognize widget size, minHeight: " + providerInfo.minHeight + ", mh: " + mh + ", yr: " + yRatio + ", xr: " + xRatio);
+						layout = R.layout.widget_4x4;
+				}
 				break;
 			default:
-				Log.i(TAG, "can't recognize widget size, minHeight: " + providerInfo.minHeight + ", mh: " + mh + ", r: " + ratio);
+				Log.w(TAG, "can't recognize widget size, minHeight: " + providerInfo.minHeight + ", mh: " + mh + ", yr: " + yRatio + ", xr: " + xRatio);
 				numLines = LINES.length;
 				layout = R.layout.widget_2x4;
 		}
-//		Log.i(TAG, "ratio: " + ratio);
+//		Log.i(TAG, "yRatio: " + yRatio);
 //		Log.i(TAG, "widget, small: " + small + ", medium: " + medium + ", minHeight: " + providerInfo.minHeight + ", mh -> " + mh);
 		return new WidgetSizeInfo(layout, numLines);
 	}
