@@ -63,7 +63,9 @@ public class ConfigureActivity extends Activity {
 
 	private void initTagsSelector() {
 		final Spinner tagsWidget = getTagsWidget();
-		tagsWidget.setAdapter(tagsAdapter);
+		tagsWidget.setAdapter(tagsAdapter); //todo: not supported by multispinner..
+
+		final int[] positions = Util.getItemPositions(tagsAdapter, settings.tagIDs);
 
 		final int position = Util.getItemPosition(tagsAdapter, settings.tagID);
 		if (position != -1)
@@ -189,7 +191,7 @@ public class ConfigureActivity extends Activity {
 		setResult(resultCode, data);
 	}
 
-	private Spinner getTagsWidget() {
-		return (Spinner) findViewById(R.id.conf_tags);
+	private MultiSpinner getTagsWidget() {
+		return (MultiSpinner) findViewById(R.id.conf_tags);
 	}
 }

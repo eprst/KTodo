@@ -16,6 +16,7 @@
 	<string name="new_tag_name_text">New tag name</string>
 	<string name="tag_already_exists">Such tag already exists</string>
 	<string name="delete_tag_title">Delete tag</string>
+	<string name="with_no_tags">With no tags</string>
 	<string name="items_depend_on_tag">There are %d items with this tag. What to do with them?</string>
 	<string name="move">Move</string>
 	<string name="select_tag_title">Select tag</string>

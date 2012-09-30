@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.kos.ktodo.DBHelper;
 import com.kos.ktodo.Util;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 
@@ -34,7 +35,7 @@ public class XmlExporter extends XmlBase {
 		w.close();
 	}
 
-	public void writeTable(final SQLiteDatabase db, final String tableName, final String pkColumn) throws IOException {
+	public void writeTable(final SQLiteDatabase db, final String tableName, @Nullable final String pkColumn) throws IOException {
 		openTag(TABLE_TAG, NAME_ATTR, tableName, PK_ATTR, pkColumn);
 		w.newLine();
 		final Cursor c = db.rawQuery("select * from " + tableName, null);
@@ -72,8 +73,18 @@ public class XmlExporter extends XmlBase {
 
 	private static void exportData(final SQLiteDatabase database, final File f) throws IOException {
 		final XmlExporter x = new XmlExporter(f);
+		exportDataAndCloseExporter(database, x);
+	}
+
+	private static void exportData(final SQLiteDatabase database, final OutputStream os) throws IOException {
+		final XmlExporter x = new XmlExporter(os);
+		exportDataAndCloseExporter(database, x);
+	}
+
+	private static void exportDataAndCloseExporter(SQLiteDatabase database, XmlExporter x) throws IOException {
 		x.writeTable(database, DBHelper.TAG_TABLE_NAME, DBHelper.TAG_ID);
 		x.writeTable(database, DBHelper.TODO_TABLE_NAME, DBHelper.TODO_ID);
+		x.writeTable(database, DBHelper.TAG_TODO_TABLE_NAME, null);
 		x.close();
 	}
 
@@ -86,13 +97,6 @@ public class XmlExporter extends XmlBase {
 			database.close();
 			hlp.close();
 		}
-	}
-
-	private static void exportData(final SQLiteDatabase database, final OutputStream os) throws IOException {
-		final XmlExporter x = new XmlExporter(os);
-		x.writeTable(database, DBHelper.TAG_TABLE_NAME, DBHelper.TAG_ID);
-		x.writeTable(database, DBHelper.TODO_TABLE_NAME, DBHelper.TODO_ID);
-		x.close();
 	}
 
 	protected Writer openTag(final String tag, final String... attrs) throws IOException {

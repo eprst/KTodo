@@ -2,6 +2,7 @@ package com.kos.ktodo;
 
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A drawable that fills backround using two colors, with a changeable proportion between them.
@@ -19,7 +20,7 @@ public class TodoItemBackgroundDrawable extends Drawable {
 		this(null);
 	}
 
-	public TodoItemBackgroundDrawable(final TodoItemBackgroundState s) {
+	public TodoItemBackgroundDrawable(@Nullable final TodoItemBackgroundState s) {
 		this.s = new TodoItemBackgroundState(s);
 		p.setStyle(Paint.Style.FILL);
 	}

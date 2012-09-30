@@ -1,11 +1,12 @@
 package com.kos.ktodo;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
 public class TodoItem {
 	public final long id;
-	public long tagID;
+	public long[] tagIDs;
 	private boolean done;
 	public String summary;
 	public String body;
@@ -19,10 +20,10 @@ public class TodoItem {
 //		this.tagID = tagID;
 //	}
 
-	public TodoItem(final long id, final long tagID, final boolean done, final String summary, final String body, final int prio, final int progress,
+	public TodoItem(final long id, final long[] tagIDs, final boolean done, final String summary, final String body, final int prio, final int progress,
 	                final Long dueDate, final Integer caretPos) {
 		this.id = id;
-		this.tagID = tagID;
+		this.tagIDs = tagIDs;
 		this.done = done;
 		this.summary = summary;
 		this.body = body;
@@ -81,7 +82,7 @@ public class TodoItem {
 		sb.append("TodoItem");
 		sb.append("{body='").append(body).append('\'');
 		sb.append(", id=").append(id);
-		sb.append(", tagID=").append(tagID);
+		sb.append(", tagIDs=").append(Arrays.toString(tagIDs));
 		sb.append(", done=").append(done);
 		sb.append(", summary='").append(summary).append('\'');
 		sb.append(", prio=").append(prio);

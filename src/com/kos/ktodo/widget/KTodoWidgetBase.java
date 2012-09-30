@@ -87,34 +87,36 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 
 		views.setImageViewResource(R.id.widget_app_icon, R.drawable.icon_small);
 		views.setImageViewResource(R.id.widget_setup_icon, R.drawable.settings);
-		for (int i = 0; i < LINES.length; i++) {
-			views.setViewVisibility(LINES[i], View.INVISIBLE);
-			views.setViewVisibility(ITEMS[i], View.INVISIBLE);
-		}
+
+		makeAllLinesInvisible(views);
 
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(context);
-		settingsStorage.open();
-		final WidgetSettings s = settingsStorage.load(widgetId);
-
-		final Resources r = context.getResources();
-
 		final TagsStorage tagsStorage = new TagsStorage(context);
-		tagsStorage.open();
-		int tagID = s.tagID;
-		String tagName = tagsStorage.getTag(tagID);
-		if (tagName == null) {
-			tagID = DBHelper.ALL_TAGS_METATAG_ID;
-			s.tagID = tagID;
-			settingsStorage.save(s);
-		}
-		if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
-			tagName = r.getString(R.string.all);
-		else if (tagID == DBHelper.UNFILED_METATAG_ID)
-			tagName = r.getString(R.string.unfiled);
 
-		views.setTextViewText(R.id.widget_tag, tagName);
-		tagsStorage.close();
-		settingsStorage.close();
+		settingsStorage.open();
+		tagsStorage.open();
+
+		final WidgetSettings s;
+		final Resources r;
+		long tagIDs[];
+		try {
+			s = settingsStorage.load(widgetId);
+			r = context.getResources();
+
+			tagIDs = s.tagIDs;
+			String[] tags = tagsStorage.getTags(tagIDs);
+			String tagNames;
+
+			if (tags.length == 0)
+				tagNames = r.getString(R.string.with_no_tags);
+			else
+				tagNames = Util.separate(null, null, ", ", tags);
+
+			views.setTextViewText(R.id.widget_tag, tagNames);
+		} finally {
+			tagsStorage.close();
+			settingsStorage.close();
+		}
 
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		final int todayDueDateColor = prefs.getInt("dueTodayColor", r.getColor(R.color.today_due_date_color));
@@ -126,7 +128,7 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 		itemsStorage.open();
 
 		try {
-			final Cursor c = itemsStorage.getByTagCursor(tagID, s.sortingMode);
+			final Cursor c = itemsStorage.getByTagsCursor(tagIDs, s.sortingMode);
 			int i = 0;
 			if (c.moveToFirst()) {
 				do {
@@ -148,7 +150,20 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 			itemsStorage.close();
 		}
 
-		final int FLAG_ACTIVITY_CLEAR_TASK = 32768; //In intent since API level 11
+		setupIntents(views, context, widgetId);
+
+		return views;
+	}
+
+	private static void makeAllLinesInvisible(RemoteViews views) {
+		for (int i = 0; i < LINES.length; i++) {
+			views.setViewVisibility(LINES[i], View.INVISIBLE);
+			views.setViewVisibility(ITEMS[i], View.INVISIBLE);
+		}
+	}
+
+	private static void setupIntents(RemoteViews views, Context context, int widgetId) {
+		final int FLAG_ACTIVITY_CLEAR_TASK = 32768; //In Intent since API level 11
 
 		final Intent configureIntent = new Intent(context, ConfigureActivity.class);
 		configureIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
@@ -164,8 +179,6 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 		final PendingIntent showTagPendingIntent = PendingIntent.getActivity(context, 0, showTagIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		views.setOnClickPendingIntent(R.id.widget_list, showTagPendingIntent);
 		views.setOnClickPendingIntent(R.id.widget, showTagPendingIntent);
-
-		return views;
 	}
 
 	private static WidgetSizeInfo getWidgetSizeInfo(final Context context, final AppWidgetProviderInfo providerInfo) {

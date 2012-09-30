@@ -13,10 +13,14 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,12 +104,18 @@ public class Util {
 		if (prefs.getBoolean("dueAsDaysLeft", false)) {
 			final Integer dueInDays = getDueInDays(dueDate);
 			switch (Math.abs(dueInDays)) {
-				case 0:  return ctx.getString(R.string.day0, dueInDays);
-				case 1:  return ctx.getString(R.string.day1, dueInDays);
-				case 2:  return ctx.getString(R.string.day2, dueInDays);
-				case 3:  return ctx.getString(R.string.day3, dueInDays);
-				case 4:  return ctx.getString(R.string.day4, dueInDays);
-				default: return ctx.getString(R.string.day5, dueInDays);
+				case 0:
+					return ctx.getString(R.string.day0, dueInDays);
+				case 1:
+					return ctx.getString(R.string.day1, dueInDays);
+				case 2:
+					return ctx.getString(R.string.day2, dueInDays);
+				case 3:
+					return ctx.getString(R.string.day3, dueInDays);
+				case 4:
+					return ctx.getString(R.string.day4, dueInDays);
+				default:
+					return ctx.getString(R.string.day5, dueInDays);
 			}
 		}
 
@@ -161,6 +171,7 @@ public class Util {
 		return DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
 	}
 
+	//todo update me
 	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
 		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
 		return new SimpleCursorAdapter(ctx, layout,
@@ -198,5 +209,50 @@ public class Util {
 			if (a.getItemId(i) == id)
 				return i;
 		return -1;
+	}
+
+	public static int[] getItemPositions(final CursorAdapter a, final long[] ids) {
+		int[] res = new int[ids.length];
+		Arrays.fill(res, -1);
+
+		final int cnt = a.getCount();
+		for (int i = 0; i < cnt; i++) {
+			final long itemId = a.getItemId(i);
+			for (int id = 0; id < ids.length; id++)
+				if (itemId == id)
+					res[id] = i;
+		}
+		return res;
+	}
+
+	public static String separate(@Nullable String prefix, @Nullable String suffix, @NotNull String separator, String... elements) {
+		final StringBuilder sb = new StringBuilder();
+		if (prefix != null) sb.append(prefix);
+		boolean fst = true;
+		for (String element : elements) {
+			if (fst) fst = false;
+			else sb.append(separator);
+			sb.append(element);
+		}
+		if (suffix != null) sb.append(suffix);
+		return sb.toString();
+	}
+
+	public static String[] toString(long... items) {
+		String[] res = new String[items.length];
+		int i = 0;
+		for (long item : items) {
+			res[i++] = Long.toString(item);
+		}
+		return res;
+	}
+
+	public static String[] toString(int... items) {
+		String[] res = new String[items.length];
+		int i = 0;
+		for (int item : items) {
+			res[i++] = Integer.toString(item);
+		}
+		return res;
 	}
 }
