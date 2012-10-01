@@ -6,6 +6,7 @@
               android:orientation="vertical">
 	<EditText
 			android:id="@+id/text_entry"
+			android:inputType="text"
 			android:layout_height="wrap_content"
 			android:layout_width="fill_parent"
 			android:autoText="false"

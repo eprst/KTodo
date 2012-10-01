@@ -24,8 +24,8 @@ public class TodoItemBackgroundDrawable extends Drawable {
 		p.setStyle(Paint.Style.FILL);
 	}
 
-	public TodoItemBackgroundDrawable(final int c1, final int c2, final int prioStripeWidth) {
-		this.s = new TodoItemBackgroundState(c1, c2, prioStripeWidth);
+	public TodoItemBackgroundDrawable(final int c1, final int c2, final int prioStripeWidthPx) {
+		this.s = new TodoItemBackgroundState(c1, c2, prioStripeWidthPx);
 	}
 
 	public void setPercent(final int percent) {
@@ -57,7 +57,7 @@ public class TodoItemBackgroundDrawable extends Drawable {
 
 		//draw prio stripe
 		p.setColor(prioColor);
-		canvas.drawRect(0, 0, s.prioStripeWidth, canvas.getHeight(), p);
+		canvas.drawRect(0, 0, s.prioStripeWidthPx, canvas.getHeight(), p);
 	}
 
 	@Override
@@ -92,20 +92,20 @@ public class TodoItemBackgroundDrawable extends Drawable {
 
 	final class TodoItemBackgroundState extends ConstantState {
 		int c1, c2;
-		int prioStripeWidth;
+		int prioStripeWidthPx;
 		int changingConf;
 
-		TodoItemBackgroundState(final int c1, final int c2, final int prioStripeWidth) {
+		TodoItemBackgroundState(final int c1, final int c2, final int prioStripeWidthPx) {
 			this.c1 = c1;
 			this.c2 = c2;
-			this.prioStripeWidth = prioStripeWidth;
+			this.prioStripeWidthPx = prioStripeWidthPx;
 		}
 
 		TodoItemBackgroundState(final TodoItemBackgroundState s) {
 			if (s != null) {
 				c1 = s.c1;
 				c2 = s.c2;
-				prioStripeWidth = s.prioStripeWidth;
+				prioStripeWidthPx = s.prioStripeWidthPx;
 			}
 		}
 

@@ -6,38 +6,35 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
 import android.widget.CheckedTextView;
-
-import java.lang.reflect.Field;
 
 public class TodoItemView extends CheckedTextView {
 	private static final String[] PRIO_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
-	private static final Field mPaddingRightFld;
-
-	static {
-		try {
-			mPaddingRightFld = View.class.getDeclaredField("mPaddingRight");
-		} catch (NoSuchFieldException e) {
-			throw new RuntimeException("failed to initialize", e);
-		}
-		mPaddingRightFld.setAccessible(true);
-	}
 
 	private String prio;
 	private boolean showNotesMark;
 
-	private String dueDate;
-	private DueStatus dueStatus;
-	private float dueDateWidth = -1;
+	private Drawable checkmark;
 
-	private int paddingRight;
-	private int checkMarkWidth;
+	private String dueDate;
+	private Float dueDateWidth;
+	private DueStatus dueStatus;
+
+	private int paddingRightPx;
+	private int checkMarkWidthPx;
 	private int minHeight;
+
+	private final float prioFontSizePx;
+	private final float notesPrioMarginRightPx;
+	private final float prioMarginTopPx;
+	private final float notesDueMarginBottomPx;
+	private final float dueFontSizePx;
+	private final float dueMarginRightPx;
 
 	private final TodoItemBackgroundDrawable tcd;
 	private final Drawable notesDrawable;
@@ -74,9 +71,17 @@ public class TodoItemView extends CheckedTextView {
 				prio5Color,
 		};
 
-		final int prioStripeWidth = (int) ta_tiv.getDimension(R.styleable.TodoItemView_prioStripeWidth, 2);
-		tcd = new TodoItemBackgroundDrawable(c1, c2, prioStripeWidth);
+		final int prioStripeWidthPx = (int) ta_tiv.getDimension(R.styleable.TodoItemView_prioStripeWidth, 0.0f);
+		tcd = new TodoItemBackgroundDrawable(c1, c2, prioStripeWidthPx);
 		notesDrawable = ta_tiv.getDrawable(R.styleable.TodoItemView_notesDrawable);
+
+		prioFontSizePx = ta_tiv.getDimension(R.styleable.TodoItemView_prioFontSize, 0.0f);
+		dueFontSizePx = ta_tiv.getDimension(R.styleable.TodoItemView_dueFontSize, 0.0f);
+		notesPrioMarginRightPx = ta_tiv.getDimension(R.styleable.TodoItemView_notesPrioMarginRight, 0.0f);
+		notesDueMarginBottomPx = ta_tiv.getDimension(R.styleable.TodoItemView_notesDueMarginBottom, 0.0f);
+		prioMarginTopPx = ta_tiv.getDimension(R.styleable.TodoItemView_prioMarginTop, 0.0f);
+		dueMarginRightPx = ta_tiv.getDimension(R.styleable.TodoItemView_dueMarginRight, 0.0f);
+
 
 		ta_tiv.recycle();
 		ta_prio.recycle();
@@ -103,42 +108,65 @@ public class TodoItemView extends CheckedTextView {
 	public void setDueDate(final String dueDate, final DueStatus dueStatus) {
 		this.dueDate = dueDate;
 		this.dueStatus = dueStatus;
-		dueDateWidth = -1;
-		updateSuperPadding();
+		dueDateWidth = null;
+		updateSuperCheckmark();
 	}
 
 	@Override
 	public void setPadding(final int left, final int top, final int right, final int bottom) {
 		super.setPadding(left, top, right, bottom);
-		paddingRight = right;
+		paddingRightPx = right;
 	}
 
 	@Override
 	public void setCheckMarkDrawable(final Drawable d) {
-		super.setCheckMarkDrawable(d);
-		checkMarkWidth = d != null ? d.getIntrinsicWidth() : 0;
-		updateSuperPadding();
+		checkmark = d;
+		checkMarkWidthPx = d != null ? d.getIntrinsicWidth() : 0;
+		updateSuperCheckmark();
 	}
 
-	public int getCheckMarkWidth() {
-		return checkMarkWidth;
+	public int getCheckMarkWidthPx() {
+		return checkMarkWidthPx;
 	}
 
-	private void updateSuperPadding() {
-		int p = 2 * checkMarkWidth;
-		if (dueDate != null) {
-			final Paint paint = new Paint(getPaint());
-			final int sz = checkMarkWidth / 2;
-			paint.setTextSize(sz - 2);
-			dueDateWidth = paint.measureText(dueDate) + sz;
-			p += dueDateWidth;
-		}
-		//mPaddingRight = p;
-		try {
-			mPaddingRightFld.set(this, p);
-		} catch (IllegalAccessException e) {
-			Log.i("KTodo", e.toString());
-		}
+	private void updateSuperCheckmark() {
+		if (checkmark == null)
+			return;
+
+		float acc = notesPrioMarginRightPx;
+		if (notesDrawable != null)
+			acc += notesDrawable.getIntrinsicWidth();
+
+		if (dueDate != null)
+			acc += getDueDateWidth() + dueMarginRightPx;
+
+		final int checkmarkWidthExtra = (int) acc;
+
+		// pretend checkmark drawable is wider by checkmarkWidthExtra
+		// to accomodate more space for prio, notes mark and due date
+		super.setCheckMarkDrawable(new DelegatingDrawable(checkmark) {
+			@Override
+			public int getIntrinsicWidth() {
+				return checkmark.getIntrinsicWidth() + checkmarkWidthExtra;
+			}
+
+			@Override
+			public void setBounds(int left, int top, int right, int bottom) {
+				super.setBounds(left + checkmarkWidthExtra, top, right, bottom);
+			}
+		});
+	}
+
+	private float getDueDateWidth() {
+		if (dueDateWidth != null)
+			return dueDateWidth;
+		if (dueDate == null)
+			return 0.0f;
+
+		final TextPaint p = new TextPaint(getPaint());
+		p.setTextSize(dueFontSizePx);
+		dueDateWidth = p.measureText(dueDate);
+		return dueDateWidth;
 	}
 
 	@Override
@@ -173,20 +201,36 @@ public class TodoItemView extends CheckedTextView {
 	@Override
 	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
+
 		final Paint p = new Paint(getPaint());
-		final int sz = checkMarkWidth / 2;
-		p.setTextSize(sz - 2);
-		final int pl = getWidth() - checkMarkWidth - paddingRight - sz;
-		canvas.drawText(prio, pl, sz + 2, p);
-		if (showNotesMark && notesDrawable != null) {
-			final int ih = notesDrawable.getIntrinsicHeight();
-			final int iw = notesDrawable.getIntrinsicWidth();
-			final int height = getHeight();
-			notesDrawable.setBounds(pl - 2, height - ih - 4, pl - 2 + iw, height - 4);
-			notesDrawable.draw(canvas);
+		p.setTextSize(prioFontSizePx);
+
+		final float prioWidthPx = p.measureText(prio);
+		final Rect bounds = new Rect();
+		p.getTextBounds(prio, 0, prio.length(), bounds);
+		final float prioHeightPx = bounds.height();
+
+		final float widthMinusCheckmarkPadding = getWidth() - checkMarkWidthPx - paddingRightPx;
+		final float prioX = widthMinusCheckmarkPadding - prioWidthPx - notesPrioMarginRightPx + prioWidthPx / 2;
+		float notesX = prioX;
+		float halfNotesHeightPx = 0;
+
+		canvas.drawText(prio, prioX, prioMarginTopPx + prioHeightPx, p);
+
+		if (notesDrawable != null) {
+			final int notesHeightPx = notesDrawable.getIntrinsicHeight();
+			final int notesWidthPx = notesDrawable.getIntrinsicWidth();
+			halfNotesHeightPx = notesHeightPx / 2;
+			notesX = widthMinusCheckmarkPadding - notesWidthPx - notesPrioMarginRightPx + notesWidthPx / 2;
+			if (showNotesMark) {
+				notesDrawable.setBounds((int) notesX, (int) (getHeight() - notesHeightPx - notesDueMarginBottomPx),
+						(int) (notesX + notesWidthPx), (int) (getHeight() - notesDueMarginBottomPx));
+				notesDrawable.draw(canvas);
+			}
 		}
 		if (dueDate != null) {
-//			p.setTextSize(getPaint().getTextSize());
+			p.setTextSize(dueFontSizePx);
+
 			int color = dueDateColor;
 			if (!isChecked()) {
 				if (dueStatus == DueStatus.TODAY)
@@ -196,9 +240,13 @@ public class TodoItemView extends CheckedTextView {
 			}
 
 			p.setColor(color);
-//			final float textHeight = p.getFontMetrics().top;
-//			final float y = (getHeight() - textHeight) / 2;
-			canvas.drawText(dueDate, pl - dueDateWidth, getHeight() - 6, p);
+
+			float notesCentering = 0;
+			if (halfNotesHeightPx != 0) {
+				p.getTextBounds(dueDate, 0, dueDate.length(), bounds);
+				notesCentering = halfNotesHeightPx - (bounds.height() + 0.5f) / 2;
+			}
+			canvas.drawText(dueDate, notesX - getDueDateWidth() - dueMarginRightPx, getHeight() - notesDueMarginBottomPx - notesCentering, p);
 		}
 	}
 }

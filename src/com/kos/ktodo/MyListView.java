@@ -262,7 +262,7 @@ public class MyListView extends ListView {
 					final View view = getChildAt(0);
 					if (view instanceof TodoItemView) {
 						final TodoItemView todoItemView = (TodoItemView) view;
-						clickedOnCheckMark = getWidth() - ev.getRawX() < 2*todoItemView.getCheckMarkWidth();
+						clickedOnCheckMark = getWidth() - ev.getRawX() < 2*todoItemView.getCheckMarkWidthPx();
 					}
 
 				}

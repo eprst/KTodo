@@ -397,10 +397,10 @@ com.kos.ktodo.MyListView -> com.kos.ktodo.MyListView:
     void onDetachedFromWindow() -> onDetachedFromWindow
     void onWindowFocusChanged(boolean) -> onWindowFocusChanged
     void setDeleteItemListener(com.kos.ktodo.MyListView$DeleteItemListener) -> setDeleteItemListener
-    void setSlideLeftInfo(com.kos.ktodo.SlidingView,com.kos.ktodo.SlideLeftListener) -> setSlideLeftInfo
-    void setState(com.kos.ktodo.MyListView$State) -> a
+    void setSlideLeftInfo(com.kos.ktodo.SlidingView,com.kos.ktodo.SlideLeftListener) -> a
+    void setState(com.kos.ktodo.MyListView$State) -> setState
     void superCancel() -> c
-    void onStateChange(com.kos.ktodo.MyListView$State) -> b
+    void onStateChange(com.kos.ktodo.MyListView$State) -> a
     void vibrateOnTearOff() -> d
     boolean handleBack() -> a
     boolean onTrackballEvent(android.view.MotionEvent) -> onTrackballEvent
@@ -413,13 +413,13 @@ com.kos.ktodo.MyListView -> com.kos.ktodo.MyListView:
     int pointToPositionWithInvisible(int,int) -> a
     boolean startPreDragging(android.view.MotionEvent) -> c
     boolean startDragging() -> g
-    android.view.View getDragItem() -> h
-    int getDragItemY() -> i
-    void dragView() -> j
+    android.view.View getDragItem() -> getDragItem
+    int getDragItemY() -> getDragItemY
+    void dragView() -> h
     void dragView(int) -> a
     void slideLeft(int) -> b
     boolean itemInBounds(int) -> c
-    void stopDragging() -> k
+    void stopDragging() -> i
     void unExpandViews(boolean) -> a
     void createContextMenu(android.view.ContextMenu) -> createContextMenu
     com.kos.ktodo.MyListView$State access$000(com.kos.ktodo.MyListView) -> a
@@ -537,33 +537,6 @@ com.kos.ktodo.RawVelocityTracker -> com.kos.ktodo.bi:
     void addPoint(float,float,long) -> a
     void computeCurrentVelocity(int,float) -> a
     float getXVelocity() -> b
-com.kos.ktodo.SlideLeftButton -> com.kos.ktodo.SlideLeftButton:
-    java.util.ArrayList intercepted -> b
-    com.kos.ktodo.RawVelocityTracker dragVelocityTracker -> c
-    android.os.Handler h -> d
-    java.lang.Runnable slideExpiredHandler -> e
-    int maxThrowVelocity -> f
-    long waitForSlide -> g
-    boolean replaying -> a
-    com.kos.ktodo.SlidingView slidingView -> h
-    com.kos.ktodo.SlideLeftListener slideLeftListener -> i
-    java.lang.Long itemID -> j
-    boolean sliding -> k
-    int dragPointX -> l
-    void setItemID(long) -> setItemID
-    void setSlideLeftInfo(com.kos.ktodo.SlidingView,com.kos.ktodo.SlideLeftListener) -> setSlideLeftInfo
-    boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
-    boolean replayIntercepted() -> a
-    boolean processMoveEvent(android.view.MotionEvent) -> a
-    boolean processDownEvent(android.view.MotionEvent) -> b
-    boolean processUpEvent() -> b
-    void log(java.lang.String,java.lang.Throwable) -> a
-    java.lang.Long access$000(com.kos.ktodo.SlideLeftButton) -> a
-    boolean access$102(com.kos.ktodo.SlideLeftButton,boolean) -> a
-    boolean access$200(com.kos.ktodo.SlideLeftButton) -> b
-com.kos.ktodo.SlideLeftButton$1 -> com.kos.ktodo.bj:
-    com.kos.ktodo.SlideLeftButton this$0 -> a
-    void run() -> run
 com.kos.ktodo.SlideLeftImageButton -> com.kos.ktodo.SlideLeftImageButton:
     java.util.ArrayList intercepted -> b
     com.kos.ktodo.RawVelocityTracker dragVelocityTracker -> c
@@ -578,7 +551,7 @@ com.kos.ktodo.SlideLeftImageButton -> com.kos.ktodo.SlideLeftImageButton:
     boolean sliding -> k
     int dragPointX -> l
     void setItemID(long) -> setItemID
-    void setSlideLeftInfo(com.kos.ktodo.SlidingView,com.kos.ktodo.SlideLeftListener) -> setSlideLeftInfo
+    void setSlideLeftInfo(com.kos.ktodo.SlidingView,com.kos.ktodo.SlideLeftListener) -> a
     boolean onTouchEvent(android.view.MotionEvent) -> onTouchEvent
     boolean replayIntercepted() -> a
     boolean processMoveEvent(android.view.MotionEvent) -> a
@@ -588,10 +561,10 @@ com.kos.ktodo.SlideLeftImageButton -> com.kos.ktodo.SlideLeftImageButton:
     java.lang.Long access$000(com.kos.ktodo.SlideLeftImageButton) -> a
     boolean access$102(com.kos.ktodo.SlideLeftImageButton,boolean) -> a
     boolean access$200(com.kos.ktodo.SlideLeftImageButton) -> b
-com.kos.ktodo.SlideLeftImageButton$1 -> com.kos.ktodo.bk:
+com.kos.ktodo.SlideLeftImageButton$1 -> com.kos.ktodo.bj:
     com.kos.ktodo.SlideLeftImageButton this$0 -> a
     void run() -> run
-com.kos.ktodo.SlideLeftListener -> com.kos.ktodo.bl:
+com.kos.ktodo.SlideLeftListener -> com.kos.ktodo.bk:
     void slideLeftStarted(long) -> a
     void onSlideBack() -> a
 com.kos.ktodo.SliderButton -> com.kos.ktodo.SliderButton:
@@ -618,11 +591,11 @@ com.kos.ktodo.SliderButton -> com.kos.ktodo.SliderButton:
     java.lang.String access$100(com.kos.ktodo.SliderButton) -> b
     java.lang.String[] access$200(com.kos.ktodo.SliderButton) -> c
     void access$300(com.kos.ktodo.SliderButton) -> d
-com.kos.ktodo.SliderButton$1 -> com.kos.ktodo.bm:
+com.kos.ktodo.SliderButton$1 -> com.kos.ktodo.bl:
     android.content.Context val$context -> a
     com.kos.ktodo.SliderButton this$0 -> b
     void onClick(android.view.View) -> onClick
-com.kos.ktodo.SliderButton$1$1 -> com.kos.ktodo.bn:
+com.kos.ktodo.SliderButton$1$1 -> com.kos.ktodo.bm:
     com.kos.ktodo.SliderButton$1 this$1 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
 com.kos.ktodo.SlidingView -> com.kos.ktodo.SlidingView:
@@ -638,12 +611,12 @@ com.kos.ktodo.SlidingView -> com.kos.ktodo.SlidingView:
     void onLayout(boolean,int,int,int,int) -> onLayout
     boolean access$000(com.kos.ktodo.SlidingView) -> a
     boolean access$002(com.kos.ktodo.SlidingView,boolean) -> a
-com.kos.ktodo.SlidingView$1 -> com.kos.ktodo.bo:
+com.kos.ktodo.SlidingView$1 -> com.kos.ktodo.bn:
     com.kos.ktodo.SlidingView this$0 -> a
     void onGlobalLayout() -> onGlobalLayout
-com.kos.ktodo.SlidingView$SlideListener -> com.kos.ktodo.bp:
+com.kos.ktodo.SlidingView$SlideListener -> com.kos.ktodo.bo:
     void slidingFinished() -> a
-com.kos.ktodo.TagsStorage -> com.kos.ktodo.bq:
+com.kos.ktodo.TagsStorage -> com.kos.ktodo.bp:
     android.database.sqlite.SQLiteDatabase db -> a
     com.kos.ktodo.DBHelper helper -> b
     boolean modifiedDB -> c
@@ -659,7 +632,7 @@ com.kos.ktodo.TagsStorage -> com.kos.ktodo.bq:
     java.lang.String getTag(long) -> b
     boolean hasModifiedDB() -> e
     void resetModifiedDB() -> f
-com.kos.ktodo.TodoItem -> com.kos.ktodo.br:
+com.kos.ktodo.TodoItem -> com.kos.ktodo.bq:
     long id -> a
     long tagID -> b
     boolean done -> g
@@ -677,7 +650,7 @@ com.kos.ktodo.TodoItem -> com.kos.ktodo.br:
     void setProgress(int) -> a
     int getProgress() -> c
     java.lang.String toString() -> toString
-com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.bs:
+com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.br:
     com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState s -> a
     android.graphics.Paint p -> b
     int percent -> c
@@ -689,7 +662,7 @@ com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.bs:
     void setColorFilter(android.graphics.ColorFilter) -> setColorFilter
     int getOpacity() -> getOpacity
     android.graphics.drawable.Drawable$ConstantState getConstantState() -> getConstantState
-com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState -> com.kos.ktodo.bt:
+com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState -> com.kos.ktodo.bs:
     int c1 -> a
     int c2 -> b
     int prioStripeWidth -> c
@@ -717,17 +690,17 @@ com.kos.ktodo.TodoItemView -> com.kos.ktodo.TodoItemView:
     void setPrio(int) -> setPrio
     void setProgress(int) -> setProgress
     void setShowNotesMark(boolean) -> setShowNotesMark
-    void setDueDate(java.lang.String,com.kos.ktodo.DueStatus) -> setDueDate
+    void setDueDate(java.lang.String,com.kos.ktodo.DueStatus) -> a
     void setPadding(int,int,int,int) -> setPadding
     void setCheckMarkDrawable(android.graphics.drawable.Drawable) -> setCheckMarkDrawable
-    int getCheckMarkWidth() -> a
-    void updateSuperPadding() -> b
+    int getCheckMarkWidth() -> getCheckMarkWidth
+    void updateSuperPadding() -> a
     void setSelected(boolean) -> setSelected
     void setPressed(boolean) -> setPressed
-    void updateBackground() -> c
+    void updateBackground() -> b
     void setMinHeight(int) -> setMinHeight
     void onDraw(android.graphics.Canvas) -> onDraw
-com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.bu:
+com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.bt:
     com.kos.ktodo.TodoItemsSortingMode PRIO_DUE_SUMMARY -> a
     com.kos.ktodo.TodoItemsSortingMode DUE_PRIO_SUMMARY -> b
     com.kos.ktodo.TodoItemsSortingMode PRIO_SUMMARY_DUE -> c
@@ -745,10 +718,10 @@ com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.bu:
     java.lang.String getOrderBy() -> c
     com.kos.ktodo.TodoItemsSortingMode fromOrdinal(int) -> a
     void selectSortingMode(android.content.Context,com.kos.ktodo.TodoItemsSortingMode,com.kos.ktodo.Callback1) -> a
-com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.bv:
+com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.bu:
     com.kos.ktodo.Callback1 val$callback -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.bw:
+com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.bv:
     java.lang.String[] ALL_COLUMNS -> a
     android.database.sqlite.SQLiteDatabase db -> b
     com.kos.ktodo.DBHelper helper -> c
@@ -770,9 +743,9 @@ com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.bw:
     void recreateAllItems() -> d
     boolean hasModifiedDB() -> e
     void resetModifiedDB() -> f
-com.kos.ktodo.Unit -> com.kos.ktodo.bx:
+com.kos.ktodo.Unit -> com.kos.ktodo.bw:
     com.kos.ktodo.Unit u -> a
-com.kos.ktodo.Util -> com.kos.ktodo.by:
+com.kos.ktodo.Util -> com.kos.ktodo.bx:
     java.util.regex.Pattern leadingYearCut -> a
     java.text.DateFormat shortFormat -> b
     java.util.Locale shortFormatLocale -> c
@@ -788,10 +761,10 @@ com.kos.ktodo.Util -> com.kos.ktodo.by:
     java.text.DateFormat getLongFormat() -> a
     android.widget.SimpleCursorAdapter createTagsAdapter(android.content.Context,android.database.Cursor,int) -> a
     int getItemPosition(android.widget.CursorAdapter,long) -> a
-com.kos.ktodo.Util$1 -> com.kos.ktodo.bz:
+com.kos.ktodo.Util$1 -> com.kos.ktodo.by:
     android.app.AlertDialog val$dlg -> a
     boolean onKey(android.view.View,int,android.view.KeyEvent) -> onKey
-com.kos.ktodo.Util$2 -> com.kos.ktodo.ca:
+com.kos.ktodo.Util$2 -> com.kos.ktodo.bz:
     int val$tagIDIndex -> a
     android.view.View newView(android.content.Context,android.database.Cursor,android.view.ViewGroup) -> newView
     void bindView(android.view.View,android.content.Context,android.database.Cursor) -> bindView
@@ -880,7 +853,7 @@ com.kos.ktodo.widget.KTodoWidget22 -> com.kos.ktodo.widget.KTodoWidget22:
 com.kos.ktodo.widget.KTodoWidget24 -> com.kos.ktodo.widget.KTodoWidget24:
 com.kos.ktodo.widget.KTodoWidget42 -> com.kos.ktodo.widget.KTodoWidget42:
 com.kos.ktodo.widget.KTodoWidget44 -> com.kos.ktodo.widget.KTodoWidget44:
-com.kos.ktodo.widget.KTodoWidgetBase -> com.kos.ktodo.widget.KTodoWidgetBase:
+com.kos.ktodo.widget.KTodoWidgetBase -> com.kos.ktodo.widget.i:
     int[] ITEMS -> a
     int[] LINES -> b
     android.net.Uri WIDGET_URI -> c
@@ -890,9 +863,9 @@ com.kos.ktodo.widget.KTodoWidgetBase -> com.kos.ktodo.widget.KTodoWidgetBase:
     com.kos.ktodo.widget.KTodoWidgetBase$WidgetSizeInfo getWidgetSizeInfo(android.content.Context,android.appwidget.AppWidgetProviderInfo) -> a
     int getItemColor(int,int,int,int,com.kos.ktodo.TodoItem) -> a
     boolean showItem(com.kos.ktodo.TodoItem,com.kos.ktodo.widget.WidgetSettings) -> a
-com.kos.ktodo.widget.KTodoWidgetBase$1 -> com.kos.ktodo.widget.i:
+com.kos.ktodo.widget.KTodoWidgetBase$1 -> com.kos.ktodo.widget.j:
     int[] $SwitchMap$com$kos$ktodo$DueStatus -> a
-com.kos.ktodo.widget.KTodoWidgetBase$WidgetSizeInfo -> com.kos.ktodo.widget.j:
+com.kos.ktodo.widget.KTodoWidgetBase$WidgetSizeInfo -> com.kos.ktodo.widget.k:
     int numLines -> a
     int layout -> b
     int getNumLines() -> a
@@ -908,7 +881,7 @@ com.kos.ktodo.widget.UpdateService -> com.kos.ktodo.widget.UpdateService:
     void requestUpdateAll(android.content.Context) -> a
     void run() -> run
     android.os.IBinder onBind(android.content.Intent) -> onBind
-com.kos.ktodo.widget.WidgetSettings -> com.kos.ktodo.widget.k:
+com.kos.ktodo.widget.WidgetSettings -> com.kos.ktodo.widget.l:
     int widgetID -> a
     int tagID -> b
     boolean configured -> c
@@ -917,7 +890,7 @@ com.kos.ktodo.widget.WidgetSettings -> com.kos.ktodo.widget.k:
     int showOnlyDueIn -> f
     com.kos.ktodo.TodoItemsSortingMode sortingMode -> g
     java.lang.String toString() -> toString
-com.kos.ktodo.widget.WidgetSettingsStorage -> com.kos.ktodo.widget.l:
+com.kos.ktodo.widget.WidgetSettingsStorage -> com.kos.ktodo.widget.m:
     android.database.sqlite.SQLiteDatabase db -> a
     com.kos.ktodo.DBHelper helper -> b
     void open() -> a
@@ -926,10 +899,6 @@ com.kos.ktodo.widget.WidgetSettingsStorage -> com.kos.ktodo.widget.l:
     boolean delete(int) -> a
     java.lang.String getWhere(int) -> c
     com.kos.ktodo.widget.WidgetSettings load(int) -> b
-com.kos.ktodo.widget.WidgetTextView -> com.kos.ktodo.widget.WidgetTextView:
-    int[] prioToColor -> a
-    com.kos.ktodo.TodoItemBackgroundDrawable bg -> b
-    void setPrio(int) -> setPrio
 net.margaritov.preference.colorpicker.AlphaPatternDrawable -> net.margaritov.preference.colorpicker.a:
     int mRectangleSize -> a
     android.graphics.Paint mPaint -> b
@@ -966,14 +935,15 @@ net.margaritov.preference.colorpicker.ColorPickerPanelView -> net.margaritov.pre
     android.graphics.RectF mDrawingRect -> f
     android.graphics.RectF mColorRect -> g
     net.margaritov.preference.colorpicker.AlphaPatternDrawable mAlphaPattern -> h
-    void init() -> b
+    void init() -> a
     void onDraw(android.graphics.Canvas) -> onDraw
     void onMeasure(int,int) -> onMeasure
     void onSizeChanged(int,int,int,int) -> onSizeChanged
-    void setUpColorRect() -> c
+    void setUpColorRect() -> b
     void setColor(int) -> setColor
-    int getColor() -> a
+    int getColor() -> getColor
     void setBorderColor(int) -> setBorderColor
+    int getBorderColor() -> getBorderColor
 net.margaritov.preference.colorpicker.ColorPickerPreference -> net.margaritov.preference.colorpicker.ColorPickerPreference:
     android.view.View mView -> a
     int mDefaultValue -> b
@@ -988,8 +958,6 @@ net.margaritov.preference.colorpicker.ColorPickerPreference -> net.margaritov.pr
     int getValue() -> a
     void onColorChanged(int) -> a
     boolean onPreferenceClick(android.preference.Preference) -> onPreferenceClick
-    void setAlphaSliderEnabled(boolean) -> a
-    java.lang.String convertToARGB(int) -> b
     int convertToColorInt(java.lang.String) -> a
 net.margaritov.preference.colorpicker.ColorPickerView -> net.margaritov.preference.colorpicker.ColorPickerView:
     float HUE_PANEL_WIDTH -> a
@@ -1026,10 +994,10 @@ net.margaritov.preference.colorpicker.ColorPickerView -> net.margaritov.preferen
     android.graphics.RectF mAlphaRect -> F
     net.margaritov.preference.colorpicker.AlphaPatternDrawable mAlphaPattern -> G
     android.graphics.Point mStartTouchPoint -> H
-    void init() -> b
-    void initPaintTools() -> c
-    float calculateRequiredOffset() -> d
-    int[] buildHueColorArray() -> e
+    void init() -> a
+    void initPaintTools() -> b
+    float calculateRequiredOffset() -> c
+    int[] buildHueColorArray() -> d
     void onDraw(android.graphics.Canvas) -> onDraw
     void drawSatValPanel(android.graphics.Canvas) -> a
     void drawHuePanel(android.graphics.Canvas) -> b
@@ -1046,21 +1014,25 @@ net.margaritov.preference.colorpicker.ColorPickerView -> net.margaritov.preferen
     void onMeasure(int,int) -> onMeasure
     int chooseWidth(int,int) -> a
     int chooseHeight(int,int) -> b
-    int getPrefferedWidth() -> f
-    int getPrefferedHeight() -> g
+    int getPrefferedWidth() -> getPrefferedWidth
+    int getPrefferedHeight() -> getPrefferedHeight
     void onSizeChanged(int,int,int,int) -> onSizeChanged
-    void setUpSatValRect() -> h
-    void setUpHueRect() -> i
-    void setUpAlphaRect() -> j
+    void setUpSatValRect() -> e
+    void setUpHueRect() -> f
+    void setUpAlphaRect() -> g
     void setOnColorChangedListener(net.margaritov.preference.colorpicker.ColorPickerView$OnColorChangedListener) -> setOnColorChangedListener
     void setBorderColor(int) -> setBorderColor
+    int getBorderColor() -> getBorderColor
+    int getColor() -> getColor
     void setColor(int) -> setColor
-    void setColor(int,boolean) -> setColor
-    float getDrawingOffset() -> a
+    void setColor(int,boolean) -> a
+    float getDrawingOffset() -> getDrawingOffset
     void setAlphaSliderVisible(boolean) -> setAlphaSliderVisible
     void setSliderTrackerColor(int) -> setSliderTrackerColor
+    int getSliderTrackerColor() -> getSliderTrackerColor
     void setAlphaSliderText(int) -> setAlphaSliderText
     void setAlphaSliderText(java.lang.String) -> setAlphaSliderText
+    java.lang.String getAlphaSliderText() -> getAlphaSliderText
 net.margaritov.preference.colorpicker.ColorPickerView$OnColorChangedListener -> net.margaritov.preference.colorpicker.d:
     void onColorChanged(int) -> a
 net.margaritov.preference.colorpicker.R -> net.margaritov.preference.colorpicker.e:
@@ -1276,16 +1248,3 @@ net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colo
     int widget_show_only_due -> widget_show_only_due
     int widget_show_only_due_x -> widget_show_only_due_x
     int wipe -> wipe
-net.margaritov.preference.colorpicker.R$xml -> net.margaritov.preference.colorpicker.i:
-    int appwidget_2x1_info -> appwidget_2x1_info
-    int appwidget_2x2_info -> appwidget_2x2_info
-    int appwidget_2x4_info -> appwidget_2x4_info
-    int appwidget_4x2_info -> appwidget_4x2_info
-    int appwidget_4x4_info -> appwidget_4x4_info
-    int preferences -> preferences
-    int settings -> settings
-net.margaritov.preference.colorpicker.Test -> net.margaritov.preference.colorpicker.Test:
-    void onCreate(android.os.Bundle) -> onCreate
-net.margaritov.preference.colorpicker.Test$1 -> net.margaritov.preference.colorpicker.j:
-    net.margaritov.preference.colorpicker.Test this$0 -> a
-    boolean onPreferenceChange(android.preference.Preference,java.lang.Object) -> onPreferenceChange

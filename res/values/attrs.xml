@@ -30,6 +30,12 @@
 		<attr name="expiredDueDateColor" format="color"/>
 		<attr name="notesDrawable" format="reference"/>
 		<attr name="prioStripeWidth" format="dimension"/>
+		<attr name="prioFontSize" format="dimension"/>
+		<attr name="notesPrioMarginRight" format="dimension"/>
+		<attr name="prioMarginTop" format="dimension"/>
+		<attr name="notesDueMarginBottom" format="dimension"/>
+		<attr name="dueFontSize" format="dimension"/>
+		<attr name="dueMarginRight" format="dimension"/>
 	</declare-styleable>
 	<declare-styleable name="WidgetTextView">
 		<attr name="prioStripeWidth"/>
