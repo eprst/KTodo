@@ -22,7 +22,8 @@
 
 		kos:prioFontSize="10sp"
 		kos:notesPrioMarginRight="6dp"
-		kos:notesDueMarginBottom="4dp"
+		kos:notesMarginBottom="4dp"
+		kos:dueMarginBottom="6dp"
 		kos:prioMarginTop="4dp"
 		kos:dueFontSize="10sp"
 		kos:dueMarginRight="4dp"

@@ -32,7 +32,8 @@ public class TodoItemView extends CheckedTextView {
 	private final float prioFontSizePx;
 	private final float notesPrioMarginRightPx;
 	private final float prioMarginTopPx;
-	private final float notesDueMarginBottomPx;
+	private final float notesMarginBottomPx;
+	private final float dueMarginBottomPx;
 	private final float dueFontSizePx;
 	private final float dueMarginRightPx;
 
@@ -78,7 +79,8 @@ public class TodoItemView extends CheckedTextView {
 		prioFontSizePx = ta_tiv.getDimension(R.styleable.TodoItemView_prioFontSize, 0.0f);
 		dueFontSizePx = ta_tiv.getDimension(R.styleable.TodoItemView_dueFontSize, 0.0f);
 		notesPrioMarginRightPx = ta_tiv.getDimension(R.styleable.TodoItemView_notesPrioMarginRight, 0.0f);
-		notesDueMarginBottomPx = ta_tiv.getDimension(R.styleable.TodoItemView_notesDueMarginBottom, 0.0f);
+		notesMarginBottomPx = ta_tiv.getDimension(R.styleable.TodoItemView_notesMarginBottom, 0.0f);
+		dueMarginBottomPx = ta_tiv.getDimension(R.styleable.TodoItemView_dueMarginBottom, 0.0f);
 		prioMarginTopPx = ta_tiv.getDimension(R.styleable.TodoItemView_prioMarginTop, 0.0f);
 		dueMarginRightPx = ta_tiv.getDimension(R.styleable.TodoItemView_dueMarginRight, 0.0f);
 
@@ -223,8 +225,8 @@ public class TodoItemView extends CheckedTextView {
 			halfNotesHeightPx = notesHeightPx / 2;
 			notesX = widthMinusCheckmarkPadding - notesWidthPx - notesPrioMarginRightPx + notesWidthPx / 2;
 			if (showNotesMark) {
-				notesDrawable.setBounds((int) notesX, (int) (getHeight() - notesHeightPx - notesDueMarginBottomPx),
-						(int) (notesX + notesWidthPx), (int) (getHeight() - notesDueMarginBottomPx));
+				notesDrawable.setBounds((int) notesX, (int) (getHeight() - notesHeightPx - notesMarginBottomPx),
+						(int) (notesX + notesWidthPx), (int) (getHeight() - notesMarginBottomPx));
 				notesDrawable.draw(canvas);
 			}
 		}
@@ -241,12 +243,7 @@ public class TodoItemView extends CheckedTextView {
 
 			p.setColor(color);
 
-			float notesCentering = 0;
-			if (halfNotesHeightPx != 0) {
-				p.getTextBounds(dueDate, 0, dueDate.length(), bounds);
-				notesCentering = halfNotesHeightPx - (bounds.height() + 0.5f) / 2;
-			}
-			canvas.drawText(dueDate, notesX - getDueDateWidth() - dueMarginRightPx, getHeight() - notesDueMarginBottomPx - notesCentering, p);
+			canvas.drawText(dueDate, notesX - getDueDateWidth() - dueMarginRightPx, getHeight() - dueMarginBottomPx, p);
 		}
 	}
 }
