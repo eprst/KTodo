@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
@@ -22,9 +23,13 @@ import java.util.ArrayList;
  */
 public class MyListView extends ListView {
 	private static final String TAG = "MyListView";
+	private static final int ONE_PX_FIX = Build.VERSION.SDK_INT >= 14 /*ICS*/ ? 1 : 0;
 
-	private int maxThrowVelocity;
-	private int vibrateOnTearOff;
+	private final int maxThrowVelocity;
+	private final int vibrateOnTearOff;
+	private final int scaledTouchSlop;
+	private final int mainViewId;
+
 	private ImageView dragView;
 	private WindowManager windowManager;
 	private WindowManager.LayoutParams windowParams;
@@ -34,7 +39,6 @@ public class MyListView extends ListView {
 	private int dragStartX, dragStartY;
 	private int dragPointX;    // at what offset inside the item did the user grab it
 	private int /*coordOffsetY,*/ coordOffsetX;  // the difference between screen coordinates and coordinates in this view
-	private final int scaledTouchSlop;
 	private boolean scrolling;
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
 	private MyScroller flightScroller;
@@ -130,8 +134,11 @@ public class MyListView extends ListView {
 		final TypedArray ta_thr = context.obtainStyledAttributes(attrs, R.styleable.Throwable);
 		maxThrowVelocity = ta_thr.getInt(R.styleable.Throwable_maxThrowVelocity, 1500);
 		vibrateOnTearOff = ta_mlv.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
+		mainViewId = ta_mlv.getResourceId(R.styleable.MyListView_mainViewId, -1);
 		ta_mlv.recycle();
 		ta_thr.recycle();
+		if (mainViewId == -1)
+			throw new IllegalStateException("main view ID not specified!");
 	}
 
 	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {
@@ -262,7 +269,7 @@ public class MyListView extends ListView {
 					final View view = getChildAt(0);
 					if (view instanceof TodoItemView) {
 						final TodoItemView todoItemView = (TodoItemView) view;
-						clickedOnCheckMark = getWidth() - ev.getRawX() < 2*todoItemView.getCheckMarkWidthPx();
+						clickedOnCheckMark = getWidth() - ev.getRawX() < 2 * todoItemView.getCheckMarkWidthPx();
 					}
 
 				}
@@ -494,12 +501,18 @@ public class MyListView extends ListView {
 		v.setImageBitmap(bm);
 		dragBitmap = bm;
 
-		windowManager = (WindowManager) mContext.getSystemService("window");
-		windowManager.addView(v, windowParams);
+		final WindowManager wm = getWindowManager();
+		wm.addView(v, windowParams);
 		dragView = v;
 
 		setState(State.DRAGGING_ITEM);
 		return true;
+	}
+
+	private WindowManager getWindowManager() {
+		if (windowManager == null)
+			windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+		return windowManager;
 	}
 
 	private View getDragItem() {
@@ -516,28 +529,29 @@ public class MyListView extends ListView {
 			return dragItemY;
 
 		//now some utterly ugly code.. alas view.getLocationInWindow gives absolute bullshit
-		int t = 0;
-		for (View v = view; v != null;) {
-			boolean add = true;
-			//there's some frame layout in my hierarchy that has getTop=50.. dunno what it is, there's
-			//nothing like it in my layout definition.. it still spoils the offset on my nexus1
-			if (v instanceof FrameLayout) {
-				final FrameLayout frameLayout = (FrameLayout) v;
-				if (frameLayout.getForeground() != null)
-					add = false;
 
-			}
-			if (add)
-				t += (v.getTop() + v.getPaddingTop());
+		final View mainView = getRootView().findViewById(mainViewId);
+		final int[] cc = new int[2];
+		mainView.getLocationOnScreen(cc);
+		final int corr = cc[1] >= 0 ? cc[1] : ONE_PX_FIX - cc[1];
+
+		view.getLocationOnScreen(cc);
+
+		int t = 0;
+		for (View v = view; v != null; ) {
+			t += (v.getTop() + v.getPaddingTop());
 			View p = null;
-			final ViewParent viewParent = v.getParent();
-			if (viewParent instanceof View) {
-				p = (View) viewParent;
+			for (ViewParent viewParent = v.getParent(); viewParent != null; viewParent = viewParent.getParent()) {
+				if (viewParent instanceof View) {
+					p = (View) viewParent;
+					break;
+				}
 			}
-			//Log.i(TAG, "v=" + v + ", vis: " + v.getVisibility() + ", top=" + v.getTop() + ", pt=" + v.getPaddingTop());
+//			Log.i(TAG, "v=" + v + " top=" + v.getTop() + ", pt=" + v.getPaddingTop() + ", sy=" + v.getScrollY());
 			v = p;
 		}
-		//Log.i(TAG, "t=" + t);
+//		Log.i(TAG, "t=" + t);
+		dragItemY = t - corr;
 		return t;
 	}
 
@@ -563,7 +577,7 @@ public class MyListView extends ListView {
 					item.setVisibility(View.INVISIBLE);
 				}
 				windowParams.y = getDragItemY();
-				windowManager.updateViewLayout(dragView, windowParams);
+				getWindowManager().updateViewLayout(dragView, windowParams);
 				lastDragX = x;
 			}
 		}
@@ -578,6 +592,7 @@ public class MyListView extends ListView {
 
 	private boolean itemInBounds(final int itemPosition) {
 		final View item = getChildAt(itemPosition - getFirstVisiblePosition());
+		//noinspection SimplifiableIfStatement
 		if (item == null) return false;
 		return item.getTop() >= 0 && item.getBottom() <= getHeight();
 	}

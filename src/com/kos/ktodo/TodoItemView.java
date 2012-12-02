@@ -215,14 +215,12 @@ public class TodoItemView extends CheckedTextView {
 		final float widthMinusCheckmarkPadding = getWidth() - checkMarkWidthPx - paddingRightPx;
 		final float prioX = widthMinusCheckmarkPadding - prioWidthPx - notesPrioMarginRightPx + prioWidthPx / 2;
 		float notesX = prioX;
-		float halfNotesHeightPx = 0;
 
 		canvas.drawText(prio, prioX, prioMarginTopPx + prioHeightPx, p);
 
 		if (notesDrawable != null) {
 			final int notesHeightPx = notesDrawable.getIntrinsicHeight();
 			final int notesWidthPx = notesDrawable.getIntrinsicWidth();
-			halfNotesHeightPx = notesHeightPx / 2;
 			notesX = widthMinusCheckmarkPadding - notesWidthPx - notesPrioMarginRightPx + notesWidthPx / 2;
 			if (showNotesMark) {
 				notesDrawable.setBounds((int) notesX, (int) (getHeight() - notesHeightPx - notesMarginBottomPx),

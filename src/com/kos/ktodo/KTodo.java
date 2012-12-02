@@ -85,6 +85,7 @@ public class KTodo extends ListActivity {
 		};
 		slideLeftListener = new SlideLeftListener() {
 			public void slideLeftStarted(final long id) {
+				hideSoftKeyboard();
 				startEditingItem(id);
 				updateTitle(true);
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -99,6 +100,11 @@ public class KTodo extends ListActivity {
 		};
 	}
 
+	private void hideSoftKeyboard() {
+		final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getSlidingView().getWindowToken(), 0);
+	}
+
 	/**
 	 * Called when the activity is first created.
 	 */
@@ -107,6 +113,7 @@ public class KTodo extends ListActivity {
 		super.onCreate(savedInstanceState);
 		if (TRACE) Debug.startMethodTracing("ktodo");
 
+//		customTitleSupported = false;
 		customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 
 		setContentView(R.layout.main);
