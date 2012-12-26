@@ -6,13 +6,17 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.app.backup.BackupManager;
 import android.content.*;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.*;
 import android.preference.PreferenceManager;
+import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.Selection;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -25,6 +29,7 @@ import com.kos.ktodo.widget.WidgetSettingsStorage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class KTodo extends ListActivity {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
@@ -32,6 +37,7 @@ public class KTodo extends ListActivity {
 	private static final String TAG = "KTodo";
 	private static final boolean TRACE = false; //enables method tracing
 	private static final int HIDE_UNDELETE_AFTER = 4000; //ms
+	public static final int VOICE_RECOGNITION_REQUEST_CODE = 123422;
 	@SuppressWarnings({"FieldCanBeLocal"})
 	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
 	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
@@ -49,6 +55,9 @@ public class KTodo extends ListActivity {
 
 //	private final Random rnd = new Random();
 //	private final HashMap<Integer, SubActivityCallback> subCallbacks = new HashMap<Integer, SubActivityCallback>(5);
+
+	private Intent voiceRecognitionIntent;
+	private Drawable voiceDrawable;
 
 	private Handler handler;
 	private TodoItemsStorage todoItemsStorage;
@@ -113,7 +122,7 @@ public class KTodo extends ListActivity {
 		super.onCreate(savedInstanceState);
 		if (TRACE) Debug.startMethodTracing("ktodo");
 
-//		customTitleSupported = false;
+//		customTitleSupported = false; // for testing full-screen mode
 		customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 
 		setContentView(R.layout.main);
@@ -158,6 +167,9 @@ public class KTodo extends ListActivity {
 
 		registerForContextMenu(getMyListView());
 
+		setupVoiceRecognition();
+		setupAddButtonIcon();
+
 //		reloadTodoItems(); //will be called from spinner.onMeasure->fireOnSelected->KTodo$4.onItemSelected
 
 		updateTitle(false);
@@ -167,6 +179,29 @@ public class KTodo extends ListActivity {
 //	private boolean isShowingWidgetData() {
 //		return getIntent() != null && SHOW_WIDGET_DATA.equals(getIntent().getAction());
 //	}
+
+	private void setupAddButtonIcon() {
+		if (voiceDrawable != null) {
+			getAddTaskWidget().addTextChangedListener(new TextWatcher() {
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				}
+
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+				}
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					if (s.length() == 0)
+						getAddTaskButton().setImageDrawable(voiceDrawable);
+					else
+						getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark));
+				}
+			});
+			getAddTaskButton().setImageDrawable(voiceDrawable);
+		}
+	}
 
 	@Override
 	protected void onNewIntent(final Intent intent) {
@@ -197,9 +232,13 @@ public class KTodo extends ListActivity {
 		final SlideLeftImageButton addTaskButton = getAddTaskButton();
 		addTaskButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View view) {
-				final long id = addTodoItem();
-				if (id != -1)
-					addTaskButton.setItemID(id);
+				if (getAddTaskWidget().getText().toString().length() == 0)
+					startVoiceRecognition();
+				else {
+					final long id = addTodoItem();
+					if (id != -1)
+						addTaskButton.setItemID(id);
+				}
 			}
 		});
 
@@ -583,7 +622,7 @@ public class KTodo extends ListActivity {
 		LastModifiedState.touch(this);
 //		Log.i(TAG, "data changed");
 		try {
-			new BackupManager(this).dataChanged(); //todo: make it work on 2.0 somehow
+			new BackupManager(this).dataChanged();
 		} catch (NoClassDefFoundError e) {
 			//android < 2.2, ignore..
 		}
@@ -636,7 +675,7 @@ public class KTodo extends ListActivity {
 				}
 			}, 100);
 		}
-		if(savedInstanceState.containsKey("customTitleSupported"))
+		if (savedInstanceState.containsKey("customTitleSupported"))
 			customTitleSupported = savedInstanceState.getBoolean("customTitleSupported");
 		reloadTodoItems();
 	}
@@ -669,13 +708,18 @@ public class KTodo extends ListActivity {
 	}
 
 	private long addTodoItem() {
-		long currentTagID = getCurrentTagID();
-		if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID) {
-			currentTagID = DBHelper.UNFILED_METATAG_ID;
-		}
 		final EditText et = getAddTaskWidget();
 		final String st = et.getText().toString();
+		return addTodoItem(st);
+	}
+
+	private long addTodoItem(String st) {
+		final EditText et = getAddTaskWidget();
 		if (st.length() > 0) {
+			long currentTagID = getCurrentTagID();
+			if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID) {
+				currentTagID = DBHelper.UNFILED_METATAG_ID;
+			}
 			final Long due = defaultDue == -1 ? null : defaultDue;
 			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, due, null));
 			et.setText("");
@@ -804,13 +848,13 @@ public class KTodo extends ListActivity {
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_progress_title);
 				b.setItems(new CharSequence[]{"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"},
-				           new DialogInterface.OnClickListener() {
-					           public void onClick(final DialogInterface dialog, final int which) {
-						           todoItem.setProgress(which * 10);
-						           todoItemsStorage.saveTodoItem(todoItem);
-						           updateView();
-					           }
-				           });
+						new DialogInterface.OnClickListener() {
+							public void onClick(final DialogInterface dialog, final int which) {
+								todoItem.setProgress(which * 10);
+								todoItemsStorage.saveTodoItem(todoItem);
+								updateView();
+							}
+						});
 				b.show();
 				return true;
 			case CHANGE_DUE_DATE_CONTEXT_MENU_ITEM:
@@ -944,6 +988,90 @@ public class KTodo extends ListActivity {
 		final AlertDialog dialog = b.create();
 		Util.setupEditTextEnterListener(editText, dialog);
 		dialog.show();
+	}
+
+	private void startVoiceRecognition() {
+		if (voiceRecognitionIntent != null)
+			startActivityForResult(voiceRecognitionIntent, VOICE_RECOGNITION_REQUEST_CODE);
+	}
+
+	private void setupVoiceRecognition() {
+		final PackageManager pm = getPackageManager();
+
+		voiceRecognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//		voiceRecognitionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//		voiceRecognitionIntent.putExtra("android.speech.extras.SEND_APPLICATION_ID_EXTRA", false);
+		voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+		voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_rec_prompt));
+		voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+//		voiceRecognitionIntent.putExtra("android.speech.extras.SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 750L);
+//		voiceRecognitionIntent.putExtra("android.speech.extras.SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS", -1L);
+//		voiceRecognitionIntent.putExtra("calling_package", "com.kos.ktodo");
+//		voiceRecognitionIntent.putExtra("contact_auth", true);
+
+		if (pm.resolveActivity(voiceRecognitionIntent, PackageManager.MATCH_DEFAULT_ONLY) == null)
+			voiceRecognitionIntent = null;
+		else
+			voiceDrawable = getResources().getDrawable(android.R.drawable.ic_btn_speak_now);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//		Log.i(TAG, "onActivityResult " + requestCode + ", data: " + (data == null ? "null" : data.toURI()));
+		if (requestCode == VOICE_RECOGNITION_REQUEST_CODE) {
+//			Log.i(TAG, "onActivityResult resultCode " + resultCode);
+			if (resultCode == RESULT_OK) {
+				assert data != null;
+				final List<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+//				Log.i(TAG, "onActivityResult matches:" + matches.size());
+				final AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b.setCancelable(true);
+				b.setNeutralButton(R.string.try_again, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startVoiceRecognition();
+					}
+				});
+				b.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				});
+				if (matches.size() == 1) {
+					b.setTitle(R.string.voice_rec_confirm_title);
+					final String bestMatch = matches.get(0);
+					b.setMessage(bestMatch);
+					b.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							addTodoItem(bestMatch);
+						}
+					});
+				} else {
+					b.setTitle(R.string.did_you_mean);
+//					final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, matches);
+//					b.setAdapter(adapter, new DialogInterface.OnClickListener() {
+//						@Override
+//						public void onClick(DialogInterface dialog, int which) {
+//							dialog.dismiss();
+//							addTodoItem(matches.get(which));
+//						}
+//					});
+					b.setItems(matches.toArray(new CharSequence[matches.size()]), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							addTodoItem(matches.get(which));
+						}
+					});
+				}
+				b.show();
+			}
+			return;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	private void runAsynchronously(final int title, final int message, final Runnable r) {

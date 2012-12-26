@@ -129,167 +129,186 @@ com.kos.ktodo.EditTags$7 -> com.kos.ktodo.o:
     com.kos.ktodo.EditTags this$0 -> d
     void onClick(android.content.DialogInterface,int) -> onClick
 com.kos.ktodo.KTodo -> com.kos.ktodo.KTodo:
-    int EDIT_TAGS_MENU_ITEM -> a
-    int SHOW_HIDE_COMPLETED_MENU_ITEM -> b
-    int SORTING_MENU_ITEM -> c
-    int EXPORT_MENU_ITEM -> d
-    int IMPORT_MENU_ITEM -> e
-    int PREFERNCES_MENU_ITEM -> f
-    int EDIT_ITEM_CONTEXT_MENU_ITEM -> g
-    int CHANGE_TAG_CONTEXT_MENU_ITEM -> h
-    int CHANGE_PRIO_CONTEXT_MENU_ITEM -> i
-    int CHANGE_PROGRESS_CONTEXT_MENU_ITEM -> j
-    int CHANGE_DUE_DATE_CONTEXT_MENU_ITEM -> k
-    int DELETE_ITEM_CONTEXT_MENU_ITEM -> l
-    android.os.Handler handler -> m
-    com.kos.ktodo.TodoItemsStorage todoItemsStorage -> n
-    com.kos.ktodo.TagsStorage tagsStorage -> o
-    android.widget.SimpleCursorAdapter tagsAdapter -> p
-    android.database.Cursor allTagsCursor -> q
-    android.database.Cursor currentTagItemsCursor -> r
-    boolean hidingCompleted -> s
-    long defaultDue -> t
-    int defaultPrio -> u
-    com.kos.ktodo.TodoItemsSortingMode sortingMode -> v
-    boolean customTitleSupported -> w
-    com.kos.ktodo.TodoItem editingItem -> x
-    android.database.Cursor edititgItemTagsCursor -> y
-    com.kos.ktodo.TodoItem lastDeletedItem -> z
-    com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> A
-    com.kos.ktodo.SlideLeftListener slideLeftListener -> B
-    java.lang.Float listFontSize -> C
-    boolean clickAnywhereToCheck -> D
+    int EDIT_TAGS_MENU_ITEM -> b
+    int SHOW_HIDE_COMPLETED_MENU_ITEM -> c
+    int SORTING_MENU_ITEM -> d
+    int EXPORT_MENU_ITEM -> e
+    int IMPORT_MENU_ITEM -> f
+    int PREFERNCES_MENU_ITEM -> g
+    int EDIT_ITEM_CONTEXT_MENU_ITEM -> h
+    int CHANGE_TAG_CONTEXT_MENU_ITEM -> i
+    int CHANGE_PRIO_CONTEXT_MENU_ITEM -> j
+    int CHANGE_PROGRESS_CONTEXT_MENU_ITEM -> k
+    int CHANGE_DUE_DATE_CONTEXT_MENU_ITEM -> l
+    int DELETE_ITEM_CONTEXT_MENU_ITEM -> m
+    android.content.Intent voiceRecognitionIntent -> n
+    android.graphics.drawable.Drawable voiceDrawable -> o
+    android.os.Handler handler -> p
+    com.kos.ktodo.TodoItemsStorage todoItemsStorage -> q
+    com.kos.ktodo.TagsStorage tagsStorage -> r
+    android.widget.SimpleCursorAdapter tagsAdapter -> s
+    android.database.Cursor allTagsCursor -> t
+    android.database.Cursor currentTagItemsCursor -> u
+    boolean hidingCompleted -> v
+    long defaultDue -> w
+    int defaultPrio -> x
+    com.kos.ktodo.TodoItemsSortingMode sortingMode -> y
+    boolean customTitleSupported -> z
+    com.kos.ktodo.TodoItem editingItem -> A
+    android.database.Cursor edititgItemTagsCursor -> B
+    com.kos.ktodo.TodoItem lastDeletedItem -> C
+    com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> D
+    com.kos.ktodo.SlideLeftListener slideLeftListener -> E
+    java.lang.Float listFontSize -> F
+    boolean clickAnywhereToCheck -> G
+    boolean $assertionsDisabled -> a
+    void hideSoftKeyboard() -> a
     void onCreate(android.os.Bundle) -> onCreate
+    void setupAddButtonIcon() -> b
     void onNewIntent(android.content.Intent) -> onNewIntent
-    void onSlideBack() -> a
-    void setupFirstScreenWidgets() -> b
-    void setupSecondScreenWidgets() -> c
-    void setupBodyWidgetFlingDetector() -> d
+    void onSlideBack() -> c
+    void setupFirstScreenWidgets() -> d
+    void setupSecondScreenWidgets() -> e
+    void setupBodyWidgetFlingDetector() -> f
     void updateTitle(boolean) -> a
     void onConfigurationChanged(android.content.res.Configuration) -> onConfigurationChanged
     void onStart() -> onStart
     void startEditingItem(long) -> a
-    void updateDueDateButton() -> e
+    void updateDueDateButton() -> g
     void updateImgButton(android.widget.Button,android.widget.ImageButton,java.lang.String) -> a
-    void saveItemBeingEdited() -> f
-    void reloadTodoItemsFromAnotherThread() -> g
-    void reloadTodoItems() -> h
+    void saveItemBeingEdited() -> h
+    void reloadTodoItemsFromAnotherThread() -> i
+    void reloadTodoItems() -> j
     void onPause() -> onPause
     void onDestroy() -> onDestroy
-    void checkDataChanged() -> i
-    void onDataChanged() -> j
+    void checkDataChanged() -> k
+    void onDataChanged() -> l
     void onSaveInstanceState(android.os.Bundle) -> onSaveInstanceState
     void onRestoreInstanceState(android.os.Bundle) -> onRestoreInstanceState
     boolean onKeyDown(int,android.view.KeyEvent) -> onKeyDown
-    void showUndeleteButton() -> k
-    void undelete() -> l
-    long addTodoItem() -> m
+    void showUndeleteButton() -> m
+    void undelete() -> n
+    long addTodoItem() -> o
+    long addTodoItem(java.lang.String) -> a
     void setDefaultDue(long) -> b
     void setDefaultPrio(int) -> a
-    void updateView() -> n
+    void updateView() -> p
     void setCurrentTag(long) -> c
-    long getCurrentTagID() -> o
+    long getCurrentTagID() -> q
     boolean onPrepareOptionsMenu(android.view.Menu) -> onPrepareOptionsMenu
     boolean onOptionsItemSelected(android.view.MenuItem) -> onOptionsItemSelected
     void onCreateContextMenu(android.view.ContextMenu,android.view.View,android.view.ContextMenu$ContextMenuInfo) -> onCreateContextMenu
     boolean onContextItemSelected(android.view.MenuItem) -> onContextItemSelected
     void selectPrio(com.kos.ktodo.Callback1) -> a
-    void exportData() -> p
-    void showErrorFromAnotherThread(java.lang.String) -> a
-    void importData() -> q
+    void exportData() -> r
+    void showErrorFromAnotherThread(java.lang.String) -> b
+    void importData() -> s
+    void startVoiceRecognition() -> t
+    void setupVoiceRecognition() -> u
+    void onActivityResult(int,int,android.content.Intent) -> onActivityResult
     void runAsynchronously(int,int,java.lang.Runnable) -> a
-    android.widget.EditText getAddTaskWidget() -> r
-    android.widget.Spinner getTagsWidget() -> s
-    com.kos.ktodo.SlideLeftImageButton getAddTaskButton() -> t
-    com.kos.ktodo.MyListView getMyListView() -> u
-    com.kos.ktodo.AnimatedVisibilityButton getUndeleteButton() -> v
-    com.kos.ktodo.SlidingView getSlidingView() -> w
-    android.widget.EditText getEditSummaryWidget() -> x
-    android.widget.EditText getEditBodyWidget() -> y
-    android.widget.Button getDefaultDueTxtButton() -> z
-    android.widget.ImageButton getDefaultDueImgButton() -> A
-    android.widget.Button getDefaultPrioButton() -> B
-    android.widget.Spinner getEditItemTagsWidget() -> C
-    com.kos.ktodo.SliderButton getPrioSliderButton() -> D
-    com.kos.ktodo.SliderButton getProgressSliderButton() -> E
-    android.widget.ImageButton getDueDateImgButton() -> F
-    android.widget.Button getDueDateTxtButton() -> G
-    android.widget.TextView getTitleLeft() -> H
-    android.widget.TextView getTitleRight() -> I
+    android.widget.EditText getAddTaskWidget() -> v
+    android.widget.Spinner getTagsWidget() -> w
+    com.kos.ktodo.SlideLeftImageButton getAddTaskButton() -> x
+    com.kos.ktodo.MyListView getMyListView() -> y
+    com.kos.ktodo.AnimatedVisibilityButton getUndeleteButton() -> z
+    com.kos.ktodo.SlidingView getSlidingView() -> A
+    android.widget.EditText getEditSummaryWidget() -> B
+    android.widget.EditText getEditBodyWidget() -> C
+    android.widget.Button getDefaultDueTxtButton() -> D
+    android.widget.ImageButton getDefaultDueImgButton() -> E
+    android.widget.Button getDefaultPrioButton() -> F
+    android.widget.Spinner getEditItemTagsWidget() -> G
+    com.kos.ktodo.SliderButton getPrioSliderButton() -> H
+    com.kos.ktodo.SliderButton getProgressSliderButton() -> I
+    android.widget.ImageButton getDueDateImgButton() -> J
+    android.widget.Button getDueDateTxtButton() -> K
+    android.widget.TextView getTitleLeft() -> L
+    android.widget.TextView getTitleRight() -> M
     com.kos.ktodo.TodoItem access$002(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItem) -> a
     com.kos.ktodo.TodoItemsStorage access$100(com.kos.ktodo.KTodo) -> a
     void access$200(com.kos.ktodo.KTodo) -> b
     void access$300(com.kos.ktodo.KTodo) -> c
-    void access$400(com.kos.ktodo.KTodo,long) -> a
-    void access$500(com.kos.ktodo.KTodo,boolean) -> a
-    void access$600(com.kos.ktodo.KTodo) -> d
-    void access$700(com.kos.ktodo.KTodo,long) -> b
-    void access$800(com.kos.ktodo.KTodo) -> e
-    long access$900(com.kos.ktodo.KTodo) -> f
-    boolean access$1000(com.kos.ktodo.KTodo) -> g
-    com.kos.ktodo.TodoItem access$1100(com.kos.ktodo.KTodo) -> h
-    void access$1200(com.kos.ktodo.KTodo,long) -> c
-    long access$1300(com.kos.ktodo.KTodo) -> i
-    void access$1400(com.kos.ktodo.KTodo,int) -> a
-    void access$1500(com.kos.ktodo.KTodo,com.kos.ktodo.Callback1) -> a
-    void access$1600(com.kos.ktodo.KTodo) -> j
-    com.kos.ktodo.SlidingView access$1700(com.kos.ktodo.KTodo) -> k
-    void access$1800(com.kos.ktodo.KTodo) -> l
-    android.widget.EditText access$1900(com.kos.ktodo.KTodo) -> m
-    com.kos.ktodo.MyListView access$2000(com.kos.ktodo.KTodo) -> n
-    java.lang.Float access$2100(com.kos.ktodo.KTodo) -> o
-    com.kos.ktodo.TodoItemsSortingMode access$2202(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItemsSortingMode) -> a
-    void access$2300(com.kos.ktodo.KTodo,java.lang.String) -> a
-    void access$2400(com.kos.ktodo.KTodo,int,int,java.lang.Runnable) -> a
-    com.kos.ktodo.TagsStorage access$2500(com.kos.ktodo.KTodo) -> p
-    void access$2600(com.kos.ktodo.KTodo) -> q
+    void access$400(com.kos.ktodo.KTodo) -> d
+    void access$500(com.kos.ktodo.KTodo,long) -> a
+    void access$600(com.kos.ktodo.KTodo,boolean) -> a
+    void access$700(com.kos.ktodo.KTodo) -> e
+    android.graphics.drawable.Drawable access$800(com.kos.ktodo.KTodo) -> f
+    com.kos.ktodo.SlideLeftImageButton access$900(com.kos.ktodo.KTodo) -> g
+    void access$1000(com.kos.ktodo.KTodo,long) -> b
+    void access$1100(com.kos.ktodo.KTodo) -> h
+    android.widget.EditText access$1200(com.kos.ktodo.KTodo) -> i
+    void access$1300(com.kos.ktodo.KTodo) -> j
+    long access$1400(com.kos.ktodo.KTodo) -> k
+    boolean access$1500(com.kos.ktodo.KTodo) -> l
+    com.kos.ktodo.TodoItem access$1600(com.kos.ktodo.KTodo) -> m
+    void access$1700(com.kos.ktodo.KTodo,long) -> c
+    long access$1800(com.kos.ktodo.KTodo) -> n
+    void access$1900(com.kos.ktodo.KTodo,int) -> a
+    void access$2000(com.kos.ktodo.KTodo,com.kos.ktodo.Callback1) -> a
+    void access$2100(com.kos.ktodo.KTodo) -> o
+    com.kos.ktodo.SlidingView access$2200(com.kos.ktodo.KTodo) -> p
+    void access$2300(com.kos.ktodo.KTodo) -> q
+    android.widget.EditText access$2400(com.kos.ktodo.KTodo) -> r
+    com.kos.ktodo.MyListView access$2500(com.kos.ktodo.KTodo) -> s
+    java.lang.Float access$2600(com.kos.ktodo.KTodo) -> t
+    com.kos.ktodo.TodoItemsSortingMode access$2702(com.kos.ktodo.KTodo,com.kos.ktodo.TodoItemsSortingMode) -> a
+    void access$2800(com.kos.ktodo.KTodo,java.lang.String) -> a
+    void access$2900(com.kos.ktodo.KTodo,int,int,java.lang.Runnable) -> a
+    com.kos.ktodo.TagsStorage access$3000(com.kos.ktodo.KTodo) -> u
+    void access$3100(com.kos.ktodo.KTodo) -> v
+    long access$3200(com.kos.ktodo.KTodo,java.lang.String) -> b
 com.kos.ktodo.KTodo$1 -> com.kos.ktodo.p:
     com.kos.ktodo.KTodo this$0 -> a
     void deleteItem(long) -> a
 com.kos.ktodo.KTodo$10 -> com.kos.ktodo.q:
     com.kos.ktodo.KTodo this$0 -> a
+    void onDueDateSelected(java.lang.Long) -> a
+    java.lang.Long getCurrentDueDate() -> a
+com.kos.ktodo.KTodo$11 -> com.kos.ktodo.r:
+    com.kos.ktodo.KTodo this$0 -> a
     void onClick(android.view.View) -> onClick
-com.kos.ktodo.KTodo$10$1 -> com.kos.ktodo.r:
-    com.kos.ktodo.KTodo$10 this$1 -> a
+com.kos.ktodo.KTodo$11$1 -> com.kos.ktodo.s:
+    com.kos.ktodo.KTodo$11 this$1 -> a
     com.kos.ktodo.Unit call(java.lang.Integer) -> a
     java.lang.Object call(java.lang.Object) -> a
-com.kos.ktodo.KTodo$11 -> com.kos.ktodo.s:
-    com.kos.ktodo.KTodo this$0 -> a
-    void onClick(android.view.View) -> onClick
 com.kos.ktodo.KTodo$12 -> com.kos.ktodo.t:
     com.kos.ktodo.KTodo this$0 -> a
-    com.kos.ktodo.Unit call(java.lang.String) -> a
-    java.lang.Object call(java.lang.Object) -> a
+    void onClick(android.view.View) -> onClick
 com.kos.ktodo.KTodo$13 -> com.kos.ktodo.u:
     com.kos.ktodo.KTodo this$0 -> a
-    java.lang.Boolean call(android.view.MotionEvent) -> a
+    com.kos.ktodo.Unit call(java.lang.String) -> a
     java.lang.Object call(java.lang.Object) -> a
 com.kos.ktodo.KTodo$14 -> com.kos.ktodo.v:
     com.kos.ktodo.KTodo this$0 -> a
-    com.kos.ktodo.Unit call(java.lang.String) -> a
+    java.lang.Boolean call(android.view.MotionEvent) -> a
     java.lang.Object call(java.lang.Object) -> a
 com.kos.ktodo.KTodo$15 -> com.kos.ktodo.w:
     com.kos.ktodo.KTodo this$0 -> a
-    void onDueDateSelected(java.lang.Long) -> a
-    java.lang.Long getCurrentDueDate() -> a
+    com.kos.ktodo.Unit call(java.lang.String) -> a
+    java.lang.Object call(java.lang.Object) -> a
 com.kos.ktodo.KTodo$16 -> com.kos.ktodo.x:
     com.kos.ktodo.KTodo this$0 -> a
-    boolean onFling(android.view.MotionEvent,android.view.MotionEvent,float,float) -> onFling
+    void onDueDateSelected(java.lang.Long) -> a
+    java.lang.Long getCurrentDueDate() -> a
 com.kos.ktodo.KTodo$17 -> com.kos.ktodo.y:
+    com.kos.ktodo.KTodo this$0 -> a
+    boolean onFling(android.view.MotionEvent,android.view.MotionEvent,float,float) -> onFling
+com.kos.ktodo.KTodo$18 -> com.kos.ktodo.z:
     android.view.GestureDetector val$gestureDetector -> a
     com.kos.ktodo.KTodo this$0 -> b
     boolean onTouch(android.view.View,android.view.MotionEvent) -> onTouch
-com.kos.ktodo.KTodo$18 -> com.kos.ktodo.z:
-    com.kos.ktodo.KTodo this$0 -> a
-    void slidingFinished() -> a
 com.kos.ktodo.KTodo$19 -> com.kos.ktodo.aa:
     com.kos.ktodo.KTodo this$0 -> a
-    void run() -> run
+    void slidingFinished() -> a
 com.kos.ktodo.KTodo$2 -> com.kos.ktodo.ab:
     com.kos.ktodo.KTodo this$0 -> a
     void slideLeftStarted(long) -> a
     void onSlideBack() -> a
 com.kos.ktodo.KTodo$20 -> com.kos.ktodo.ac:
+    com.kos.ktodo.KTodo this$0 -> a
+    void run() -> run
+com.kos.ktodo.KTodo$21 -> com.kos.ktodo.ad:
     int val$doneIndex -> a
     int val$prioIndex -> b
     int val$progressIndex -> c
@@ -299,99 +318,114 @@ com.kos.ktodo.KTodo$20 -> com.kos.ktodo.ac:
     android.view.View newView(android.content.Context,android.database.Cursor,android.view.ViewGroup) -> newView
     void bindView(android.view.View,android.content.Context,android.database.Cursor) -> bindView
     void initView(com.kos.ktodo.TodoItemView,android.database.Cursor) -> a
-com.kos.ktodo.KTodo$21 -> com.kos.ktodo.ad:
-    com.kos.ktodo.KTodo this$0 -> a
-    void run() -> run
 com.kos.ktodo.KTodo$22 -> com.kos.ktodo.ae:
     com.kos.ktodo.KTodo this$0 -> a
-    com.kos.ktodo.Unit call(com.kos.ktodo.TodoItemsSortingMode) -> a
-    java.lang.Object call(java.lang.Object) -> a
+    void run() -> run
 com.kos.ktodo.KTodo$23 -> com.kos.ktodo.af:
-    com.kos.ktodo.TodoItem val$todoItem -> a
-    com.kos.ktodo.KTodo this$0 -> b
-    com.kos.ktodo.Unit call(java.lang.Integer) -> a
+    com.kos.ktodo.KTodo this$0 -> a
+    com.kos.ktodo.Unit call(com.kos.ktodo.TodoItemsSortingMode) -> a
     java.lang.Object call(java.lang.Object) -> a
 com.kos.ktodo.KTodo$24 -> com.kos.ktodo.ag:
     com.kos.ktodo.TodoItem val$todoItem -> a
     com.kos.ktodo.KTodo this$0 -> b
-    void onClick(android.content.DialogInterface,int) -> onClick
+    com.kos.ktodo.Unit call(java.lang.Integer) -> a
+    java.lang.Object call(java.lang.Object) -> a
 com.kos.ktodo.KTodo$25 -> com.kos.ktodo.ah:
+    com.kos.ktodo.TodoItem val$todoItem -> a
+    com.kos.ktodo.KTodo this$0 -> b
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.kos.ktodo.KTodo$26 -> com.kos.ktodo.ai:
     com.kos.ktodo.TodoItem val$todoItem -> a
     com.kos.ktodo.KTodo this$0 -> b
     void onDueDateSelected(java.lang.Long) -> a
     java.lang.Long getCurrentDueDate() -> a
-com.kos.ktodo.KTodo$26 -> com.kos.ktodo.ai:
+com.kos.ktodo.KTodo$27 -> com.kos.ktodo.aj:
     com.kos.ktodo.TodoItem val$todoItem -> a
     android.widget.ListAdapter val$adapter -> b
     android.database.Cursor val$cursor -> c
     com.kos.ktodo.KTodo this$0 -> d
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.KTodo$27 -> com.kos.ktodo.aj:
+com.kos.ktodo.KTodo$28 -> com.kos.ktodo.ak:
     android.database.Cursor val$cursor -> a
     com.kos.ktodo.KTodo this$0 -> b
     void onCancel(android.content.DialogInterface) -> onCancel
-com.kos.ktodo.KTodo$28 -> com.kos.ktodo.ak:
+com.kos.ktodo.KTodo$29 -> com.kos.ktodo.al:
     com.kos.ktodo.Callback1 val$cb -> a
     com.kos.ktodo.KTodo this$0 -> b
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.KTodo$29 -> com.kos.ktodo.al:
+com.kos.ktodo.KTodo$3 -> com.kos.ktodo.am:
+    com.kos.ktodo.KTodo this$0 -> a
+    void beforeTextChanged(java.lang.CharSequence,int,int,int) -> beforeTextChanged
+    void onTextChanged(java.lang.CharSequence,int,int,int) -> onTextChanged
+    void afterTextChanged(android.text.Editable) -> afterTextChanged
+com.kos.ktodo.KTodo$30 -> com.kos.ktodo.an:
     android.widget.EditText val$editText -> a
     com.kos.ktodo.KTodo this$0 -> b
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.KTodo$29$1 -> com.kos.ktodo.am:
+com.kos.ktodo.KTodo$30$1 -> com.kos.ktodo.ao:
     java.lang.String val$st -> a
-    com.kos.ktodo.KTodo$29 this$1 -> b
+    com.kos.ktodo.KTodo$30 this$1 -> b
     void run() -> run
-com.kos.ktodo.KTodo$3 -> com.kos.ktodo.an:
-    int val$currentTag -> a
-    com.kos.ktodo.KTodo this$0 -> b
-    void run() -> run
-com.kos.ktodo.KTodo$30 -> com.kos.ktodo.ao:
+com.kos.ktodo.KTodo$31 -> com.kos.ktodo.ap:
     java.lang.String val$msg -> a
     com.kos.ktodo.KTodo this$0 -> b
     void run() -> run
-com.kos.ktodo.KTodo$31 -> com.kos.ktodo.ap:
+com.kos.ktodo.KTodo$32 -> com.kos.ktodo.aq:
     android.widget.CheckBox val$wipe -> a
     android.widget.EditText val$editText -> b
     com.kos.ktodo.KTodo this$0 -> c
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.KTodo$31$1 -> com.kos.ktodo.aq:
+com.kos.ktodo.KTodo$32$1 -> com.kos.ktodo.ar:
     java.lang.String val$st -> a
-    com.kos.ktodo.KTodo$31 this$1 -> b
+    com.kos.ktodo.KTodo$32 this$1 -> b
     void run() -> run
-com.kos.ktodo.KTodo$32 -> com.kos.ktodo.ar:
+com.kos.ktodo.KTodo$33 -> com.kos.ktodo.as:
+    com.kos.ktodo.KTodo this$0 -> a
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.kos.ktodo.KTodo$34 -> com.kos.ktodo.at:
+    com.kos.ktodo.KTodo this$0 -> a
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.kos.ktodo.KTodo$35 -> com.kos.ktodo.au:
+    java.lang.String val$bestMatch -> a
+    com.kos.ktodo.KTodo this$0 -> b
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.kos.ktodo.KTodo$36 -> com.kos.ktodo.av:
+    java.util.List val$matches -> a
+    com.kos.ktodo.KTodo this$0 -> b
+    void onClick(android.content.DialogInterface,int) -> onClick
+com.kos.ktodo.KTodo$37 -> com.kos.ktodo.aw:
     android.app.ProgressDialog val$pg -> a
     com.kos.ktodo.KTodo this$0 -> b
     void handleMessage(android.os.Message) -> handleMessage
-com.kos.ktodo.KTodo$33 -> com.kos.ktodo.as:
+com.kos.ktodo.KTodo$38 -> com.kos.ktodo.ax:
     java.lang.Runnable val$r -> a
     android.os.Handler val$h -> b
     com.kos.ktodo.KTodo this$0 -> c
     void run() -> run
-com.kos.ktodo.KTodo$4 -> com.kos.ktodo.at:
+com.kos.ktodo.KTodo$4 -> com.kos.ktodo.ay:
+    int val$currentTag -> a
+    com.kos.ktodo.KTodo this$0 -> b
+    void run() -> run
+com.kos.ktodo.KTodo$5 -> com.kos.ktodo.az:
     com.kos.ktodo.SlideLeftImageButton val$addTaskButton -> a
     com.kos.ktodo.KTodo this$0 -> b
     void onClick(android.view.View) -> onClick
-com.kos.ktodo.KTodo$5 -> com.kos.ktodo.au:
+com.kos.ktodo.KTodo$6 -> com.kos.ktodo.ba:
     com.kos.ktodo.KTodo this$0 -> a
     boolean onKey(android.view.View,int,android.view.KeyEvent) -> onKey
-com.kos.ktodo.KTodo$6 -> com.kos.ktodo.av:
+com.kos.ktodo.KTodo$7 -> com.kos.ktodo.bb:
     com.kos.ktodo.KTodo this$0 -> a
     void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
     void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
-com.kos.ktodo.KTodo$7 -> com.kos.ktodo.aw:
+com.kos.ktodo.KTodo$8 -> com.kos.ktodo.bc:
     com.kos.ktodo.MyListView val$listView -> a
     com.kos.ktodo.KTodo this$0 -> b
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.kos.ktodo.KTodo$8 -> com.kos.ktodo.ax:
+com.kos.ktodo.KTodo$9 -> com.kos.ktodo.bd:
     com.kos.ktodo.KTodo this$0 -> a
     void onItemSelected(android.widget.AdapterView,android.view.View,int,long) -> onItemSelected
     void onNothingSelected(android.widget.AdapterView) -> onNothingSelected
-com.kos.ktodo.KTodo$9 -> com.kos.ktodo.ay:
-    com.kos.ktodo.KTodo this$0 -> a
-    void onDueDateSelected(java.lang.Long) -> a
-    java.lang.Long getCurrentDueDate() -> a
-com.kos.ktodo.LastModifiedState -> com.kos.ktodo.az:
+com.kos.ktodo.LastModifiedState -> com.kos.ktodo.be:
     java.io.File getLastModFile(android.content.Context) -> c
     void touch(android.content.Context) -> a
     java.lang.Long getLastModified(android.content.Context) -> b
@@ -400,31 +434,33 @@ com.kos.ktodo.MyBackupAgent -> com.kos.ktodo.MyBackupAgent:
     void updateNewState(java.lang.Long,android.os.ParcelFileDescriptor) -> a
     void onRestore(android.app.backup.BackupDataInput,int,android.os.ParcelFileDescriptor) -> onRestore
 com.kos.ktodo.MyListView -> com.kos.ktodo.MyListView:
-    int maxThrowVelocity -> a
-    int vibrateOnTearOff -> b
-    android.widget.ImageView dragView -> c
-    android.view.WindowManager windowManager -> d
-    android.view.WindowManager$LayoutParams windowParams -> e
-    android.graphics.Bitmap dragBitmap -> f
-    int dragItemNum -> g
-    int lastDragX -> h
-    int dragStartX -> i
-    int dragStartY -> j
-    int dragPointX -> k
-    int coordOffsetX -> l
-    int scaledTouchSlop -> m
-    boolean scrolling -> n
-    com.kos.ktodo.RawVelocityTracker dragVelocityTracker -> o
-    com.kos.ktodo.MyScroller flightScroller -> p
-    com.kos.ktodo.MyListView$State state -> q
-    com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> r
-    int dragItemY -> s
-    boolean clickedOnCheckMark -> t
-    com.kos.ktodo.SlidingView slideLeftView -> u
-    com.kos.ktodo.SlideLeftListener slideLeftListener -> v
-    java.util.ArrayList intercepted -> w
-    boolean replaying -> x
-    java.lang.Runnable itemFlinger -> y
+    int ONE_PX_FIX -> a
+    int maxThrowVelocity -> b
+    int vibrateOnTearOff -> c
+    int scaledTouchSlop -> d
+    int mainViewId -> e
+    android.widget.ImageView dragView -> f
+    android.view.WindowManager windowManager -> g
+    android.view.WindowManager$LayoutParams windowParams -> h
+    android.graphics.Bitmap dragBitmap -> i
+    int dragItemNum -> j
+    int lastDragX -> k
+    int dragStartX -> l
+    int dragStartY -> m
+    int dragPointX -> n
+    int coordOffsetX -> o
+    boolean scrolling -> p
+    com.kos.ktodo.RawVelocityTracker dragVelocityTracker -> q
+    com.kos.ktodo.MyScroller flightScroller -> r
+    com.kos.ktodo.MyListView$State state -> s
+    com.kos.ktodo.MyListView$DeleteItemListener deleteItemListener -> t
+    int dragItemY -> u
+    boolean clickedOnCheckMark -> v
+    com.kos.ktodo.SlidingView slideLeftView -> w
+    com.kos.ktodo.SlideLeftListener slideLeftListener -> x
+    java.util.ArrayList intercepted -> y
+    boolean replaying -> z
+    java.lang.Runnable itemFlinger -> A
     void onDetachedFromWindow() -> onDetachedFromWindow
     void onWindowFocusChanged(boolean) -> onWindowFocusChanged
     void setDeleteItemListener(com.kos.ktodo.MyListView$DeleteItemListener) -> setDeleteItemListener
@@ -444,6 +480,7 @@ com.kos.ktodo.MyListView -> com.kos.ktodo.MyListView:
     int pointToPositionWithInvisible(int,int) -> a
     boolean startPreDragging(android.view.MotionEvent) -> c
     boolean startDragging() -> g
+    android.view.WindowManager getWindowManager() -> getWindowManager
     android.view.View getDragItem() -> getDragItem
     int getDragItemY() -> getDragItemY
     void dragView() -> h
@@ -468,22 +505,22 @@ com.kos.ktodo.MyListView -> com.kos.ktodo.MyListView:
     boolean access$1202(com.kos.ktodo.MyListView,boolean) -> a
     com.kos.ktodo.SlideLeftListener access$1300(com.kos.ktodo.MyListView) -> j
     com.kos.ktodo.SlidingView access$1400(com.kos.ktodo.MyListView) -> k
-com.kos.ktodo.MyListView$1 -> com.kos.ktodo.ba:
+com.kos.ktodo.MyListView$1 -> com.kos.ktodo.bf:
     com.kos.ktodo.MyListView this$0 -> a
     void run() -> run
     void deleteFlyingAndStop() -> a
-com.kos.ktodo.MyListView$2 -> com.kos.ktodo.bb:
+com.kos.ktodo.MyListView$2 -> com.kos.ktodo.bg:
     com.kos.ktodo.MyListView this$0 -> a
     void onScrollStateChanged(android.widget.AbsListView,int) -> onScrollStateChanged
     void onScroll(android.widget.AbsListView,int,int,int) -> onScroll
-com.kos.ktodo.MyListView$3 -> com.kos.ktodo.bc:
+com.kos.ktodo.MyListView$3 -> com.kos.ktodo.bh:
     com.kos.ktodo.MyListView this$0 -> a
     void slidingFinished() -> a
-com.kos.ktodo.MyListView$4 -> com.kos.ktodo.bd:
+com.kos.ktodo.MyListView$4 -> com.kos.ktodo.bi:
     int[] $SwitchMap$com$kos$ktodo$MyListView$State -> a
-com.kos.ktodo.MyListView$DeleteItemListener -> com.kos.ktodo.be:
+com.kos.ktodo.MyListView$DeleteItemListener -> com.kos.ktodo.bj:
     void deleteItem(long) -> a
-com.kos.ktodo.MyListView$State -> com.kos.ktodo.bf:
+com.kos.ktodo.MyListView$State -> com.kos.ktodo.bk:
     com.kos.ktodo.MyListView$State NORMAL -> a
     com.kos.ktodo.MyListView$State PRESSED_ON_ITEM -> b
     com.kos.ktodo.MyListView$State DRAGGING_ITEM -> c
@@ -492,7 +529,7 @@ com.kos.ktodo.MyListView$State -> com.kos.ktodo.bf:
     com.kos.ktodo.MyListView$State[] $VALUES -> f
     com.kos.ktodo.MyListView$State[] values() -> values
     com.kos.ktodo.MyListView$State valueOf(java.lang.String) -> valueOf
-com.kos.ktodo.MyScroller -> com.kos.ktodo.bg:
+com.kos.ktodo.MyScroller -> com.kos.ktodo.bl:
     int mMode -> a
     int mStartX -> b
     int mStartY -> c
@@ -524,12 +561,13 @@ com.kos.ktodo.MyScroller -> com.kos.ktodo.bg:
     void fling(int,int,int,int,int,int,int,int,boolean) -> a
     float viscousFluid(float) -> a
     void abortAnimation() -> d
-com.kos.ktodo.R -> com.kos.ktodo.bh:
-com.kos.ktodo.R$styleable -> com.kos.ktodo.bi:
+com.kos.ktodo.R -> com.kos.ktodo.bm:
+com.kos.ktodo.R$styleable -> com.kos.ktodo.bn:
     int[] AnimatedVisibilityButton -> AnimatedVisibilityButton
     int AnimatedVisibilityButton_inAnim -> AnimatedVisibilityButton_inAnim
     int AnimatedVisibilityButton_outAnim -> AnimatedVisibilityButton_outAnim
     int[] MyListView -> MyListView
+    int MyListView_mainViewId -> MyListView_mainViewId
     int MyListView_vibrateOnTearOff -> MyListView_vibrateOnTearOff
     int[] PrioColor -> PrioColor
     int PrioColor_prio0Color -> PrioColor_prio0Color
@@ -564,7 +602,7 @@ com.kos.ktodo.R$styleable -> com.kos.ktodo.bi:
     int TodoItemView_todayDueDateColor -> TodoItemView_todayDueDateColor
     int[] WidgetTextView -> WidgetTextView
     int WidgetTextView_prioStripeWidth -> WidgetTextView_prioStripeWidth
-com.kos.ktodo.RawVelocityTracker -> com.kos.ktodo.bj:
+com.kos.ktodo.RawVelocityTracker -> com.kos.ktodo.bo:
     float[] mPastX -> a
     float[] mPastY -> b
     long[] mPastTime -> c
@@ -599,10 +637,10 @@ com.kos.ktodo.SlideLeftImageButton -> com.kos.ktodo.SlideLeftImageButton:
     java.lang.Long access$000(com.kos.ktodo.SlideLeftImageButton) -> a
     boolean access$102(com.kos.ktodo.SlideLeftImageButton,boolean) -> a
     boolean access$200(com.kos.ktodo.SlideLeftImageButton) -> b
-com.kos.ktodo.SlideLeftImageButton$1 -> com.kos.ktodo.bk:
+com.kos.ktodo.SlideLeftImageButton$1 -> com.kos.ktodo.bp:
     com.kos.ktodo.SlideLeftImageButton this$0 -> a
     void run() -> run
-com.kos.ktodo.SlideLeftListener -> com.kos.ktodo.bl:
+com.kos.ktodo.SlideLeftListener -> com.kos.ktodo.bq:
     void slideLeftStarted(long) -> a
     void onSlideBack() -> a
 com.kos.ktodo.SliderButton -> com.kos.ktodo.SliderButton:
@@ -629,11 +667,11 @@ com.kos.ktodo.SliderButton -> com.kos.ktodo.SliderButton:
     java.lang.String access$100(com.kos.ktodo.SliderButton) -> b
     java.lang.String[] access$200(com.kos.ktodo.SliderButton) -> c
     void access$300(com.kos.ktodo.SliderButton) -> d
-com.kos.ktodo.SliderButton$1 -> com.kos.ktodo.bm:
+com.kos.ktodo.SliderButton$1 -> com.kos.ktodo.br:
     android.content.Context val$context -> a
     com.kos.ktodo.SliderButton this$0 -> b
     void onClick(android.view.View) -> onClick
-com.kos.ktodo.SliderButton$1$1 -> com.kos.ktodo.bn:
+com.kos.ktodo.SliderButton$1$1 -> com.kos.ktodo.bs:
     com.kos.ktodo.SliderButton$1 this$1 -> a
     void onClick(android.content.DialogInterface,int) -> onClick
 com.kos.ktodo.SlidingView -> com.kos.ktodo.SlidingView:
@@ -649,12 +687,12 @@ com.kos.ktodo.SlidingView -> com.kos.ktodo.SlidingView:
     void onLayout(boolean,int,int,int,int) -> onLayout
     boolean access$000(com.kos.ktodo.SlidingView) -> a
     boolean access$002(com.kos.ktodo.SlidingView,boolean) -> a
-com.kos.ktodo.SlidingView$1 -> com.kos.ktodo.bo:
+com.kos.ktodo.SlidingView$1 -> com.kos.ktodo.bt:
     com.kos.ktodo.SlidingView this$0 -> a
     void onGlobalLayout() -> onGlobalLayout
-com.kos.ktodo.SlidingView$SlideListener -> com.kos.ktodo.bp:
+com.kos.ktodo.SlidingView$SlideListener -> com.kos.ktodo.bu:
     void slidingFinished() -> a
-com.kos.ktodo.TagsStorage -> com.kos.ktodo.bq:
+com.kos.ktodo.TagsStorage -> com.kos.ktodo.bv:
     android.database.sqlite.SQLiteDatabase db -> a
     com.kos.ktodo.DBHelper helper -> b
     boolean modifiedDB -> c
@@ -670,7 +708,7 @@ com.kos.ktodo.TagsStorage -> com.kos.ktodo.bq:
     java.lang.String getTag(long) -> b
     boolean hasModifiedDB() -> e
     void resetModifiedDB() -> f
-com.kos.ktodo.TodoItem -> com.kos.ktodo.br:
+com.kos.ktodo.TodoItem -> com.kos.ktodo.bw:
     long id -> a
     long tagID -> b
     boolean done -> g
@@ -688,7 +726,7 @@ com.kos.ktodo.TodoItem -> com.kos.ktodo.br:
     void setProgress(int) -> a
     int getProgress() -> c
     java.lang.String toString() -> toString
-com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.bs:
+com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.bx:
     com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState s -> a
     android.graphics.Paint p -> b
     int percent -> c
@@ -700,7 +738,7 @@ com.kos.ktodo.TodoItemBackgroundDrawable -> com.kos.ktodo.bs:
     void setColorFilter(android.graphics.ColorFilter) -> setColorFilter
     int getOpacity() -> getOpacity
     android.graphics.drawable.Drawable$ConstantState getConstantState() -> getConstantState
-com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState -> com.kos.ktodo.bt:
+com.kos.ktodo.TodoItemBackgroundDrawable$TodoItemBackgroundState -> com.kos.ktodo.by:
     int c1 -> a
     int c2 -> b
     int prioStripeWidthPx -> c
@@ -747,12 +785,12 @@ com.kos.ktodo.TodoItemView -> com.kos.ktodo.TodoItemView:
     void setMinHeight(int) -> setMinHeight
     void onDraw(android.graphics.Canvas) -> onDraw
     android.graphics.drawable.Drawable access$000(com.kos.ktodo.TodoItemView) -> a
-com.kos.ktodo.TodoItemView$1 -> com.kos.ktodo.bu:
+com.kos.ktodo.TodoItemView$1 -> com.kos.ktodo.bz:
     int val$checkmarkWidthExtra -> a
     com.kos.ktodo.TodoItemView this$0 -> b
     int getIntrinsicWidth() -> getIntrinsicWidth
     void setBounds(int,int,int,int) -> setBounds
-com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.bv:
+com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.ca:
     com.kos.ktodo.TodoItemsSortingMode PRIO_DUE_SUMMARY -> a
     com.kos.ktodo.TodoItemsSortingMode DUE_PRIO_SUMMARY -> b
     com.kos.ktodo.TodoItemsSortingMode PRIO_SUMMARY_DUE -> c
@@ -770,10 +808,10 @@ com.kos.ktodo.TodoItemsSortingMode -> com.kos.ktodo.bv:
     java.lang.String getOrderBy() -> c
     com.kos.ktodo.TodoItemsSortingMode fromOrdinal(int) -> a
     void selectSortingMode(android.content.Context,com.kos.ktodo.TodoItemsSortingMode,com.kos.ktodo.Callback1) -> a
-com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.bw:
+com.kos.ktodo.TodoItemsSortingMode$1 -> com.kos.ktodo.cb:
     com.kos.ktodo.Callback1 val$callback -> a
     void onClick(android.content.DialogInterface,int) -> onClick
-com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.bx:
+com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.cc:
     java.lang.String[] ALL_COLUMNS -> a
     android.database.sqlite.SQLiteDatabase db -> b
     com.kos.ktodo.DBHelper helper -> c
@@ -795,9 +833,9 @@ com.kos.ktodo.TodoItemsStorage -> com.kos.ktodo.bx:
     void recreateAllItems() -> d
     boolean hasModifiedDB() -> e
     void resetModifiedDB() -> f
-com.kos.ktodo.Unit -> com.kos.ktodo.by:
+com.kos.ktodo.Unit -> com.kos.ktodo.cd:
     com.kos.ktodo.Unit u -> a
-com.kos.ktodo.Util -> com.kos.ktodo.bz:
+com.kos.ktodo.Util -> com.kos.ktodo.ce:
     java.util.regex.Pattern leadingYearCut -> a
     java.text.DateFormat shortFormat -> b
     java.util.Locale shortFormatLocale -> c
@@ -813,10 +851,10 @@ com.kos.ktodo.Util -> com.kos.ktodo.bz:
     java.text.DateFormat getLongFormat() -> a
     android.widget.SimpleCursorAdapter createTagsAdapter(android.content.Context,android.database.Cursor,int) -> a
     int getItemPosition(android.widget.CursorAdapter,long) -> a
-com.kos.ktodo.Util$1 -> com.kos.ktodo.ca:
+com.kos.ktodo.Util$1 -> com.kos.ktodo.cf:
     android.app.AlertDialog val$dlg -> a
     boolean onKey(android.view.View,int,android.view.KeyEvent) -> onKey
-com.kos.ktodo.Util$2 -> com.kos.ktodo.cb:
+com.kos.ktodo.Util$2 -> com.kos.ktodo.cg:
     int val$tagIDIndex -> a
     android.view.View newView(android.content.Context,android.database.Cursor,android.view.ViewGroup) -> newView
     void bindView(android.view.View,android.content.Context,android.database.Cursor) -> bindView
@@ -1106,6 +1144,7 @@ net.margaritov.preference.colorpicker.R$id -> net.margaritov.preference.colorpic
     int default_prio_button -> default_prio_button
     int due_date_img_button -> due_date_img_button
     int due_date_txt_button -> due_date_txt_button
+    int edit_tags_layout -> edit_tags_layout
     int edit_task_body -> edit_task_body
     int edit_task_summary -> edit_task_summary
     int item_tag -> item_tag
@@ -1185,6 +1224,7 @@ net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colo
     int all -> all
     int all_untranslated -> all_untranslated
     int app_name -> app_name
+    int cancel -> cancel
     int change_due_date -> change_due_date
     int change_prio -> change_prio
     int change_progress -> change_progress
@@ -1209,6 +1249,7 @@ net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colo
     int delete -> delete
     int delete_tag_title -> delete_tag_title
     int dialog_color_picker -> dialog_color_picker
+    int did_you_mean -> did_you_mean
     int due_date -> due_date
     int due_date_format_short -> due_date_format_short
     int due_prio_summary -> due_prio_summary
@@ -1280,9 +1321,12 @@ net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colo
     int tag_already_exists -> tag_already_exists
     int today -> today
     int tomorrow -> tomorrow
+    int try_again -> try_again
     int undelete -> undelete
     int unfiled -> unfiled
     int unfiled_untranslated -> unfiled_untranslated
+    int voice_rec_confirm_title -> voice_rec_confirm_title
+    int voice_rec_prompt -> voice_rec_prompt
     int widget_2x1 -> widget_2x1
     int widget_2x2 -> widget_2x2
     int widget_2x4 -> widget_2x4
@@ -1300,3 +1344,4 @@ net.margaritov.preference.colorpicker.R$string -> net.margaritov.preference.colo
     int widget_show_only_due -> widget_show_only_due
     int widget_show_only_due_x -> widget_show_only_due_x
     int wipe -> wipe
+    int yes -> yes

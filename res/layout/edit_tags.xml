@@ -2,6 +2,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:kos="http://schemas.android.com/apk/res/com.kos.ktodo"
+              android:id="@+id/edit_tags_layout"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
@@ -12,11 +13,13 @@
 	                          android:choiceMode="singleChoice"
 	                          android:layoutAnimation="@anim/list_slide_left"
 	                          android:id="@id/android:list"
+	                          kos:mainViewId="@id/edit_tags_layout"
 	                          kos:vibrateOnTearOff="20"
 	                          kos:maxThrowVelocity="1500"/>
 	<LinearLayout android:layout_height="wrap_content"
 	              android:layout_width="fill_parent"
 	              style="@android:style/ButtonBar">
+		<!--suppress AndroidLintNestedWeights -->
 		<EditText
 				android:id="@+id/add_tag_text"
 				android:maxLines="1"
