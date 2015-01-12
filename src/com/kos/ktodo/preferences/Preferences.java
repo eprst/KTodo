@@ -27,7 +27,7 @@ public class Preferences extends PreferenceActivity {
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		final SharedPreferences.Editor editor = prefs.edit();
 		editor.clear();
-		editor.commit();
+		editor.apply();
 		startActivity(getIntent());
 		finish();
 	}

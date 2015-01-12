@@ -11,6 +11,9 @@
 [v] import/export not in UI thread
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export
-[ ] widget
+[ ] scrollable widget
+[ ] better voice input
+[ ] option to disable voice input
+[ ] option to leave virtual keyboard visible after entering a new item
 
 [v] Russian translation

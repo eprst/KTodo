@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.Scroller;
 
 public class SlidingView extends FrameLayout {
+	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "SlidingView";
 	private SlideListener slideListener;
 	private final Scroller scroller;

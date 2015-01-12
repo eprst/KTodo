@@ -79,10 +79,7 @@ public class SliderButton extends Button {
 
 	public void setSelection(final int index) {
 		currentSelection = index;
-		final StringBuilder sb = new StringBuilder(prefix);
-		sb.append(separator);
-		sb.append(suffixedValues[index]);
-		setText(sb.toString());
+		setText(prefix + separator + suffixedValues[index]);
 		invalidate();
 	}
 

@@ -13,6 +13,7 @@ import static com.kos.ktodo.DBHelper.*;
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
 public class TodoItemsStorage {
+	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "TodoItemsStorage";
 
 	private static final String[] ALL_COLUMNS = new String[]{

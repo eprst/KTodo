@@ -2,7 +2,8 @@
 
 # run this once to checkout and prepare required dependencies
 
+pushd .
 cd ..
-git checkout https://github.com/attenzione/android-ColorPickerPreference.git
-cp ktodo/android-ColorPickerPreference.iml android-ColorPickerPreference
-cp ktodo/android-ColorPickerPreference_project.properties android-ColorPickerPreference/project.properties
+git clone https://github.com/eprst/android-ColorPickerPreference.git
+android update project -p .
+popd

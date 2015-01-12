@@ -1,0 +1,5 @@
+bin/*
+gen/*
+out/*
+keypass
+local.properties

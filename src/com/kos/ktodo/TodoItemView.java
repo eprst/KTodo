@@ -88,7 +88,7 @@ public class TodoItemView extends CheckedTextView {
 		ta_tiv.recycle();
 		ta_prio.recycle();
 
-		setBackgroundDrawable(tcd);
+		setBackground(tcd);
 	}
 
 	public void setPrio(final int prio) {
@@ -185,9 +185,9 @@ public class TodoItemView extends CheckedTextView {
 
 	private void updateBackground() {
 		if (isSelected() || isPressed())
-			setBackgroundDrawable(null);
+			setBackground(null);
 		else
-			setBackgroundDrawable(tcd);
+			setBackground(tcd);
 	}
 
 	@Override
@@ -200,15 +200,15 @@ public class TodoItemView extends CheckedTextView {
 		}
 	}
 
+	private final Paint p = new Paint(getPaint());
+	private final Rect bounds = new Rect();
 	@Override
 	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
 
-		final Paint p = new Paint(getPaint());
 		p.setTextSize(prioFontSizePx);
 
 		final float prioWidthPx = p.measureText(prio);
-		final Rect bounds = new Rect();
 		p.getTextBounds(prio, 0, prio.length(), bounds);
 		final float prioHeightPx = bounds.height();
 

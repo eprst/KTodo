@@ -46,7 +46,7 @@ public class WidgetTextView extends TextView {
 		final int prioStripeWidth = (int) ta_wtv.getDimension(R.styleable.WidgetTextView_prioStripeWidth, 1);
 		bg = new TodoItemBackgroundDrawable(Color.TRANSPARENT, Color.TRANSPARENT, prioStripeWidth);
 		bg.setPercent(0);
-		setBackgroundDrawable(bg);
+		setBackground(bg);
 		ta_wtv.recycle();
 	}
 

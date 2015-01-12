@@ -51,7 +51,7 @@ public class MyListView extends ListView {
 	private SlidingView slideLeftView;
 	private SlideLeftListener slideLeftListener;
 
-	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
+	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private boolean replaying;
 
 	private Runnable itemFlinger = new Runnable() {
@@ -321,7 +321,7 @@ public class MyListView extends ListView {
 			final int lastLeft = lastDragX - dragPointX + coordOffsetX;
 			if (lastLeft <= scaledTouchSlop) {
 				setState(State.NORMAL);
-				return processed;
+				return false;
 			}
 			dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
 			final float xVelocity = dragVelocityTracker.getXVelocity();
@@ -347,7 +347,7 @@ public class MyListView extends ListView {
 			final int x = (int) ev.getX();
 			final int y = (int) ev.getY();
 			final int itemnum = pointToPositionWithInvisible(x, y);
-			if (itemnum == AdapterView.INVALID_POSITION) return processed;
+			if (itemnum == AdapterView.INVALID_POSITION) return false;
 			final int lastLeft = lastDragX - dragPointX + coordOffsetX;
 			if (lastLeft <= x && itemnum == dragItemNum && itemInBounds(dragItemNum)) {
 				dragPointX = x - lastLeft;

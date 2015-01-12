@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class SlideLeftButton extends Button {
 	private static final String TAG = "SlideLeftButton";
-	private final ArrayList<MotionEvent> intercepted = new ArrayList<MotionEvent>();
+	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
 	private final Handler h = new Handler();
 	private final Runnable slideExpiredHandler;
@@ -87,9 +87,7 @@ public class SlideLeftButton extends Button {
 			intercepted.add(MotionEvent.obtain(ev));
 			return true;
 		} else if (intercepted.size() > 0) {
-			if (replayIntercepted())
-				return super.onTouchEvent(ev);
-			return true;
+			return !replayIntercepted() || super.onTouchEvent(ev);
 		} else {
 			try {
 				return super.onTouchEvent(ev);

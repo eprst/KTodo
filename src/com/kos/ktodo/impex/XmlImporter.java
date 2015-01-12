@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.util.Xml;
 import com.kos.ktodo.DBHelper;
 import org.xmlpull.v1.XmlPullParser;
@@ -12,7 +13,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +43,7 @@ public class XmlImporter extends XmlBase {
 			final XmlPullParser p = Xml.newPullParser();
 			p.setInput(isr);
 			readTag(p, DATABASE_TAG, false);
-			final HashMap<Long, Long> tagIDRemapping = importTable(db, p, DBHelper.TAG_TABLE_NAME, overwrite, null, null, DBHelper.TAG_TAG);
+			final LongSparseArray<Long> tagIDRemapping = importTable(db, p, DBHelper.TAG_TABLE_NAME, overwrite, null, null, DBHelper.TAG_TAG);
 			importTable(db, p, DBHelper.TODO_TABLE_NAME, overwrite, DBHelper.TODO_TAG_ID, tagIDRemapping, DBHelper.TODO_TAG_ID, DBHelper.TODO_SUMMARY);
 		} catch (XmlPullParserException e) {
 			Log.e(TAG, "error parsing backup file", e);
@@ -54,15 +54,15 @@ public class XmlImporter extends XmlBase {
 		}
 	}
 
-	private static HashMap<Long, Long> importTable(final SQLiteDatabase db, final XmlPullParser p, final String expectedName, final boolean overwrite,
-	                                               final String fkColumn, final HashMap<Long, Long> fkRemapping,
+	private static LongSparseArray<Long> importTable(final SQLiteDatabase db, final XmlPullParser p, final String expectedName, final boolean overwrite,
+	                                               final String fkColumn, final LongSparseArray<Long> fkRemapping,
 	                                               final String... mergeByColumn) throws IOException, XmlPullParserException {
 		readTag(p, TABLE_TAG, false);
 		assumeEquals(expectedName, p.getAttributeValue(null, NAME_ATTR));
 
 		final String pkColumn = p.getAttributeValue(null, PK_ATTR);
-		final HashMap<Long, Long> remapping = overwrite ? null : new HashMap<Long, Long>();
-		final HashSet<String> mb = new HashSet<String>(mergeByColumn.length);
+		final LongSparseArray<Long> remapping = overwrite ? null : new LongSparseArray<Long>();
+		final HashSet<String> mb = new HashSet<>(mergeByColumn.length);
 		mb.addAll(Arrays.asList(mergeByColumn));
 
 		while (true) {
@@ -79,8 +79,8 @@ public class XmlImporter extends XmlBase {
 	}
 
 	private static void importRow(final SQLiteDatabase db, final XmlPullParser p, final String tableName,
-	                              final String pkColumn, final HashMap<Long, Long> pkRemapping, //we fill pkRemapping
-	                              final String fkColumn, final HashMap<Long, Long> fkRemapping, //we use fkRemapping
+	                              final String pkColumn, final LongSparseArray<Long> pkRemapping, //we fill pkRemapping
+	                              final String fkColumn, final LongSparseArray<Long> fkRemapping, //we use fkRemapping
 	                              final Set<String> mergeByColumn) throws IOException, XmlPullParserException {
 		final ContentValues cv = new ContentValues();
 		int mergeCnt = 0;
@@ -147,6 +147,8 @@ public class XmlImporter extends XmlBase {
 					final int cnt = cursor.getCount();
 					if (cnt != 1)
 						Log.w(TAG, "Can't do PK remapping, error finding updated row; cnt=" + cnt);
+					else if (oldPK == null)
+						Log.w(TAG, "Can't do PK remapping, oldPK is null; cnt=" + cnt);
 					else {
 						cursor.moveToFirst();
 						pkRemapping.put(oldPK, cursor.getLong(0));

@@ -13,6 +13,7 @@ import static com.kos.ktodo.DBHelper.*;
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
 public class TagsStorage {
+	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "TagsStorage";
 
 	private SQLiteDatabase db;

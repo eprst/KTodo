@@ -65,18 +65,26 @@ public class XmlBase {
 					i = pos;
 				} else {
 					final String substr = str.substring(i, pos + 1);
-					if ("&amp;".equals(substr))
-						buf.append('&');
-					else if ("&lt;".equals(substr))
-						buf.append('<');
-					else if ("&gt;".equals(substr))
-						buf.append('>');
-					else if ("&quot;".equals(substr))
-						buf.append('"');
-					else if ("&apos;".equals(substr))
-						buf.append('\'');
-					else
-						buf.append(substr);
+					switch (substr) {
+						case "&amp;":
+							buf.append('&');
+							break;
+						case "&lt;":
+							buf.append('<');
+							break;
+						case "&gt;":
+							buf.append('>');
+							break;
+						case "&quot;":
+							buf.append('"');
+							break;
+						case "&apos;":
+							buf.append('\'');
+							break;
+						default:
+							buf.append(substr);
+							break;
+					}
 					i = pos;
 				}
 			} else

@@ -131,6 +131,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public static boolean isNullable(final String tableName, final String columnName) {
+		//noinspection SimplifiableIfStatement
 		if (TODO_TABLE_NAME.equals(tableName))
 			return TODO_DUE_DATE.equals(columnName) || TODO_BODY.equals(columnName) || TODO_CARET_POSITION.equals(columnName);
 		return false;

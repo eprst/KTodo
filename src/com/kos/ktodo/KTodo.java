@@ -594,7 +594,7 @@ public class KTodo extends ListActivity {
 		editor.putInt("sortingMode", sortingMode.ordinal());
 		editor.putBoolean("hidingCompleted", hidingCompleted);
 		editor.putBoolean("customTitleSupported", customTitleSupported);
-		editor.commit();
+		editor.apply();
 		super.onPause();
 	}
 
