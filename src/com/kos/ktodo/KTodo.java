@@ -122,12 +122,14 @@ public class KTodo extends ListActivity {
 		super.onCreate(savedInstanceState);
 		if (TRACE) Debug.startMethodTracing("ktodo");
 
-//		customTitleSupported = false; // for testing full-screen mode
-		customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		customTitleSupported = false; // Not using custom title since 4.0 as there's action bar there.. have to think where to move sorting order status
+		//customTitleSupported = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 
 		setContentView(R.layout.main);
 
 		if (customTitleSupported) {
+			//getWindow().setFeatureInt(Window.FEATURE_ACTION_BAR, 0);
+//            getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 			getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title);
 			getTitleLeft().setText(R.string.app_name);
 		}

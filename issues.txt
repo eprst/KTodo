@@ -15,5 +15,20 @@
 [ ] better voice input
 [ ] option to disable voice input
 [ ] option to leave virtual keyboard visible after entering a new item
+[ ] find a new spot for sorting order (was in the title)
+[ ] action bar action for hide/show checked?
+[ ] current list combo to the action bar?
+[ ] xhdpi/xxhdpi drawables
+[ ] market screenshot updates
+
+4.0 bugs:
+[ ] main.xml deprecations
+[ ] priority not visible on items
+[ ] items off-place when sliding
+[ ] broken icons in the bottom action bar
+    01_core_accept, 05_content_event
+
+5.0 ideas
+[ ] use android.widget.Toolbar for bottom bars.. http://android-developers.blogspot.com/2014/10/appcompat-v21-material-design-for-pre.html
 
 [v] Russian translation
