@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
@@ -24,12 +23,12 @@ import java.util.ArrayList;
  */
 public class MyListView extends ListView {
 	private static final String TAG = "MyListView";
-	private static final int ONE_PX_FIX = Build.VERSION.SDK_INT >= 14 /*ICS*/ ? 1 : 0;
 
 	private final int maxThrowVelocity;
 	private final int vibrateOnTearOff;
 	private final int scaledTouchSlop;
-	private final int mainViewId;
+//	private final int mainViewId;
+	private int statusBarHeight = -1;
 
 	private ImageView dragView;
 	private WindowManager windowManager;
@@ -135,12 +134,13 @@ public class MyListView extends ListView {
 		final TypedArray ta_thr = context.obtainStyledAttributes(attrs, R.styleable.Throwable);
 		maxThrowVelocity = ta_thr.getInt(R.styleable.Throwable_maxThrowVelocity, 1500);
 		vibrateOnTearOff = ta_mlv.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
-		mainViewId = ta_mlv.getResourceId(R.styleable.MyListView_mainViewId, -1);
+//		mainViewId = ta_mlv.getResourceId(R.styleable.MyListView_mainViewId, -1);
 		ta_mlv.recycle();
 		ta_thr.recycle();
-		if (mainViewId == -1)
-			throw new IllegalStateException("main view ID not specified!");
+//		if (mainViewId == -1)
+//			throw new IllegalStateException("main view ID not specified!");
 	}
+
 
 	public void setDeleteItemListener(final DeleteItemListener deleteItemListener) {
 		this.deleteItemListener = deleteItemListener;
@@ -535,31 +535,86 @@ public class MyListView extends ListView {
 		if (dragItemY != -1)
 			return dragItemY;
 
-		//now some utterly ugly code.. alas view.getLocationInWindow gives absolute bullshit
-
-		final View mainView = getRootView().findViewById(mainViewId);
+//		final View mainView = getRootView().findViewById(mainViewId);
 		final int[] cc = new int[2];
-		mainView.getLocationOnScreen(cc);
-		final int corr = cc[1] >= 0 ? cc[1] : ONE_PX_FIX - cc[1];
-
 		view.getLocationOnScreen(cc);
 
-		int t = 0;
-		for (View v = view; v != null; ) {
-			t += (v.getTop() + v.getPaddingTop());
-			View p = null;
-			for (ViewParent viewParent = v.getParent(); viewParent != null; viewParent = viewParent.getParent()) {
-				if (viewParent instanceof View) {
-					p = (View) viewParent;
-					break;
-				}
-			}
-//			Log.i(TAG, "v=" + v + " top=" + v.getTop() + ", pt=" + v.getPaddingTop() + ", sy=" + v.getScrollY());
-			v = p;
-		}
+		int sbh = getStatusBarHeight();
+		dragItemY = cc[1] - sbh;
+//		Log.i(TAG, "cc[1] = " + cc[1] + ", sbh=" + sbh + ", diy=" + dragItemY);
+//		if (sbh != 75)
+//			Log.w(TAG, "WRONG SBH!!");
+		return dragItemY;
+
+//		Log.i(TAG, "cc[1]=" + cc[1]);
+//		int ss = cc[1];
+//		mainView.getLocationOnScreen(cc);
+//		final int corr = cc[1] +6;
+//
+//		view.getLocationOnScreen(cc);
+//
+//		int t = 0;
+//		for (View v = view; v != null; ) {
+//			t += (v.getTop() + v.getPaddingTop());
+//			View p = null;
+//			for (ViewParent viewParent = v.getParent(); viewParent != null; viewParent = viewParent.getParent()) {
+//				if (viewParent instanceof View) {
+//					p = (View) viewParent;
+//					break;
+//				}
+//			}
+//			Log.i(TAG, "v=" + v + " top=" + v.getTop() + ", pt=" + v.getPaddingTop());
+//			v = p;
+//		}
 //		Log.i(TAG, "t=" + t);
-		dragItemY = t - corr;
-		return t;
+//
+//		int titleBarHeight = getStatusBarHeight();
+//
+////		Rect rectangle= new Rect();
+////		int titleBarHeight2 = 0;
+////		if (window != null) {
+////			window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+////			int statusBarHeight = rectangle.top;
+////			int contentViewTop =
+////					window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+////			titleBarHeight2 = contentViewTop - statusBarHeight;
+////		}
+////		Log.i(TAG, "tb=" + titleBarHeight + ", tb2=" + titleBarHeight2);
+//
+//		dragItemY = ss-titleBarHeight;
+////		dragItemY = t - corr +titleBarHeight;
+//		return dragItemY;
+	}
+
+	private int getStatusBarHeight() {
+		if (statusBarHeight != -1)
+			return statusBarHeight;
+
+		int result = 0;
+		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		if (resourceId > 0) {
+			result = getResources().getDimensionPixelSize(resourceId);
+		}
+		statusBarHeight = result;
+
+
+//		Rect rect = new Rect();
+//		Activity activity = (Activity) getContext();
+//		Window window = activity.getWindow();
+//		if (window != null) {
+//			window.getDecorView().getWindowVisibleDisplayFrame(rect);
+//			View v = window.findViewById(Window.ID_ANDROID_CONTENT);
+//
+//			Display display = ((WindowManager) activity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+//
+//			//return result title bar height
+//			Point p = new Point();
+//			display.getSize(p);
+////			_statusBarHeight =  display.getHeight() - v.getBottom() + rect.top;
+//			statusBarHeight =  p.y - v.getBottom() + rect.top;
+//		}
+
+		return statusBarHeight;
 	}
 
 	private void dragView() {

@@ -4,7 +4,7 @@
 	</declare-styleable>
 	<declare-styleable name="MyListView">
 		<attr name="vibrateOnTearOff" format="integer"/>
-		<attr name="mainViewId" format="reference"/>
+		<attr name="mainViewId" format="reference"/> <!-- TODO: unused, remove -->
 	</declare-styleable>
 	<declare-styleable name="SlideLeftButton">
 		<attr name="waitForSlide" format="integer"/>
