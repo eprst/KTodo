@@ -12,23 +12,26 @@
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export
 [ ] scrollable widget
-[ ] better voice input
+[ ] better voice input (add support for primary/additional languages)
 [ ] option to disable voice input
 [ ] option to leave virtual keyboard visible after entering a new item
 [ ] find a new spot for sorting order (was in the title)
+[ ] decrease throw gravity
 [ ] action bar action for hide/show checked?
 [ ] current list combo to the action bar?
+[ ] categories on the right slide-out bar
+
 [ ] xhdpi/xxhdpi drawables
 [ ] market screenshot updates
 
+
 4.0 bugs:
-[ ] main.xml deprecations
-[ ] priority not visible on items
+[v] main.xml deprecations
+[v] priority not visible on items
 [ ] items off-place when sliding
-[ ] broken icons in the bottom action bar
-    01_core_accept, 05_content_event
+[v] broken icons in the bottom action bar (use 01_core_accept, 05_content_event?)
 
 5.0 ideas
-[ ] use android.widget.Toolbar for bottom bars.. http://android-developers.blogspot.com/2014/10/appcompat-v21-material-design-for-pre.html
+[ ] use android.widget.Toolbar for bottom bars
 
 [v] Russian translation

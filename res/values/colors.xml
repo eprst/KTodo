@@ -1,5 +1,5 @@
 <resources>
-	<color name="dragndrop_background">#ff5f5f5f</color>
+	<color name="dragndrop_background">#00000000</color>
 	<color name="progress_0">#00000000</color>
 	<color name="progress_100">#ff3a3a3a</color>
 	<color name="due_date_color">#ffbfbfbf</color>

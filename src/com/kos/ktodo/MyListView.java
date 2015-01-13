@@ -3,6 +3,7 @@ package com.kos.ktodo;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
@@ -476,8 +477,14 @@ public class MyListView extends ListView {
 		final View item = getDragItem();
 		if (item == null) return false;
 		if (!itemInBounds(dragItemNum)) return false;
-		item.setDrawingCacheEnabled(true);
-		final Bitmap bm = Bitmap.createBitmap(item.getDrawingCache());
+
+		//item.setDrawingCacheEnabled(true);
+		//final Bitmap bm = Bitmap.createBitmap(item.getDrawingCache());
+		// workaround to preserve transparency
+		final Bitmap bm = Bitmap.createBitmap(item.getMeasuredWidth(), item.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+		final Canvas bitmapCanvas = new Canvas(bm);
+		item.draw(bitmapCanvas);
+
 		windowParams = new WindowManager.LayoutParams();
 		windowParams.gravity = Gravity.TOP;
 		//mWindowParams.x = 0;
@@ -598,11 +605,15 @@ public class MyListView extends ListView {
 	}
 
 	private void stopDragging() {
+//		View dragItem = getDragItem();
+//		if (dragItem != null)
+//			dragItem.setDrawingCacheEnabled(false);
+
 		intercepted.clear();
 		unExpandViews(true);
 		if (dragView != null) {
 			final Context mContext = getContext();
-			final WindowManager wm = (WindowManager) mContext.getSystemService("window");
+			final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 			dragView.setVisibility(View.GONE);
 			wm.removeView(dragView);
 			dragView.setImageDrawable(null);

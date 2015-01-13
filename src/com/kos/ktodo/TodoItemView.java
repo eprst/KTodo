@@ -1,5 +1,6 @@
 package com.kos.ktodo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
@@ -57,7 +58,7 @@ public class TodoItemView extends CheckedTextView {
 		final int prio5Color = prefs.getInt("prio5Color", ta_prio.getColor(R.styleable.PrioColor_prio5Color, context.getResources().getColor(R.color.prio_5)));
 
 
-		final int c1 = ta_tiv.getColor(R.styleable.TodoItemView_progress0Color, Color.BLACK);
+		final int c1 = ta_tiv.getColor(R.styleable.TodoItemView_progress0Color, Color.TRANSPARENT);
 		final int c2 = prefs.getInt("progressColor", ta_tiv.getColor(R.styleable.TodoItemView_progress100Color, Color.GRAY));
 		dueDateColor = prefs.getInt("dueDateColor", ta_tiv.getColor(R.styleable.TodoItemView_dueDateColor, Color.WHITE));
 		todayDueDateColor = prefs.getInt("dueTodayColor", ta_tiv.getColor(R.styleable.TodoItemView_todayDueDateColor, Color.YELLOW));
@@ -200,12 +201,13 @@ public class TodoItemView extends CheckedTextView {
 		}
 	}
 
-	private final Paint p = new Paint(getPaint());
 	private final Rect bounds = new Rect();
 	@Override
 	protected void onDraw(final Canvas canvas) {
 		super.onDraw(canvas);
 
+		@SuppressLint("DrawAllocation")
+		final Paint p = new Paint(getPaint());
 		p.setTextSize(prioFontSizePx);
 
 		final float prioWidthPx = p.measureText(prio);
