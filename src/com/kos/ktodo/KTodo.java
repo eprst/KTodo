@@ -186,15 +186,15 @@ public class KTodo extends ListActivity {
 		if (voiceDrawable != null) {
 			getAddTaskWidget().addTextChangedListener(new TextWatcher() {
 				@Override
-				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
 				}
 
 				@Override
-				public void onTextChanged(CharSequence s, int start, int before, int count) {
+				public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
 				}
 
 				@Override
-				public void afterTextChanged(Editable s) {
+				public void afterTextChanged(final Editable s) {
 					if (s.length() == 0)
 						getAddTaskButton().setImageDrawable(voiceDrawable);
 					else
@@ -492,7 +492,7 @@ public class KTodo extends ListActivity {
 		updateImgButton(getDueDateTxtButton(), getDueDateImgButton(), dueDate == null ? null : Util.showDueDate(this, dueDate));
 	}
 
-	private void updateImgButton(Button txtButton, ImageButton imgButton, String text) {
+	private void updateImgButton(final Button txtButton, final ImageButton imgButton, final String text) {
 		if (text == null) {
 			txtButton.setVisibility(View.GONE);
 			imgButton.setVisibility(View.VISIBLE);
@@ -625,7 +625,7 @@ public class KTodo extends ListActivity {
 //		Log.i(TAG, "data changed");
 		try {
 			new BackupManager(this).dataChanged();
-		} catch (NoClassDefFoundError e) {
+		} catch (final NoClassDefFoundError e) {
 			//android < 2.2, ignore..
 		}
 	}
@@ -715,7 +715,7 @@ public class KTodo extends ListActivity {
 		return addTodoItem(st);
 	}
 
-	private long addTodoItem(String st) {
+	private long addTodoItem(final String st) {
 		final EditText et = getAddTaskWidget();
 		if (st.length() > 0) {
 			long currentTagID = getCurrentTagID();
@@ -930,7 +930,7 @@ public class KTodo extends ListActivity {
 					public void run() {
 						try {
 							XmlExporter.exportData(KTodo.this, new File(st));
-						} catch (IOException e) {
+						} catch (final IOException e) {
 							Log.e(TAG, "error exporting data", e);
 							showErrorFromAnotherThread(e.toString());
 						}
@@ -977,7 +977,7 @@ public class KTodo extends ListActivity {
 					public void run() {
 						try {
 							XmlImporter.importData(KTodo.this, new File(st), false);
-						} catch (IOException e) {
+						} catch (final IOException e) {
 							Log.e(TAG, "error importing data", e);
 							showErrorFromAnotherThread(e.toString());
 						}
@@ -1018,7 +1018,7 @@ public class KTodo extends ListActivity {
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 //		Log.i(TAG, "onActivityResult " + requestCode + ", data: " + (data == null ? "null" : data.toURI()));
 		if (requestCode == VOICE_RECOGNITION_REQUEST_CODE) {
 //			Log.i(TAG, "onActivityResult resultCode " + resultCode);
@@ -1030,13 +1030,13 @@ public class KTodo extends ListActivity {
 				b.setCancelable(true);
 				b.setNeutralButton(R.string.try_again, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
+					public void onClick(final DialogInterface dialog, final int which) {
 						startVoiceRecognition();
 					}
 				});
 				b.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
+					public void onClick(final DialogInterface dialog, final int which) {
 						dialog.cancel();
 					}
 				});
@@ -1046,7 +1046,7 @@ public class KTodo extends ListActivity {
 					b.setMessage(bestMatch);
 					b.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
+						public void onClick(final DialogInterface dialog, final int which) {
 							dialog.dismiss();
 							addTodoItem(bestMatch);
 						}
@@ -1063,7 +1063,7 @@ public class KTodo extends ListActivity {
 //					});
 					b.setItems(matches.toArray(new CharSequence[matches.size()]), new DialogInterface.OnClickListener() {
 						@Override
-						public void onClick(DialogInterface dialog, int which) {
+						public void onClick(final DialogInterface dialog, final int which) {
 							dialog.dismiss();
 							addTodoItem(matches.get(which));
 						}

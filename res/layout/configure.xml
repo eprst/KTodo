@@ -88,13 +88,14 @@
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
 		              android:layout_height="wrap_content"
-		              style="@android:style/ButtonBar">
+		              style="@android:style/Widget.Holo.ActionBar.Solid">
 			<TextView
 					android:layout_width="0dip"
 					android:layout_height="fill_parent"
 					android:layout_weight="0.6"/>
 			<Button
 					android:id="@+id/conf_ok"
+					style="@style/ToolButtonWithBorder"
 					android:layout_width="0dip"
 					android:layout_weight="0.3"
 					android:layout_height="wrap_content"

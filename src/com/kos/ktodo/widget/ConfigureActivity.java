@@ -1,24 +1,28 @@
 package com.kos.ktodo.widget;
 
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+
 import com.kos.ktodo.*;
 
-public class ConfigureActivity extends Activity {
+public class ConfigureActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
+	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "ConfigureActivity";
+	public static final int TAGS_LOADER_ID = 0;
+
 	private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private WidgetSettingsStorage settingsStorage;
 	private WidgetSettings settings;
-	private TagsStorage tagsStorage;
-	private Cursor allTagsCursor;
 	private SimpleCursorAdapter tagsAdapter;
 
 	@Override
@@ -35,16 +39,10 @@ public class ConfigureActivity extends Activity {
 		settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();
 
-		tagsStorage = new TagsStorage(this);
-		tagsStorage.open();
-
-		allTagsCursor = tagsStorage.getAllTagsCursor();
-		startManagingCursor(allTagsCursor);
-
-		tagsAdapter = Util.createTagsAdapter(this, allTagsCursor, android.R.layout.simple_spinner_item);
+		tagsAdapter = Util.createTagsAdapter2(this, null, android.R.layout.simple_spinner_item);
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-		settings = settingsStorage.load(appWidgetId);
+		settings = settingsStorage.load(appWidgetId); // TODO this should be done using Loaders too
 
 		setConfigureResult(Activity.RESULT_CANCELED);
 		if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -52,13 +50,13 @@ public class ConfigureActivity extends Activity {
 			return;
 		}
 
-
-		initTagsSelector();
 		initHideCompleted();
 		initDue();
 		initDueIn();
 		initSortingButton();
 		initOKButton();
+
+		getLoaderManager().initLoader(TAGS_LOADER_ID, null, this);
 	}
 
 	private void initTagsSelector() {
@@ -93,8 +91,8 @@ public class ConfigureActivity extends Activity {
 		final CheckBox cb = (CheckBox) findViewById(R.id.conf_show_only_due_x);
 		final Spinner dd = (Spinner) findViewById(R.id.conf_days_spinner);
 
-		final ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, new Integer[]{
-				0, 1, 2, 3, 4, 5, 6, 7});
+		final ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
+				android.R.layout.simple_spinner_item, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7});
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		dd.setAdapter(adapter);
 
@@ -137,7 +135,7 @@ public class ConfigureActivity extends Activity {
 		final Button b = (Button) findViewById(R.id.conf_sorting);
 		b.setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
-				TodoItemsSortingMode.selectSortingMode(ConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode,Unit>() {
+				TodoItemsSortingMode.selectSortingMode(ConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
 					public Unit call(final TodoItemsSortingMode arg) {
 						settings.sortingMode = arg;
 						updateSortingButtonText();
@@ -168,13 +166,12 @@ public class ConfigureActivity extends Activity {
 				finish();
 			}
 		});
+		findViewById(R.id.conf_ok).setEnabled(false);
 	}
 
 	@Override
 	protected void onDestroy() {
 		settingsStorage.close();
-		allTagsCursor.close();
-		tagsStorage.close();
 		super.onDestroy();
 	}
 
@@ -191,5 +188,44 @@ public class ConfigureActivity extends Activity {
 
 	private Spinner getTagsWidget() {
 		return (Spinner) findViewById(R.id.conf_tags);
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+		switch (id) {
+			case TAGS_LOADER_ID:
+				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
+					private TagsStorage tagsStorage;
+
+					@Override
+					public Cursor createCursor() {
+						tagsStorage = new TagsStorage(ConfigureActivity.this);
+						tagsStorage.open();
+
+						return tagsStorage.getAllTagsCursor();
+					}
+
+					@Override
+					protected void onReset() {
+						super.onReset();
+						if (tagsStorage != null)
+							tagsStorage.close();
+					}
+				};
+			default:
+				return null;
+		}
+	}
+
+	@Override
+	public void onLoadFinished(final Loader<Cursor> loader, final Cursor cursor) {
+		tagsAdapter.swapCursor(cursor);
+		findViewById(R.id.conf_ok).setEnabled(true);
+		initTagsSelector();
+	}
+
+	@Override
+	public void onLoaderReset(final Loader<Cursor> loader) {
+		tagsAdapter.swapCursor(null);
 	}
 }

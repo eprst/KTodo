@@ -161,6 +161,7 @@ public class Util {
 		return DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
 	}
 
+	@Deprecated
 	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
 		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
 		return new SimpleCursorAdapter(ctx, layout,
@@ -189,6 +190,41 @@ public class Util {
 				}
 			}
 
+		};
+	}
+
+	public static SimpleCursorAdapter createTagsAdapter2(final Context ctx, final Cursor cursor, final int layout) {
+		return new SimpleCursorAdapter(ctx, layout,
+				cursor,
+				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1},
+				0) {
+			private int tagIDIndex = -1;
+
+			@Override
+			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
+				final View view = super.newView(context, cursor, parent);
+				maybeLocalizeViewText(view, cursor);
+				return view;
+			}
+
+			@Override
+			public void bindView(final View view, final Context context, final Cursor cursor) {
+				super.bindView(view, context, cursor);
+				maybeLocalizeViewText(view, cursor);
+			}
+
+			private void maybeLocalizeViewText(final View view, final Cursor cursor) {
+				if (tagIDIndex == -1) // technically we should invalidate it on swapCursor, but this index never changes
+					tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
+
+				if (view instanceof TextView) {
+					final int tagID = cursor.getInt(tagIDIndex);
+					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
+						((TextView) view).setText(R.string.all);
+					else if (tagID == DBHelper.UNFILED_METATAG_ID)
+						((TextView) view).setText(R.string.unfiled);
+				}
+			}
 		};
 	}
 

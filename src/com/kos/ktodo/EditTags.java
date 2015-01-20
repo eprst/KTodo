@@ -2,8 +2,10 @@ package com.kos.ktodo;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.LoaderManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.*;
@@ -11,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
+
 import com.kos.ktodo.widget.UpdateService;
 
 /**
@@ -18,14 +21,16 @@ import com.kos.ktodo.widget.UpdateService;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-public class EditTags extends ListActivity {
+public class EditTags extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "EditTags";
+	public static final int TAGS_LOADER_ID = 0;
 
 	private final int RENAME_TAG_MENU_ITEM = Menu.FIRST;
 	private final int DELETE_TAG_MENU_ITEM = RENAME_TAG_MENU_ITEM + 1;
 
-	private TagsStorage tagsStorage;
-	private Cursor allTagsCursor;
+	private TagsStorage tagsStorage = null;
+	private SimpleCursorAdapter tagsAdapter;
 	private AlertDialog dialog;
 
 	@Override
@@ -33,14 +38,11 @@ public class EditTags extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.edit_tags);
 
-		tagsStorage = new TagsStorage(this);
-		tagsStorage.open();
-		allTagsCursor = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID);
-		startManagingCursor(allTagsCursor);
-		final ListAdapter tagsAdapter = new SimpleCursorAdapter(
+		tagsAdapter = new SimpleCursorAdapter(
 				this, android.R.layout.simple_list_item_1,
-				allTagsCursor,
-				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1});
+				null,
+				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1},
+				0);
 
 		setListAdapter(tagsAdapter);
 
@@ -64,6 +66,8 @@ public class EditTags extends ListActivity {
 		});
 
 		registerForContextMenu(getListView());
+
+		findViewById(R.id.add_tag_text).requestFocus();
 	}
 
 	private MyListView getMyListView() {
@@ -128,7 +132,8 @@ public class EditTags extends ListActivity {
 				final AlertDialog.Builder b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.delete_tag_title);
 				b.setMessage(getString(R.string.items_depend_on_tag, byTag));
-				if (allTagsCursor.getCount() > 1)
+				final Cursor cursor = tagsAdapter.getCursor();
+				if (cursor != null && cursor.getCount() > 1)
 					b.setNeutralButton(R.string.move, new DialogInterface.OnClickListener() {
 						public void onClick(final DialogInterface dialog, final int which) {
 							moveItemsAndDeleteTag(id);
@@ -144,7 +149,6 @@ public class EditTags extends ListActivity {
 		} finally {
 			todoStorage.close();
 		}
-		updateView();
 	}
 
 	private void deleteItemsAndDeleteTag(final long id) {
@@ -153,11 +157,9 @@ public class EditTags extends ListActivity {
 		try {
 			todoStorage.deleteByTag(id);
 			tagsStorage.deleteTag(id);
-			updateView();
 		} finally {
 			todoStorage.close();
 		}
-
 	}
 
 	private void moveItemsAndDeleteTag(final long id) {
@@ -166,7 +168,7 @@ public class EditTags extends ListActivity {
 		final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID, id);
 		final ListAdapter adapter = new SimpleCursorAdapter(
 				this, android.R.layout.select_dialog_item,
-				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1});
+				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}, 0);
 		b.setAdapter(adapter, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialog, final int which) {
 				final long newID = adapter.getItemId(which);
@@ -175,7 +177,6 @@ public class EditTags extends ListActivity {
 				try {
 					todoStorage.moveTodoItems(id, newID);
 					tagsStorage.deleteTag(id);
-					updateView();
 				} finally {
 					todoStorage.close();
 				}
@@ -194,7 +195,6 @@ public class EditTags extends ListActivity {
 				tagsStorage.addTag(st);
 				et.setText("");
 				et.requestFocus();
-				updateView();
 			}
 		}
 	}
@@ -227,7 +227,6 @@ public class EditTags extends ListActivity {
 						warnTagExists();
 					else {
 						tagsStorage.renameTag(id, st);
-						updateView();
 					}
 				}
 			}
@@ -236,10 +235,6 @@ public class EditTags extends ListActivity {
 		dialog = b.create();
 		Util.setupEditTextEnterListener(editText, dialog);
 		dialog.show();
-	}
-
-	private void updateView() {
-		allTagsCursor.requery();
 	}
 
 	@Override
@@ -261,5 +256,40 @@ public class EditTags extends ListActivity {
 			startService(new Intent(this, UpdateService.class));
 			tagsStorage.resetModifiedDB();
 		}
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+		switch (id) {
+			case TAGS_LOADER_ID:
+				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
+					@Override
+					public Cursor createCursor() {
+						tagsStorage = new TagsStorage(EditTags.this);
+						tagsStorage.open();
+
+						return tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID);
+					}
+
+					@Override
+					protected void onReset() {
+						super.onReset();
+						if (tagsStorage != null)
+							tagsStorage.close();
+					}
+				};
+			default:
+				return null;
+		}
+	}
+
+	@Override
+	public void onLoadFinished(final Loader<Cursor> loader, final Cursor cursor) {
+		tagsAdapter.swapCursor(cursor);
+	}
+
+	@Override
+	public void onLoaderReset(final Loader<Cursor> loader) {
+		tagsAdapter.swapCursor(null);
 	}
 }

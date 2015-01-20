@@ -4,8 +4,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 
-import static com.kos.ktodo.DBHelper.*;
+import static com.kos.ktodo.DBHelper.TAG_ID;
+import static com.kos.ktodo.DBHelper.TAG_ORDER;
+import static com.kos.ktodo.DBHelper.TAG_TABLE_NAME;
+import static com.kos.ktodo.DBHelper.TAG_TAG;
 
 /**
  * Tags storage.
@@ -15,12 +19,15 @@ import static com.kos.ktodo.DBHelper.*;
 public class TagsStorage {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "TagsStorage";
+	public static final Uri CHANGE_NOTIFICATION_URI = Uri.parse("content://ktodo_tags");
 
 	private SQLiteDatabase db;
-	private DBHelper helper;
+	private final DBHelper helper;
+	private final Context context;
 	private boolean modifiedDB;
 
 	public TagsStorage(final Context context) {
+		this.context = context;
 		helper = new DBHelper(context);
 	}
 
@@ -33,25 +40,35 @@ public class TagsStorage {
 		helper.close();
 	}
 
+	private void notifyChange() {
+		context.getContentResolver().notifyChange(CHANGE_NOTIFICATION_URI, null);
+	}
+
 	public long addTag(final String tag) {
 		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, tag);
-		return db.insert(TAG_TABLE_NAME, null, cv);
+		final long res = db.insert(TAG_TABLE_NAME, null, cv);
+		notifyChange();
+		return res;
 	}
 
 	public boolean renameTag(final String oldName, final String newName) {
 		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, newName);
-		return db.update(TAG_TABLE_NAME, cv, TAG_TAG + "=" + oldName, null) > 0;
+		final boolean res = db.update(TAG_TABLE_NAME, cv, TAG_TAG + "=" + oldName, null) > 0;
+		notifyChange();
+		return res;
 	}
 
 	public boolean renameTag(final long id, final String newName) {
 		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, newName);
-		return db.update(TAG_TABLE_NAME, cv, TAG_ID + "=" + id, null) > 0;
+		final boolean res = db.update(TAG_TABLE_NAME, cv, TAG_ID + "=" + id, null) > 0;
+		notifyChange();
+		return res;
 	}
 
 //	public boolean deleteTag(final String tag) {
@@ -60,7 +77,9 @@ public class TagsStorage {
 
 	public boolean deleteTag(final long id) {
 		modifiedDB = true;
-		return db.delete(TAG_TABLE_NAME, TAG_ID + "=" + id, null) > 0;
+		final boolean res = db.delete(TAG_TABLE_NAME, TAG_ID + "=" + id, null) > 0;
+		notifyChange();
+		return res;
 	}
 
 	public void deleteAllTags() {
@@ -68,6 +87,7 @@ public class TagsStorage {
 		db.delete(TAG_TABLE_NAME,
 				TAG_ID + "<>" + DBHelper.ALL_TAGS_METATAG_ID + " AND " + DBHelper.TAG_ID + "<>" + DBHelper.UNFILED_METATAG_ID,
 				null);
+		notifyChange();
 	}
 
 	public Cursor getAllTagsCursor() {

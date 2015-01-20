@@ -10,6 +10,15 @@
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 	</style>
+	<style name="ToolButtonWithBorder" parent="android:Widget.Holo.Button">
+		<!--<item name="android:background">@android:drawable/btn_default_holo_dark</item>-->
+		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+		<item name="android:minHeight">40dip</item>
+		<item name="android:minWidth">16dip</item>
+		<item name="android:padding">10dp</item>
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+	</style>
 	<style name="ToolButtonDivider">
 		<item name="android:layout_height">fill_parent</item>
 		<item name="android:layout_width">1dip</item>

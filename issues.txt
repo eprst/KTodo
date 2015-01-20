@@ -9,6 +9,7 @@
 [v] bug: long tap - menu - drag left
 [-] faster item check/uncheck response | setting mark explicitly doesn't help
 [v] import/export not in UI thread
+[v] Russian translation
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export
 [ ] scrollable widget
@@ -20,6 +21,8 @@
 [ ] action bar action for hide/show checked?
 [ ] current list combo to the action bar?
 [ ] categories on the right slide-out bar
+[ ] share-using handler to create new item
+[ ] add 'share' to the action bar (both list and specific item)
 
 [ ] xhdpi/xxhdpi drawables
 [ ] market screenshot updates
@@ -28,10 +31,8 @@
 4.0 bugs:
 [v] main.xml deprecations
 [v] priority not visible on items
-[ ] items off-place when sliding
+[v] items off-place when sliding
 [v] broken icons in the bottom action bar (use 01_core_accept, 05_content_event?)
 
 5.0 ideas
 [ ] use android.widget.Toolbar for bottom bars
-
-[v] Russian translation
