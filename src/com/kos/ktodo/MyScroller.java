@@ -37,7 +37,7 @@ public class MyScroller {
 	private float mViscousFluidScale;
 	private float mViscousFluidNormalize;
 	private boolean mFinished;
-	private Interpolator mInterpolator;
+	private final Interpolator mInterpolator;
 
 	private float mCoeffX = 0.0f;
 	private float mCoeffY = 1.0f;

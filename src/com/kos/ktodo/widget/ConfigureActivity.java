@@ -172,6 +172,7 @@ public class ConfigureActivity extends Activity implements LoaderManager.LoaderC
 	@Override
 	protected void onDestroy() {
 		settingsStorage.close();
+		getLoaderManager().destroyLoader(TAGS_LOADER_ID);
 		super.onDestroy();
 	}
 

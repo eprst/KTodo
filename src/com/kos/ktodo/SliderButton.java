@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.*;
 import android.widget.Button;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A button for choosing a value from a list. Uses sliding motion to change current selection.
  *
@@ -104,7 +106,7 @@ public class SliderButton extends Button {
 	}
 
 	@Override
-	public boolean onTouchEvent(final MotionEvent event) {
+	public boolean onTouchEvent(@NotNull final MotionEvent event) {
 		switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				slideStartX = (int) event.getX();

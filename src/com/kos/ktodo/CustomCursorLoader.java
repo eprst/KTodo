@@ -8,7 +8,7 @@ import android.net.Uri;
 public abstract class CustomCursorLoader extends CursorLoader {
 	private final Uri notificationUri;
 
-	public CustomCursorLoader(Context context, Uri notificationUri) {
+	public CustomCursorLoader(final Context context, final Uri notificationUri) {
 		super(context);
 		this.notificationUri = notificationUri;
 	}
@@ -17,7 +17,7 @@ public abstract class CustomCursorLoader extends CursorLoader {
 
 	@Override
 	public Cursor loadInBackground() {
-		Cursor cursor = createCursor();
+		final Cursor cursor = createCursor();
 		if (notificationUri != null)
 			cursor.setNotificationUri(getContext().getContentResolver(), notificationUri);
 

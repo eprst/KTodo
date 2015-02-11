@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.ImageButton;
 
+import org.jetbrains.annotations.NotNull;
+
 
 /**
  * A button that can be used slide the view left. Should be a View mixin actually..
@@ -66,7 +68,7 @@ public class SlideLeftImageButton extends ImageButton {
 	}
 
 	@Override
-	public synchronized boolean onTouchEvent(final MotionEvent ev) {
+	public synchronized boolean onTouchEvent(@NotNull final MotionEvent ev) {
 		if (replaying || slidingView == null)
 			return super.onTouchEvent(ev);
 
@@ -93,7 +95,7 @@ public class SlideLeftImageButton extends ImageButton {
 		} else {
 			try {
 				return super.onTouchEvent(ev);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				log("error forwarding: " + ev, e);
 				return true;
 			}
@@ -107,7 +109,7 @@ public class SlideLeftImageButton extends ImageButton {
 				super.dispatchTouchEvent(event);
 			}
 			return true;
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			log("oops on replaying", e);
 			//failed attempt to replay events, abort
 		} finally {

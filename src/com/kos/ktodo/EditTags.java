@@ -16,6 +16,8 @@ import android.widget.SimpleCursorAdapter;
 
 import com.kos.ktodo.widget.UpdateService;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Edit tags activity.
  *
@@ -29,6 +31,7 @@ public class EditTags extends ListActivity implements LoaderManager.LoaderCallba
 	private final int RENAME_TAG_MENU_ITEM = Menu.FIRST;
 	private final int DELETE_TAG_MENU_ITEM = RENAME_TAG_MENU_ITEM + 1;
 
+	@Nullable
 	private TagsStorage tagsStorage = null;
 	private SimpleCursorAdapter tagsAdapter;
 	private AlertDialog dialog;
@@ -68,6 +71,8 @@ public class EditTags extends ListActivity implements LoaderManager.LoaderCallba
 		registerForContextMenu(getListView());
 
 		findViewById(R.id.add_tag_text).requestFocus();
+
+		getLoaderManager().initLoader(TAGS_LOADER_ID, null, this);
 	}
 
 	private MyListView getMyListView() {
@@ -122,73 +127,79 @@ public class EditTags extends ListActivity implements LoaderManager.LoaderCallba
 	}
 
 	private void deleteTag(final long id) {
-		final TodoItemsStorage todoStorage = new TodoItemsStorage(this);
-		todoStorage.open();
-		try {
-			final int byTag = todoStorage.getByTagCursor(id, TodoItemsSortingMode.PRIO_DUE_SUMMARY).getCount();
-			if (byTag == 0) {
-				tagsStorage.deleteTag(id);
-			} else {
-				final AlertDialog.Builder b = new AlertDialog.Builder(this);
-				b.setTitle(R.string.delete_tag_title);
-				b.setMessage(getString(R.string.items_depend_on_tag, byTag));
-				final Cursor cursor = tagsAdapter.getCursor();
-				if (cursor != null && cursor.getCount() > 1)
-					b.setNeutralButton(R.string.move, new DialogInterface.OnClickListener() {
+		if (tagsStorage != null) {
+			final TodoItemsStorage todoStorage = new TodoItemsStorage(this);
+			todoStorage.open();
+			try {
+				final int byTag = todoStorage.getByTagCursor(id, TodoItemsSortingMode.PRIO_DUE_SUMMARY).getCount();
+				if (byTag == 0) {
+					tagsStorage.deleteTag(id);
+				} else {
+					final AlertDialog.Builder b = new AlertDialog.Builder(this);
+					b.setTitle(R.string.delete_tag_title);
+					b.setMessage(getString(R.string.items_depend_on_tag, byTag));
+					final Cursor cursor = tagsAdapter.getCursor();
+					if (cursor != null && cursor.getCount() > 1)
+						b.setNeutralButton(R.string.move, new DialogInterface.OnClickListener() {
+							public void onClick(final DialogInterface dialog, final int which) {
+								moveItemsAndDeleteTag(id);
+							}
+						});
+					b.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 						public void onClick(final DialogInterface dialog, final int which) {
-							moveItemsAndDeleteTag(id);
+							deleteItemsAndDeleteTag(id);
 						}
 					});
-				b.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-					public void onClick(final DialogInterface dialog, final int which) {
-						deleteItemsAndDeleteTag(id);
-					}
-				});
-				b.show();
+					b.show();
+				}
+			} finally {
+				todoStorage.close();
 			}
-		} finally {
-			todoStorage.close();
 		}
 	}
 
 	private void deleteItemsAndDeleteTag(final long id) {
-		final TodoItemsStorage todoStorage = new TodoItemsStorage(EditTags.this);
-		todoStorage.open();
-		try {
-			todoStorage.deleteByTag(id);
-			tagsStorage.deleteTag(id);
-		} finally {
-			todoStorage.close();
+		if (tagsStorage != null) {
+			final TodoItemsStorage todoStorage = new TodoItemsStorage(EditTags.this);
+			todoStorage.open();
+			try {
+				todoStorage.deleteByTag(id);
+				tagsStorage.deleteTag(id);
+			} finally {
+				todoStorage.close();
+			}
 		}
 	}
 
 	private void moveItemsAndDeleteTag(final long id) {
-		final AlertDialog.Builder b = new AlertDialog.Builder(this);
-		b.setTitle(R.string.select_tag_title);
-		final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID, id);
-		final ListAdapter adapter = new SimpleCursorAdapter(
-				this, android.R.layout.select_dialog_item,
-				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}, 0);
-		b.setAdapter(adapter, new DialogInterface.OnClickListener() {
-			public void onClick(final DialogInterface dialog, final int which) {
-				final long newID = adapter.getItemId(which);
-				final TodoItemsStorage todoStorage = new TodoItemsStorage(EditTags.this);
-				todoStorage.open();
-				try {
-					todoStorage.moveTodoItems(id, newID);
-					tagsStorage.deleteTag(id);
-				} finally {
-					todoStorage.close();
+		if (tagsStorage != null) {
+			final AlertDialog.Builder b = new AlertDialog.Builder(this);
+			b.setTitle(R.string.select_tag_title);
+			final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID, id);
+			final ListAdapter adapter = new SimpleCursorAdapter(
+					this, android.R.layout.select_dialog_item,
+					c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}, 0);
+			b.setAdapter(adapter, new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialog, final int which) {
+					final long newID = adapter.getItemId(which);
+					final TodoItemsStorage todoStorage = new TodoItemsStorage(EditTags.this);
+					todoStorage.open();
+					try {
+						todoStorage.moveTodoItems(id, newID);
+						tagsStorage.deleteTag(id);
+					} finally {
+						todoStorage.close();
+					}
 				}
-			}
-		});
-		b.show();
+			});
+			b.show();
+		}
 	}
 
 	private void addTag() {
 		final EditText et = (EditText) findViewById(R.id.add_tag_text);
 		final String st = et.getText().toString();
-		if (st.length() > 0) {
+		if (st.length() > 0 && tagsStorage != null) {
 			if (tagsStorage.hasTag(st)) {
 				warnTagExists();
 			} else {
@@ -207,34 +218,36 @@ public class EditTags extends ListActivity implements LoaderManager.LoaderCallba
 	}
 
 	private void renameTag(final long id) {
-		final LayoutInflater inf = LayoutInflater.from(this);
-		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
-		final String currentName = tagsStorage.getTag(id);
-		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
-		editText.setMaxLines(1);
-		editText.setText(currentName);
+		if (tagsStorage != null) {
+			final LayoutInflater inf = LayoutInflater.from(this);
+			final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
+			final String currentName = tagsStorage.getTag(id);
+			final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
+			editText.setMaxLines(1);
+			editText.setText(currentName);
 
-		final AlertDialog.Builder b = new AlertDialog.Builder(this);
-		b.setTitle(R.string.rename_tag_title);
-		b.setMessage(R.string.new_tag_name_text);
-		b.setCancelable(true);
-		b.setView(textEntryView);
-		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(final DialogInterface dialogInterface, final int i) {
-				final String st = editText.getText().toString();
-				if (st.length() > 0 && !currentName.equals(st)) {
-					if (tagsStorage.hasTag(st))
-						warnTagExists();
-					else {
-						tagsStorage.renameTag(id, st);
+			final AlertDialog.Builder b = new AlertDialog.Builder(this);
+			b.setTitle(R.string.rename_tag_title);
+			b.setMessage(R.string.new_tag_name_text);
+			b.setCancelable(true);
+			b.setView(textEntryView);
+			b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+				public void onClick(final DialogInterface dialogInterface, final int i) {
+					final String st = editText.getText().toString();
+					if (st.length() > 0 && !currentName.equals(st)) {
+						if (tagsStorage.hasTag(st))
+							warnTagExists();
+						else {
+							tagsStorage.renameTag(id, st);
+						}
 					}
 				}
-			}
-		});
+			});
 
-		dialog = b.create();
-		Util.setupEditTextEnterListener(editText, dialog);
-		dialog.show();
+			dialog = b.create();
+			Util.setupEditTextEnterListener(editText, dialog);
+			dialog.show();
+		}
 	}
 
 	@Override
@@ -246,12 +259,15 @@ public class EditTags extends ListActivity implements LoaderManager.LoaderCallba
 	@Override
 	protected void onDestroy() {
 		updateWidgetsIfNeeded();
-		tagsStorage.close();
+		getLoaderManager().destroyLoader(TAGS_LOADER_ID);
+//		if (tagsStorage != null) {
+//			tagsStorage.close();
+//		}
 		super.onDestroy();
 	}
 
 	private void updateWidgetsIfNeeded() {
-		if (tagsStorage.hasModifiedDB()) {
+		if (tagsStorage != null && tagsStorage.hasModifiedDB()) {
 			UpdateService.requestUpdateAll(this);
 			startService(new Intent(this, UpdateService.class));
 			tagsStorage.resetModifiedDB();

@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -161,37 +163,37 @@ public class Util {
 		return DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
 	}
 
-	@Deprecated
-	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
-		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
-		return new SimpleCursorAdapter(ctx, layout,
-				cursor,
-				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}) {
-			@Override
-			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
-				final View view = super.newView(context, cursor, parent);
-				maybeLocalizeViewText(view, cursor);
-				return view;
-			}
-
-			@Override
-			public void bindView(final View view, final Context context, final Cursor cursor) {
-				super.bindView(view, context, cursor);
-				maybeLocalizeViewText(view, cursor);
-			}
-
-			private void maybeLocalizeViewText(final View view, final Cursor cursor) {
-				if (view instanceof TextView) {
-					final int tagID = cursor.getInt(tagIDIndex);
-					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
-						((TextView) view).setText(R.string.all);
-					else if (tagID == DBHelper.UNFILED_METATAG_ID)
-						((TextView) view).setText(R.string.unfiled);
-				}
-			}
-
-		};
-	}
+//	@Deprecated
+//	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
+//		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
+//		return new SimpleCursorAdapter(ctx, layout,
+//				cursor,
+//				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}) {
+//			@Override
+//			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
+//				final View view = super.newView(context, cursor, parent);
+//				maybeLocalizeViewText(view, cursor);
+//				return view;
+//			}
+//
+//			@Override
+//			public void bindView(@NotNull final View view, final Context context, @NotNull final Cursor cursor) {
+//				super.bindView(view, context, cursor);
+//				maybeLocalizeViewText(view, cursor);
+//			}
+//
+//			private void maybeLocalizeViewText(final View view, final Cursor cursor) {
+//				if (view instanceof TextView) {
+//					final int tagID = cursor.getInt(tagIDIndex);
+//					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
+//						((TextView) view).setText(R.string.all);
+//					else if (tagID == DBHelper.UNFILED_METATAG_ID)
+//						((TextView) view).setText(R.string.unfiled);
+//				}
+//			}
+//
+//		};
+//	}
 
 	public static SimpleCursorAdapter createTagsAdapter2(final Context ctx, final Cursor cursor, final int layout) {
 		return new SimpleCursorAdapter(ctx, layout,
@@ -208,7 +210,7 @@ public class Util {
 			}
 
 			@Override
-			public void bindView(final View view, final Context context, final Cursor cursor) {
+			public void bindView(@NotNull final View view, final Context context, @NotNull final Cursor cursor) {
 				super.bindView(view, context, cursor);
 				maybeLocalizeViewText(view, cursor);
 			}

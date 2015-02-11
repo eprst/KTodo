@@ -4,7 +4,6 @@ import android.app.backup.BackupAgent;
 import android.app.backup.BackupDataInput;
 import android.app.backup.BackupDataOutput;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
 
@@ -33,7 +32,7 @@ public class MyBackupAgent extends BackupAgent {
 //				Log.i(TAG, "last mod check failed, skipping backup");
 				return;
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 //			Log.i(TAG, "Error checking lasmod: " + e);
 		} finally {
 			dis.close();

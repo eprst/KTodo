@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 /**
@@ -54,7 +56,7 @@ public class MyListView extends ListView {
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private boolean replaying;
 
-	private Runnable itemFlinger = new Runnable() {
+	private final Runnable itemFlinger = new Runnable() {
 		public void run() {
 			if (state != State.ITEM_FLYING) return;
 			if (flightScroller.isFinished()) {
@@ -253,7 +255,7 @@ public class MyListView extends ListView {
 	}
 
 	@Override
-	public boolean onTouchEvent(final MotionEvent ev) {
+	public boolean onTouchEvent(@NotNull final MotionEvent ev) {
 		if (replaying || (deleteItemListener == null && slideLeftListener == null)) return super.onTouchEvent(ev);
 		if (state == State.ITEM_FLYING) {
 			//temporary workaround. Problem:
@@ -299,7 +301,7 @@ public class MyListView extends ListView {
 					super.dispatchTouchEvent(event);
 				}
 				return super.onTouchEvent(ev);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				Log.i(TAG, "error replaying " + ev + " : " + e);
 				//failed attempt to replay events, abort
 			} finally {
@@ -310,7 +312,7 @@ public class MyListView extends ListView {
 		} else
 			try {
 				return super.onTouchEvent(ev);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				Log.i(TAG, "Error forwarding " + ev + " : " + e);
 				return true;
 			}
@@ -539,7 +541,7 @@ public class MyListView extends ListView {
 		final int[] cc = new int[2];
 		view.getLocationOnScreen(cc);
 
-		int sbh = getStatusBarHeight();
+		final int sbh = getStatusBarHeight();
 		dragItemY = cc[1] - sbh;
 //		Log.i(TAG, "cc[1] = " + cc[1] + ", sbh=" + sbh + ", diy=" + dragItemY);
 //		if (sbh != 75)
@@ -591,7 +593,7 @@ public class MyListView extends ListView {
 			return statusBarHeight;
 
 		int result = 0;
-		int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+		final int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
 		if (resourceId > 0) {
 			result = getResources().getDimensionPixelSize(resourceId);
 		}
@@ -703,7 +705,7 @@ public class MyListView extends ListView {
 	}
 
 	@Override
-	public void createContextMenu(final ContextMenu menu) { //I don't know a better way to stop our animation when context menu is being shown...
+	public void createContextMenu(@NotNull final ContextMenu menu) { //I don't know a better way to stop our animation when context menu is being shown...
 		setState(State.NORMAL);
 		super.createContextMenu(menu);
 	}

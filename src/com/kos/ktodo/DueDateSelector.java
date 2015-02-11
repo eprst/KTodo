@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.widget.DatePicker;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Calendar;
 
 /**
@@ -67,6 +69,7 @@ public abstract class DueDateSelector implements View.OnClickListener {
 		}, cur.get(Calendar.YEAR), cur.get(Calendar.MONTH), cur.get(Calendar.DAY_OF_MONTH)).show();
 	}
 
+	@Nullable
 	public abstract Long getCurrentDueDate();
 
 	public abstract void onDueDateSelected(final Long dueDate);

@@ -13,6 +13,9 @@ import com.kos.ktodo.widget.UpdateService;
 
 /**
  * Preferences screen.
+ *
+ * TODO: refactor into fragment-based preferences.
+ * Color picker: https://github.com/lomza/android-color-picker
  */
 public class Preferences extends PreferenceActivity {
 	private final int RESET_TO_DEFAULTS_MENU_ITEM = Menu.FIRST;

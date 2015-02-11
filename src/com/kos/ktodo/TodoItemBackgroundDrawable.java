@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable;
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
 public class TodoItemBackgroundDrawable extends Drawable {
-	private TodoItemBackgroundState s;
+	private final TodoItemBackgroundState s;
 	private final Paint p = new Paint();
 	private int percent;
 	private int prioColor;

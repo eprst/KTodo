@@ -26,7 +26,7 @@ public class LastModifiedState {
 			try {
 				if (!lastModFile.createNewFile())
 					Log.i(TAG, "Failed to create last mod file");
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				Log.i(TAG, "Error creating last mod file: " + e);
 			}
 		else if (!lastModFile.setLastModified(System.currentTimeMillis()))

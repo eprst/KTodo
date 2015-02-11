@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -15,18 +16,21 @@ import static com.kos.ktodo.DBHelper.*;
 public class TodoItemsStorage {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "TodoItemsStorage";
+	public static final Uri CHANGE_NOTIFICATION_URI = Uri.parse("content://ktodo_items");
 
 	private static final String[] ALL_COLUMNS = new String[]{
 			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE,
 			TODO_CARET_POSITION};
 
 	private SQLiteDatabase db;
-	private DBHelper helper;
+	private final DBHelper helper;
+	private final Context context;
 	private boolean modifiedDB;
 //	private SQLiteStatement toggleDoneStmt1;
 //	private SQLiteStatement toggleDoneStmt2;
 
 	public TodoItemsStorage(final Context context) {
+		this.context = context;
 		helper = new DBHelper(context);
 	}
 
@@ -46,11 +50,17 @@ public class TodoItemsStorage {
 		helper.close();
 	}
 
+	private void notifyChange() {
+		context.getContentResolver().notifyChange(CHANGE_NOTIFICATION_URI, null);
+	}
+
 	public TodoItem addTodoItem(final TodoItem item) {
 		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
-		return new TodoItem(id, item.tagID, item.isDone(), item.summary, item.body, item.prio, item.getProgress(), item.getDueDate(), item.caretPos);
+		final TodoItem res = new TodoItem(id, item.tagID, item.isDone(), item.summary, item.body, item.prio, item.getProgress(), item.getDueDate(), item.caretPos);
+		notifyChange();
+		return res;
 	}
 
 	private ContentValues fillValues(final TodoItem item) {
@@ -74,7 +84,9 @@ public class TodoItemsStorage {
 	public boolean saveTodoItem(final TodoItem item) {
 		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
-		return db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
+		final boolean res = db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
+		if (res) notifyChange();
+		return res;
 	}
 
 //	public void toggleDone(final long id) {
@@ -90,21 +102,27 @@ public class TodoItemsStorage {
 		final ContentValues cv = new ContentValues();
 		cv.put(TODO_TAG_ID, toTag);
 		db.update(TODO_TABLE_NAME, cv, TODO_TAG_ID + "=" + fromTag, null);
+		notifyChange();
 	}
 
 	public boolean deleteTodoItem(final long id) {
 		modifiedDB = true;
-		return db.delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
+		final boolean res = db.delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
+		if (res) notifyChange();
+		return res;
 	}
 
 	public void deleteAllTodoItems() {
 		modifiedDB = true;
 		db.delete(TODO_TABLE_NAME, null, null);
+		notifyChange();
 	}
 
 	public int deleteByTag(final long tagID) {
 		modifiedDB = true;
-		return db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
+		final int res = db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
+		if (res > 0) notifyChange();
+		return res;
 	}
 
 	public Cursor getByTagCursor(final long tagID, final TodoItemsSortingMode sortingMode) {

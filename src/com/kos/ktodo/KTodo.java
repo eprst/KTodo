@@ -3,6 +3,7 @@ package com.kos.ktodo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.app.backup.BackupManager;
 import android.content.*;
@@ -21,17 +22,21 @@ import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
 import com.kos.ktodo.preferences.Preferences;
 import com.kos.ktodo.widget.UpdateService;
 import com.kos.ktodo.widget.WidgetSettingsStorage;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class KTodo extends ListActivity {
+public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
 
 	private static final String TAG = "KTodo";
@@ -53,27 +58,35 @@ public class KTodo extends ListActivity {
 	private final int CHANGE_DUE_DATE_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 4;
 	private final int DELETE_ITEM_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 5;
 
-//	private final Random rnd = new Random();
-//	private final HashMap<Integer, SubActivityCallback> subCallbacks = new HashMap<Integer, SubActivityCallback>(5);
+	private static final int ALL_TAGS_LOADER_ID = 0;
+	private static final int CURRENT_TAG_ITEMS_LOADER_ID = 1;
+	private static final int EDITING_ITEM_TAGS_LOADER_ID = 2;
 
 	private Intent voiceRecognitionIntent;
 	private Drawable voiceDrawable;
 
 	private Handler handler;
-	private TodoItemsStorage todoItemsStorage;
-	private TagsStorage tagsStorage;
+	@Nullable
+	private TodoItemsStorage todoItemsStorage = null;
+	@Nullable
+	private TagsStorage tagsStorage = null;
 	private SimpleCursorAdapter tagsAdapter;
-	private Cursor allTagsCursor;
-	private Cursor currentTagItemsCursor;
+	//	private Cursor allTagsCursor;
+//	private Cursor currentTagItemsCursor;
+	private SimpleCursorAdapter editingItemTagsAdapter;
+	@Nullable
+	private SimpleCursorAdapter todoAdapter = null;
 	private boolean hidingCompleted;
 	private long defaultDue;
 	private int defaultPrio;
 	private TodoItemsSortingMode sortingMode;
 	private boolean customTitleSupported;
 
+	@Nullable
 	private TodoItem editingItem;
-	private Cursor edititgItemTagsCursor;
+//	private Cursor edititgItemTagsCursor;
 
+	@Nullable
 	private TodoItem lastDeletedItem;
 
 	private final MyListView.DeleteItemListener deleteItemListener;
@@ -86,10 +99,12 @@ public class KTodo extends ListActivity {
 	public KTodo() {
 		deleteItemListener = new MyListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
-				lastDeletedItem = todoItemsStorage.loadTodoItem(id);
-				todoItemsStorage.deleteTodoItem(id);
-				showUndeleteButton();
-				updateView();
+				if (todoItemsStorage != null) {
+					lastDeletedItem = todoItemsStorage.loadTodoItem(id);
+					todoItemsStorage.deleteTodoItem(id);
+					showUndeleteButton();
+					updateView();
+				}
 			}
 		};
 		slideLeftListener = new SlideLeftListener() {
@@ -141,11 +156,15 @@ public class KTodo extends ListActivity {
 		tagsStorage = new TagsStorage(this);
 		tagsStorage.open();
 
-		allTagsCursor = tagsStorage.getAllTagsCursor();
-		startManagingCursor(allTagsCursor);
-		tagsAdapter = Util.createTagsAdapter(this, allTagsCursor, android.R.layout.simple_spinner_item);
+//		allTagsCursor = loaderTagsStorage.getAllTagsCursor();
+//		startManagingCursor(allTagsCursor);
+		tagsAdapter = Util.createTagsAdapter2(this, null, android.R.layout.simple_spinner_item);
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		getTagsWidget().setAdapter(tagsAdapter);
+
+		editingItemTagsAdapter = Util.createTagsAdapter2(this, null, android.R.layout.simple_spinner_item);
+		editingItemTagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		getEditItemTagsWidget().setAdapter(editingItemTagsAdapter);
 
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		final long currentTag;
@@ -176,6 +195,11 @@ public class KTodo extends ListActivity {
 
 		updateTitle(false);
 		setResult(Activity.RESULT_OK);
+
+		final LoaderManager loaderManager = getLoaderManager();
+		loaderManager.initLoader(ALL_TAGS_LOADER_ID, null, this);
+		loaderManager.initLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
+		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, this);
 	}
 
 //	private boolean isShowingWidgetData() {
@@ -216,7 +240,8 @@ public class KTodo extends ListActivity {
 			handler.post(new Runnable() {
 				public void run() {
 					setCurrentTag(currentTag);
-					reloadTodoItems();
+//					reloadTodoItems();
+					getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, KTodo.this);
 				}
 			});
 			setIntent(intent);
@@ -256,7 +281,8 @@ public class KTodo extends ListActivity {
 
 		getTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
-				reloadTodoItems();
+//				reloadTodoItems();
+				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, KTodo.this);
 			}
 
 			public void onNothingSelected(final AdapterView<?> parent) {
@@ -273,7 +299,7 @@ public class KTodo extends ListActivity {
 
 //				handler.post(new Runnable() {
 //					public void run() {
-				if (clickAnywhereToCheck || listView.isClickedOnCheckMark()) { //why the heck I can't get event coordinates here
+				if (todoItemsStorage != null && (clickAnywhereToCheck || listView.isClickedOnCheckMark())) { //why the heck I can't get event coordinates here
 					final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
 					todoItem.setDone(!todoItem.isDone());
 					todoItemsStorage.saveTodoItem(todoItem);
@@ -287,10 +313,13 @@ public class KTodo extends ListActivity {
 
 		getEditItemTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
-				editingItem.tagID = id;
+				if (editingItem != null) {
+					editingItem.tagID = id;
+				}
 			}
 
-			public void onNothingSelected(final AdapterView<?> parent) {}
+			public void onNothingSelected(final AdapterView<?> parent) {
+			}
 		});
 
 		final DueDateSelector dueDateSelector = new DueDateSelector() {
@@ -331,7 +360,9 @@ public class KTodo extends ListActivity {
 
 		prioSliderButton.setOnChangeListener(new Callback1<String, Unit>() {
 			public Unit call(final String newValue) {
-				editingItem.prio = Integer.parseInt(newValue);
+				if (editingItem != null) {
+					editingItem.prio = Integer.parseInt(newValue);
+				}
 				return Unit.u;
 			}
 		});
@@ -349,7 +380,9 @@ public class KTodo extends ListActivity {
 
 		getProgressSliderButton().setOnChangeListener(new Callback1<String, Unit>() {
 			public Unit call(final String newValue) {
-				editingItem.setProgress(Integer.parseInt(newValue));
+				if (editingItem != null) {
+					editingItem.setProgress(Integer.parseInt(newValue));
+				}
 				return Unit.u;
 			}
 		});
@@ -357,13 +390,19 @@ public class KTodo extends ListActivity {
 		final DueDateSelector dueDateSelector = new DueDateSelector() {
 			@Override
 			public void onDueDateSelected(final Long dueDate) {
-				editingItem.setDueDate(dueDate);
+				if (editingItem != null) {
+					editingItem.setDueDate(dueDate);
+				}
 				updateDueDateButton();
 			}
 
 			@Override
 			public Long getCurrentDueDate() {
-				return editingItem.getDueDate();
+				if (editingItem != null) {
+					return editingItem.getDueDate();
+				} else {
+					return null;
+				}
 			}
 		};
 		getDueDateTxtButton().setOnClickListener(dueDateSelector);
@@ -432,7 +471,7 @@ public class KTodo extends ListActivity {
 		final MyListView listView = (MyListView) getListView();
 		listView.setDeleteItemListener(
 				prefs.getBoolean("delByFling", true) ?
-				deleteItemListener : null);
+						deleteItemListener : null);
 
 		if (prefs.getBoolean("slideToEdit", true)) {
 			getAddTaskButton().setSlideLeftInfo(getSlidingView(), slideLeftListener);
@@ -453,43 +492,45 @@ public class KTodo extends ListActivity {
 	}
 
 	private void startEditingItem(final long id) {
-		editingItem = todoItemsStorage.loadTodoItem(id);
-		getEditSummaryWidget().setText(editingItem.summary);
-		getEditBodyWidget().setText(editingItem.body);
+		if (todoItemsStorage != null && tagsStorage != null) {
+			editingItem = todoItemsStorage.loadTodoItem(id);
+			getEditSummaryWidget().setText(editingItem.summary);
+			getEditBodyWidget().setText(editingItem.body);
 
-		if (edititgItemTagsCursor != null)
-			edititgItemTagsCursor.close();
-		edititgItemTagsCursor = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID);
-		startManagingCursor(edititgItemTagsCursor);
-		final SimpleCursorAdapter editingItemTagsAdapter = Util.createTagsAdapter(this, edititgItemTagsCursor, android.R.layout.simple_spinner_item);
-		editingItemTagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		final Spinner spinner = getEditItemTagsWidget();
-		spinner.setAdapter(editingItemTagsAdapter);
-		final int position = Util.getItemPosition(editingItemTagsAdapter, editingItem.tagID);
-		if (position != -1)
-			spinner.setSelection(position);
+//			if (edititgItemTagsCursor != null)
+//				edititgItemTagsCursor.close();
+//			edititgItemTagsCursor = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID);
+//			startManagingCursor(edititgItemTagsCursor);
+			final Spinner spinner = getEditItemTagsWidget();
+//			spinner.setAdapter(editingItemTagsAdapter);
+			final int position = Util.getItemPosition(editingItemTagsAdapter, editingItem.tagID);
+			if (position != -1)
+				spinner.setSelection(position);
 
-		getPrioSliderButton().setSelection(editingItem.prio - 1);
-		getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
-		updateDueDateButton();
-		getSlidingView().setSlideListener(new SlidingView.SlideListener() {
-			public void slidingFinished() {
-//				getEditSummaryWidget().requestFocus();
-				final EditText editText = getEditBodyWidget();
-				if (editingItem.caretPos != null) {
-					final Editable text = editText.getText();
-					final int savedCaretPos = editingItem.caretPos;
-					if (savedCaretPos >= 0 && savedCaretPos < text.length())
-						Selection.setSelection(text, savedCaretPos);
+			getPrioSliderButton().setSelection(editingItem.prio - 1);
+			getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
+			updateDueDateButton();
+			getSlidingView().setSlideListener(new SlidingView.SlideListener() {
+				public void slidingFinished() {
+					//				getEditSummaryWidget().requestFocus();
+					final EditText editText = getEditBodyWidget();
+					if (editingItem.caretPos != null) {
+						final Editable text = editText.getText();
+						final int savedCaretPos = editingItem.caretPos;
+						if (savedCaretPos >= 0 && savedCaretPos < text.length())
+							Selection.setSelection(text, savedCaretPos);
+					}
+					editText.requestFocus();
 				}
-				editText.requestFocus();
-			}
-		});
+			});
+		}
 	}
 
 	private void updateDueDateButton() {
-		final Long dueDate = editingItem.getDueDate();
-		updateImgButton(getDueDateTxtButton(), getDueDateImgButton(), dueDate == null ? null : Util.showDueDate(this, dueDate));
+		if (editingItem != null) {
+			final Long dueDate = editingItem.getDueDate();
+			updateImgButton(getDueDateTxtButton(), getDueDateImgButton(), dueDate == null ? null : Util.showDueDate(this, dueDate));
+		}
 	}
 
 	private void updateImgButton(final Button txtButton, final ImageButton imgButton, final String text) {
@@ -507,7 +548,7 @@ public class KTodo extends ListActivity {
 
 	private void saveItemBeingEdited() {
 		final String summary = getEditSummaryWidget().getText().toString();
-		if (editingItem != null && summary.length() > 0) {
+		if (editingItem != null && todoItemsStorage != null && summary.length() > 0) {
 			editingItem.summary = summary;
 			final Editable editBodyText = getEditBodyWidget().getText();
 			editingItem.body = editBodyText.toString();
@@ -518,70 +559,77 @@ public class KTodo extends ListActivity {
 
 
 	private void reloadTodoItemsFromAnotherThread() {
-		handler.post(new Runnable() {
-			public void run() {
-				reloadTodoItems();
-			}
-		});
+		// TODO check if this can be inlined or shoud indeed happen from a handler
+		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
+//		handler.post(new Runnable() {
+//			public void run() {
+//				reloadTodoItems();
+//			}
+//		});
 	}
 
-	private void reloadTodoItems() {
+	private void reloadTodoItems(@NotNull final Cursor currentTagItemsCursor) {
 //		new Exception("reloadTodoItems").printStackTrace();
-		allTagsCursor.requery();
+//		allTagsCursor.requery();
+		getLoaderManager().restartLoader(ALL_TAGS_LOADER_ID, null, this);
 
-		if (currentTagItemsCursor != null) {
-			stopManagingCursor(currentTagItemsCursor);
-			currentTagItemsCursor.close();
-		}
-
-		if (hidingCompleted)
-			currentTagItemsCursor = todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
-		else
-			currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
+//		if (currentTagItemsCursor != null) {
+//			stopManagingCursor(currentTagItemsCursor);
+//			currentTagItemsCursor.close();
+//		}
+//
+//		if (hidingCompleted)
+//			currentTagItemsCursor = todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
+//		else
+//			currentTagItemsCursor = todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
 
 		final int doneIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DONE);
 		final int prioIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PRIO);
 		final int progressIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_PROGRESS);
 		final int bodyIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_BODY);
 		final int dueDateIndex = currentTagItemsCursor.getColumnIndexOrThrow(DBHelper.TODO_DUE_DATE);
-		startManagingCursor(currentTagItemsCursor);
-		final ListAdapter todoAdapter = new SimpleCursorAdapter(
-				this, R.layout.todo_item,
-				currentTagItemsCursor,
-				new String[]{DBHelper.TODO_SUMMARY}, new int[]{R.id.todo_item}) {
-			@Override
-			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
-				final View view = super.newView(context, cursor, parent);
-				initView((TodoItemView) view, cursor);
-				return view;
-			}
-
-			@Override
-			public void bindView(final View view, final Context context, final Cursor cursor) {
-				super.bindView(view, context, cursor);
-				view.getId();
-				initView((TodoItemView) view, cursor);
-			}
-
-			private void initView(final TodoItemView ctv, final Cursor cursor) {
-				final boolean done = cursor.getInt(doneIndex) != 0;
-				ctv.setChecked(done);
-				ctv.setPrio(cursor.getInt(prioIndex));
-				ctv.setProgress(done ? 100 : cursor.getInt(progressIndex));
-				final String body = cursor.getString(bodyIndex);
-				ctv.setShowNotesMark(body != null && body.length() > 0);
-				if (cursor.isNull(dueDateIndex))
-					ctv.setDueDate(null, DueStatus.NONE);
-				else {
-					final Long dd = cursor.getLong(dueDateIndex);
-					ctv.setDueDate(Util.showDueDate(KTodo.this, dd), Util.getDueStatus(dd));
+//		startManagingCursor(currentTagItemsCursor);
+		if (todoAdapter == null) {
+			todoAdapter = new SimpleCursorAdapter(
+					this, R.layout.todo_item,
+					currentTagItemsCursor,
+					new String[]{DBHelper.TODO_SUMMARY}, new int[]{R.id.todo_item}, 0) {
+				@Override
+				public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
+					final View view = super.newView(context, cursor, parent);
+					initView((TodoItemView) view, cursor);
+					return view;
 				}
-				if (listFontSize != null)
-					ctv.setTextSize(listFontSize);
-			}
-		};
 
-		setListAdapter(todoAdapter);
+				@Override
+				public void bindView(@NotNull final View view, final Context context, @NotNull final Cursor cursor) {
+					super.bindView(view, context, cursor);
+					view.getId();
+					initView((TodoItemView) view, cursor);
+				}
+
+				private void initView(final TodoItemView ctv, final Cursor cursor) {
+					final boolean done = cursor.getInt(doneIndex) != 0;
+					ctv.setChecked(done);
+					ctv.setPrio(cursor.getInt(prioIndex));
+					ctv.setProgress(done ? 100 : cursor.getInt(progressIndex));
+					final String body = cursor.getString(bodyIndex);
+					ctv.setShowNotesMark(body != null && body.length() > 0);
+					if (cursor.isNull(dueDateIndex))
+						ctv.setDueDate(null, DueStatus.NONE);
+					else {
+						final Long dd = cursor.getLong(dueDateIndex);
+						ctv.setDueDate(Util.showDueDate(KTodo.this, dd), Util.getDueStatus(dd));
+					}
+					if (listFontSize != null)
+						ctv.setTextSize(listFontSize);
+				}
+			};
+			setListAdapter(todoAdapter);
+		} else {
+			todoAdapter.swapCursor(currentTagItemsCursor);
+		}
+
 		updateView();
 	}
 
@@ -604,34 +652,44 @@ public class KTodo extends ListActivity {
 	protected void onDestroy() {
 		checkDataChanged();
 
-		todoItemsStorage.close();
-		tagsStorage.close();
-		allTagsCursor.close();
+		final LoaderManager loaderManager = getLoaderManager();
+		loaderManager.destroyLoader(CURRENT_TAG_ITEMS_LOADER_ID);
+		loaderManager.destroyLoader(ALL_TAGS_LOADER_ID);
+		loaderManager.destroyLoader(EDITING_ITEM_TAGS_LOADER_ID);
+
+//		todoItemsStorage.close();
+		if (tagsStorage != null) {
+			tagsStorage.close();
+		}
+//		allTagsCursor.close();
 		super.onDestroy();
 		if (TRACE) Debug.stopMethodTracing();
 	}
 
 	private void checkDataChanged() {
-		if (todoItemsStorage.hasModifiedDB() || tagsStorage.hasModifiedDB())
-			onDataChanged();
+		if (todoItemsStorage != null && tagsStorage != null) {
+			if (todoItemsStorage.hasModifiedDB() || tagsStorage.hasModifiedDB()) {
+				onDataChanged();
+			}
+		}
 	}
 
 	private void onDataChanged() {
 		UpdateService.requestUpdateAll(this);
 		startService(new Intent(this, UpdateService.class));
-		todoItemsStorage.resetModifiedDB();
-		tagsStorage.resetModifiedDB();
+		if (todoItemsStorage != null) {
+			todoItemsStorage.resetModifiedDB();
+		}
+		if (tagsStorage != null) {
+			tagsStorage.resetModifiedDB();
+		}
 		LastModifiedState.touch(this);
 //		Log.i(TAG, "data changed");
-		try {
-			new BackupManager(this).dataChanged();
-		} catch (final NoClassDefFoundError e) {
-			//android < 2.2, ignore..
-		}
+		new BackupManager(this).dataChanged();
 	}
 
 	@Override
-	protected void onSaveInstanceState(final Bundle outState) {
+	protected void onSaveInstanceState(@NotNull final Bundle outState) {
 		outState.putLong("currentTag", getCurrentTagID());
 		outState.putBoolean("hidingCompleted", hidingCompleted);
 		outState.putLong("defaultDue", defaultDue);
@@ -644,7 +702,7 @@ public class KTodo extends ListActivity {
 		outState.putInt("addTaskSelEnd", addTask.getSelectionEnd());
 		final boolean onLeft = getSlidingView().isOnLeft();
 		outState.putBoolean("onLeft", onLeft);
-		if (!onLeft) {
+		if (!onLeft && editingItem != null) {
 			outState.putLong("itemBeingEditedID", editingItem.id);
 			saveItemBeingEdited();
 		}
@@ -653,7 +711,7 @@ public class KTodo extends ListActivity {
 	}
 
 	@Override
-	protected void onRestoreInstanceState(final Bundle savedInstanceState) {
+	protected void onRestoreInstanceState(@NotNull final Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		setCurrentTag(savedInstanceState.getLong("currentTag"));
 		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
@@ -679,11 +737,12 @@ public class KTodo extends ListActivity {
 		}
 		if (savedInstanceState.containsKey("customTitleSupported"))
 			customTitleSupported = savedInstanceState.getBoolean("customTitleSupported");
-		reloadTodoItems();
+//		reloadTodoItems();
+		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
 	}
 
 	@Override
-	public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+	public boolean onKeyDown(final int keyCode, @NotNull final KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if (getMyListView().handleBack())
 				return true;
@@ -701,7 +760,7 @@ public class KTodo extends ListActivity {
 	}
 
 	private void undelete() {
-		if (lastDeletedItem != null) {
+		if (lastDeletedItem != null && todoItemsStorage != null) {
 			todoItemsStorage.addTodoItem(lastDeletedItem);
 			lastDeletedItem = null;
 			updateView();
@@ -717,7 +776,7 @@ public class KTodo extends ListActivity {
 
 	private long addTodoItem(final String st) {
 		final EditText et = getAddTaskWidget();
-		if (st.length() > 0) {
+		if (todoItemsStorage != null && st.length() > 0) {
 			long currentTagID = getCurrentTagID();
 			if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID) {
 				currentTagID = DBHelper.UNFILED_METATAG_ID;
@@ -749,8 +808,10 @@ public class KTodo extends ListActivity {
 	}
 
 	private void updateView() {
-		allTagsCursor.requery();
-		currentTagItemsCursor.requery();
+//		allTagsCursor.requery();
+//		getLoaderManager().restartLoader(ALL_TAGS_LOADER_ID, null, this); TODO check if this is needed
+//		currentTagItemsCursor.requery();
+//		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this); TODO check if this is needed
 	}
 
 	private void setCurrentTag(final long id) {
@@ -782,13 +843,15 @@ public class KTodo extends ListActivity {
 		switch (item.getItemId()) {
 			case SHOW_HIDE_COMPLETED_MENU_ITEM:
 				hidingCompleted = !hidingCompleted;
-				reloadTodoItems();
+//				reloadTodoItems();
+				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
 				return true;
 			case SORTING_MENU_ITEM:
 				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
 					public Unit call(final TodoItemsSortingMode arg) {
 						sortingMode = arg;
-						reloadTodoItems();
+//						reloadTodoItems();
+						getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, KTodo.this);
 						updateTitle(false);
 						return Unit.u;
 					}
@@ -821,7 +884,7 @@ public class KTodo extends ListActivity {
 	@Override
 	public boolean onContextItemSelected(final MenuItem item) {
 		final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		if (info == null) return false;
+		if (info == null || todoItemsStorage == null) return false;
 		final long id = getListAdapter().getItemId(info.position);
 		final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
 		final AlertDialog.Builder b;
@@ -875,10 +938,11 @@ public class KTodo extends ListActivity {
 				}.onClick(getMyListView());
 				return true;
 			case CHANGE_TAG_CONTEXT_MENU_ITEM:
+				if (tagsStorage == null) return false;
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_tag_title);
 				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID, DBHelper.ALL_TAGS_METATAG_ID);
-				final ListAdapter adapter = Util.createTagsAdapter(this, cursor, android.R.layout.simple_dropdown_item_1line);
+				final ListAdapter adapter = Util.createTagsAdapter2(this, cursor, android.R.layout.simple_dropdown_item_1line);
 
 				b.setAdapter(adapter, new DialogInterface.OnClickListener() {
 					public void onClick(final DialogInterface dialog, final int which) {
@@ -968,7 +1032,7 @@ public class KTodo extends ListActivity {
 		b.setView(dialogView);
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
-				if (wipe.isChecked()) { //additional warning?
+				if (wipe.isChecked() && todoItemsStorage != null && tagsStorage != null) { //additional warning?
 					todoItemsStorage.deleteAllTodoItems();
 					tagsStorage.deleteAllTags();
 				}
@@ -1185,4 +1249,100 @@ public class KTodo extends ListActivity {
 /*	private interface SubActivityCallback {
 		void onResultOK(final Intent data);
 	}*/
+
+	@Override
+	public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+		switch (id) {
+			case ALL_TAGS_LOADER_ID:
+				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
+					@Nullable
+					private TagsStorage loaderTagsStorage;
+
+					@Override
+					public Cursor createCursor() {
+						loaderTagsStorage = new TagsStorage(KTodo.this);
+						loaderTagsStorage.open();
+
+						return loaderTagsStorage.getAllTagsCursor();
+					}
+
+					@Override
+					protected void onReset() {
+						super.onReset();
+						if (loaderTagsStorage != null) loaderTagsStorage.close();
+					}
+				};
+
+			case CURRENT_TAG_ITEMS_LOADER_ID:
+				return new CustomCursorLoader(this, TodoItemsStorage.CHANGE_NOTIFICATION_URI) {
+					@Override
+					public Cursor createCursor() {
+						todoItemsStorage = new TodoItemsStorage(KTodo.this);
+						todoItemsStorage.open();
+
+						if (hidingCompleted)
+							return todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
+						else
+							return todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
+					}
+
+					@Override
+					protected void onReset() {
+						super.onReset();
+						if (todoItemsStorage != null) todoItemsStorage.close();
+					}
+				};
+
+			case EDITING_ITEM_TAGS_LOADER_ID:
+				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
+					@Nullable
+					private TagsStorage loaderTagStorage;
+
+					@Override
+					public Cursor createCursor() {
+						loaderTagStorage = new TagsStorage(KTodo.this);
+						loaderTagStorage.open();
+						return loaderTagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID);
+					}
+
+					@Override
+					protected void onReset() {
+						super.onReset();
+						if (loaderTagStorage != null) loaderTagStorage.close();
+					}
+				};
+
+			default:
+				return null;
+		}
+	}
+
+	@Override
+	public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+		switch (loader.getId()) {
+			case ALL_TAGS_LOADER_ID:
+				tagsAdapter.swapCursor(data);
+				break;
+			case CURRENT_TAG_ITEMS_LOADER_ID:
+				reloadTodoItems(data);
+				break;
+			case EDITING_ITEM_TAGS_LOADER_ID:
+				editingItemTagsAdapter.swapCursor(data);
+		}
+	}
+
+	@Override
+	public void onLoaderReset(final Loader<Cursor> loader) {
+		switch (loader.getId()) {
+			case ALL_TAGS_LOADER_ID:
+				tagsAdapter.swapCursor(null);
+				break;
+			case CURRENT_TAG_ITEMS_LOADER_ID:
+				if (todoAdapter != null) todoAdapter.swapCursor(null);
+				break;
+			case EDITING_ITEM_TAGS_LOADER_ID:
+				editingItemTagsAdapter.swapCursor(null);
+				break;
+		}
+	}
 }
