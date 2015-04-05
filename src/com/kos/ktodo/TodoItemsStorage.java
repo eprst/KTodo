@@ -18,7 +18,7 @@ public class TodoItemsStorage {
 	private static final String TAG = "TodoItemsStorage";
 	public static final Uri CHANGE_NOTIFICATION_URI = Uri.parse("content://ktodo_items");
 
-	private static final String[] ALL_COLUMNS = new String[]{
+	private static final String[] ALL_COLUMNS = {
 			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE,
 			TODO_CARET_POSITION};
 

@@ -123,8 +123,8 @@ public class Util {
 	}
 
 	private static final Pattern leadingYearCut = Pattern.compile(".[yY]+.(.*)");
-	private static DateFormat shortFormat = null;
-	private static Locale shortFormatLocale = null;
+	private static DateFormat shortFormat;
+	private static Locale shortFormatLocale;
 
 	private static DateFormat getShortFormat(final Context ctx) {
 		//there's no sane way to get locale-aware formatted date without a year
@@ -139,21 +139,23 @@ public class Util {
 			shortFormat = null;
 			Matcher m = leadingYearCut.matcher(pat);
 			if (m.matches())
-				shortFormat = new SimpleDateFormat(m.group(1));
+				shortFormat = new SimpleDateFormat(m.group(1), Locale.getDefault());
 			else {
 				pat = new StringBuffer(pat).reverse().toString();
 				m = leadingYearCut.matcher(pat);
 				if (m.matches()) {
 					pat = m.group(1);
 					pat = new StringBuffer(pat).reverse().toString();
-					shortFormat = new SimpleDateFormat(pat);
+					shortFormat = new SimpleDateFormat(pat, Locale.getDefault());
 				}
 			}
-			if (shortFormat == null)
-				shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
+			synchronized (Util.class) {
+				if (shortFormat == null)
+					shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short), Locale.getDefault());
+			}
 //			Log.i("Util", "short pat for " + Locale.getDefault() + " : " + ((SimpleDateFormat) shortFormat).toPattern());
 		} else {
-			shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short));
+			shortFormat = new SimpleDateFormat(ctx.getString(R.string.due_date_format_short), Locale.getDefault());
 		}
 		shortFormatLocale = Locale.getDefault();
 		return shortFormat;
@@ -163,39 +165,7 @@ public class Util {
 		return DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
 	}
 
-//	@Deprecated
-//	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
-//		final int tagIDIndex = cursor.getColumnIndexOrThrow(DBHelper.TAG_ID);
-//		return new SimpleCursorAdapter(ctx, layout,
-//				cursor,
-//				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}) {
-//			@Override
-//			public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
-//				final View view = super.newView(context, cursor, parent);
-//				maybeLocalizeViewText(view, cursor);
-//				return view;
-//			}
-//
-//			@Override
-//			public void bindView(@NotNull final View view, final Context context, @NotNull final Cursor cursor) {
-//				super.bindView(view, context, cursor);
-//				maybeLocalizeViewText(view, cursor);
-//			}
-//
-//			private void maybeLocalizeViewText(final View view, final Cursor cursor) {
-//				if (view instanceof TextView) {
-//					final int tagID = cursor.getInt(tagIDIndex);
-//					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
-//						((TextView) view).setText(R.string.all);
-//					else if (tagID == DBHelper.UNFILED_METATAG_ID)
-//						((TextView) view).setText(R.string.unfiled);
-//				}
-//			}
-//
-//		};
-//	}
-
-	public static SimpleCursorAdapter createTagsAdapter2(final Context ctx, final Cursor cursor, final int layout) {
+	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
 		return new SimpleCursorAdapter(ctx, layout,
 				cursor,
 				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1},

@@ -2,26 +2,55 @@ package com.kos.ktodo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.app.backup.BackupManager;
-import android.content.*;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.Loader;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Debug;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CursorAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListAdapter;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
@@ -36,7 +65,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class KTodo extends ListActivity {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
 
 	private static final String TAG = "KTodo";
@@ -66,16 +95,19 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 	private Drawable voiceDrawable;
 
 	private Handler handler;
-	@Nullable
-	private TodoItemsStorage todoItemsStorage = null;
-	@Nullable
-	private TagsStorage tagsStorage = null;
+	private TodoItemsStorage todoItemsStorage;
+	private TagsStorage tagsStorage;
 	private SimpleCursorAdapter tagsAdapter;
-	//	private Cursor allTagsCursor;
 //	private Cursor currentTagItemsCursor;
 	private SimpleCursorAdapter editingItemTagsAdapter;
 	@Nullable
-	private SimpleCursorAdapter todoAdapter = null;
+	private SimpleCursorAdapter todoAdapter;
+
+	private AllTagsLoaderCallbacks allTagsLoaderCallbacks;
+	private CurrentTagItemsLoaderCallbacks currentTagItemsLoaderCallbacks;
+	@SuppressWarnings("FieldCanBeLocal")
+	private EditingItemTagsLoaderCallbacks editingItemTagsLoaderCallbacks;
+
 	private boolean hidingCompleted;
 	private long defaultDue;
 	private int defaultPrio;
@@ -93,7 +125,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 	private final SlideLeftListener slideLeftListener;
 
 	//prefs
-	private Float listFontSize = null;
+	private Float listFontSize;
 	private boolean clickAnywhereToCheck = true;
 
 	public KTodo() {
@@ -156,13 +188,11 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		tagsStorage = new TagsStorage(this);
 		tagsStorage.open();
 
-//		allTagsCursor = loaderTagsStorage.getAllTagsCursor();
-//		startManagingCursor(allTagsCursor);
-		tagsAdapter = Util.createTagsAdapter2(this, null, android.R.layout.simple_spinner_item);
+		tagsAdapter = Util.createTagsAdapter(this, null, android.R.layout.simple_spinner_item);
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		getTagsWidget().setAdapter(tagsAdapter);
 
-		editingItemTagsAdapter = Util.createTagsAdapter2(this, null, android.R.layout.simple_spinner_item);
+		editingItemTagsAdapter = Util.createTagsAdapter(this, null, android.R.layout.simple_spinner_item);
 		editingItemTagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		getEditItemTagsWidget().setAdapter(editingItemTagsAdapter);
 
@@ -196,10 +226,14 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		updateTitle(false);
 		setResult(Activity.RESULT_OK);
 
+		allTagsLoaderCallbacks = new AllTagsLoaderCallbacks(this, tagsAdapter);
+		currentTagItemsLoaderCallbacks = new CurrentTagItemsLoaderCallbacks(this);
+		editingItemTagsLoaderCallbacks = new EditingItemTagsLoaderCallbacks(this, editingItemTagsAdapter);
+
 		final LoaderManager loaderManager = getLoaderManager();
-		loaderManager.initLoader(ALL_TAGS_LOADER_ID, null, this);
-		loaderManager.initLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
-		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, this);
+		loaderManager.initLoader(ALL_TAGS_LOADER_ID, null, allTagsLoaderCallbacks);
+		loaderManager.initLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, editingItemTagsLoaderCallbacks);
 	}
 
 //	private boolean isShowingWidgetData() {
@@ -241,7 +275,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 				public void run() {
 					setCurrentTag(currentTag);
 //					reloadTodoItems();
-					getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, KTodo.this);
+					getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 				}
 			});
 			setIntent(intent);
@@ -282,7 +316,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		getTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
 //				reloadTodoItems();
-				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, KTodo.this);
+				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 			}
 
 			public void onNothingSelected(final AdapterView<?> parent) {
@@ -492,7 +526,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 	}
 
 	private void startEditingItem(final long id) {
-		if (todoItemsStorage != null && tagsStorage != null) {
+		if (todoItemsStorage != null) {
 			editingItem = todoItemsStorage.loadTodoItem(id);
 			getEditSummaryWidget().setText(editingItem.summary);
 			getEditBodyWidget().setText(editingItem.body);
@@ -560,7 +594,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 
 	private void reloadTodoItemsFromAnotherThread() {
 		// TODO check if this can be inlined or shoud indeed happen from a handler
-		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
+		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 //		handler.post(new Runnable() {
 //			public void run() {
 //				reloadTodoItems();
@@ -570,8 +604,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 
 	private void reloadTodoItems(@NotNull final Cursor currentTagItemsCursor) {
 //		new Exception("reloadTodoItems").printStackTrace();
-//		allTagsCursor.requery();
-		getLoaderManager().restartLoader(ALL_TAGS_LOADER_ID, null, this);
+		getLoaderManager().restartLoader(ALL_TAGS_LOADER_ID, null, allTagsLoaderCallbacks);
 
 //		if (currentTagItemsCursor != null) {
 //			stopManagingCursor(currentTagItemsCursor);
@@ -657,17 +690,14 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		loaderManager.destroyLoader(ALL_TAGS_LOADER_ID);
 		loaderManager.destroyLoader(EDITING_ITEM_TAGS_LOADER_ID);
 
-//		todoItemsStorage.close();
-		if (tagsStorage != null) {
-			tagsStorage.close();
-		}
-//		allTagsCursor.close();
+		todoItemsStorage.close();
+		tagsStorage.close();
 		super.onDestroy();
 		if (TRACE) Debug.stopMethodTracing();
 	}
 
 	private void checkDataChanged() {
-		if (todoItemsStorage != null && tagsStorage != null) {
+		if (todoItemsStorage != null) {
 			if (todoItemsStorage.hasModifiedDB() || tagsStorage.hasModifiedDB()) {
 				onDataChanged();
 			}
@@ -680,9 +710,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		if (todoItemsStorage != null) {
 			todoItemsStorage.resetModifiedDB();
 		}
-		if (tagsStorage != null) {
-			tagsStorage.resetModifiedDB();
-		}
+		tagsStorage.resetModifiedDB();
 		LastModifiedState.touch(this);
 //		Log.i(TAG, "data changed");
 		new BackupManager(this).dataChanged();
@@ -738,7 +766,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		if (savedInstanceState.containsKey("customTitleSupported"))
 			customTitleSupported = savedInstanceState.getBoolean("customTitleSupported");
 //		reloadTodoItems();
-		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
+		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 	}
 
 	@Override
@@ -808,7 +836,6 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 	}
 
 	private void updateView() {
-//		allTagsCursor.requery();
 //		getLoaderManager().restartLoader(ALL_TAGS_LOADER_ID, null, this); TODO check if this is needed
 //		currentTagItemsCursor.requery();
 //		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this); TODO check if this is needed
@@ -844,14 +871,14 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 			case SHOW_HIDE_COMPLETED_MENU_ITEM:
 				hidingCompleted = !hidingCompleted;
 //				reloadTodoItems();
-				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, this);
+				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 				return true;
 			case SORTING_MENU_ITEM:
 				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
 					public Unit call(final TodoItemsSortingMode arg) {
 						sortingMode = arg;
 //						reloadTodoItems();
-						getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, KTodo.this);
+						getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 						updateTitle(false);
 						return Unit.u;
 					}
@@ -938,11 +965,10 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 				}.onClick(getMyListView());
 				return true;
 			case CHANGE_TAG_CONTEXT_MENU_ITEM:
-				if (tagsStorage == null) return false;
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_tag_title);
 				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID, DBHelper.ALL_TAGS_METATAG_ID);
-				final ListAdapter adapter = Util.createTagsAdapter2(this, cursor, android.R.layout.simple_dropdown_item_1line);
+				final ListAdapter adapter = Util.createTagsAdapter(this, cursor, android.R.layout.simple_dropdown_item_1line);
 
 				b.setAdapter(adapter, new DialogInterface.OnClickListener() {
 					public void onClick(final DialogInterface dialog, final int which) {
@@ -1032,7 +1058,7 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		b.setView(dialogView);
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
-				if (wipe.isChecked() && todoItemsStorage != null && tagsStorage != null) { //additional warning?
+				if (wipe.isChecked() && todoItemsStorage != null) { //additional warning?
 					todoItemsStorage.deleteAllTodoItems();
 					tagsStorage.deleteAllTags();
 				}
@@ -1142,12 +1168,8 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 
 	private void runAsynchronously(final int title, final int message, final Runnable r) {
 		final ProgressDialog pg = ProgressDialog.show(this, getString(title), getString(message), true);
-		final Handler h = new Handler() {
-			@Override
-			public void handleMessage(final Message msg) {
-				pg.dismiss();
-			}
-		};
+		final Handler h = new DialogDismissingHandler(pg);
+
 		final Runnable r2 = new Runnable() {
 			public void run() {
 				r.run();
@@ -1250,99 +1272,121 @@ public class KTodo extends ListActivity implements LoaderManager.LoaderCallbacks
 		void onResultOK(final Intent data);
 	}*/
 
-	@Override
-	public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-		switch (id) {
-			case ALL_TAGS_LOADER_ID:
-				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
-					@Nullable
-					private TagsStorage loaderTagsStorage;
+	private class AllTagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {
+		private final Context ctx;
 
-					@Override
-					public Cursor createCursor() {
-						loaderTagsStorage = new TagsStorage(KTodo.this);
-						loaderTagsStorage.open();
+		private AllTagsLoaderCallbacks(final Context ctx, final CursorAdapter cursorAdapter) {
+			super(cursorAdapter);
+			this.ctx = ctx;
+		}
 
-						return loaderTagsStorage.getAllTagsCursor();
-					}
+		@Override
+		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
+				@Nullable
+				private TagsStorage loaderTagsStorage;
 
-					@Override
-					protected void onReset() {
-						super.onReset();
-						if (loaderTagsStorage != null) loaderTagsStorage.close();
-					}
-				};
+				@Override
+				public Cursor createCursor() {
+					loaderTagsStorage = new TagsStorage(ctx);
+					loaderTagsStorage.open();
 
-			case CURRENT_TAG_ITEMS_LOADER_ID:
-				return new CustomCursorLoader(this, TodoItemsStorage.CHANGE_NOTIFICATION_URI) {
-					@Override
-					public Cursor createCursor() {
-						todoItemsStorage = new TodoItemsStorage(KTodo.this);
-						todoItemsStorage.open();
+					return loaderTagsStorage.getAllTagsCursor();
+				}
 
-						if (hidingCompleted)
-							return todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
-						else
-							return todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
-					}
-
-					@Override
-					protected void onReset() {
-						super.onReset();
-						if (todoItemsStorage != null) todoItemsStorage.close();
-					}
-				};
-
-			case EDITING_ITEM_TAGS_LOADER_ID:
-				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
-					@Nullable
-					private TagsStorage loaderTagStorage;
-
-					@Override
-					public Cursor createCursor() {
-						loaderTagStorage = new TagsStorage(KTodo.this);
-						loaderTagStorage.open();
-						return loaderTagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID);
-					}
-
-					@Override
-					protected void onReset() {
-						super.onReset();
-						if (loaderTagStorage != null) loaderTagStorage.close();
-					}
-				};
-
-			default:
-				return null;
+				@Override
+				protected void onReset() {
+					super.onReset();
+					if (loaderTagsStorage != null) loaderTagsStorage.close();
+				}
+			};
 		}
 	}
 
-	@Override
-	public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
-		switch (loader.getId()) {
-			case ALL_TAGS_LOADER_ID:
-				tagsAdapter.swapCursor(data);
-				break;
-			case CURRENT_TAG_ITEMS_LOADER_ID:
-				reloadTodoItems(data);
-				break;
-			case EDITING_ITEM_TAGS_LOADER_ID:
-				editingItemTagsAdapter.swapCursor(data);
+	private class CurrentTagItemsLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+		private final Context ctx;
+
+		private CurrentTagItemsLoaderCallbacks(final Context ctx) {
+			this.ctx = ctx;
+		}
+
+		@Override
+		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+			return new CustomCursorLoader(ctx, TodoItemsStorage.CHANGE_NOTIFICATION_URI) {
+				private TodoItemsStorage todoItemsStorage;
+
+				@Override
+				public Cursor createCursor() { // TODO: every loader must have it's own personal storage instance
+					todoItemsStorage = new TodoItemsStorage(ctx);
+					todoItemsStorage.open();
+
+					if (hidingCompleted)
+						return todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
+					else
+						return todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
+				}
+
+				@Override
+				protected void onReset() {
+					super.onReset();
+					if (todoItemsStorage != null) todoItemsStorage.close();
+				}
+			};
+		}
+
+		@Override
+		public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+			reloadTodoItems(data);
+		}
+
+		@Override
+		public void onLoaderReset(final Loader<Cursor> loader) {
+			if (todoAdapter != null) todoAdapter.swapCursor(null);
 		}
 	}
 
-	@Override
-	public void onLoaderReset(final Loader<Cursor> loader) {
-		switch (loader.getId()) {
-			case ALL_TAGS_LOADER_ID:
-				tagsAdapter.swapCursor(null);
-				break;
-			case CURRENT_TAG_ITEMS_LOADER_ID:
-				if (todoAdapter != null) todoAdapter.swapCursor(null);
-				break;
-			case EDITING_ITEM_TAGS_LOADER_ID:
-				editingItemTagsAdapter.swapCursor(null);
-				break;
+	private class EditingItemTagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {
+		private final Context ctx;
+
+		private EditingItemTagsLoaderCallbacks(final Context ctx, final CursorAdapter cursorAdapter) {
+			super(cursorAdapter);
+			this.ctx = ctx;
+		}
+
+		@Override
+		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
+				@Nullable
+				private TagsStorage loaderTagStorage;
+
+				@Override
+				public Cursor createCursor() {
+					loaderTagStorage = new TagsStorage(ctx);
+					loaderTagStorage.open();
+					return loaderTagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID);
+				}
+
+				@Override
+				protected void onReset() {
+					super.onReset();
+					if (loaderTagStorage != null) loaderTagStorage.close();
+				}
+			};
 		}
 	}
+
+	private static class DialogDismissingHandler extends Handler {
+		private final Dialog dialog;
+
+		private DialogDismissingHandler(final Dialog dialog) {
+			this.dialog = dialog;
+		}
+
+		@Override
+		public void handleMessage(final Message msg) {
+			super.handleMessage(msg);
+			dialog.dismiss();
+		}
+	}
+
 }

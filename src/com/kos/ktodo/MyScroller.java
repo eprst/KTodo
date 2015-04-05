@@ -59,6 +59,7 @@ public class MyScroller {
 		mInterpolator = interpolator;
 		final float ppi = context.getResources().getDisplayMetrics().density * 160.0f;
 		mDeceleration = SensorManager.GRAVITY_EARTH   // g (m/s^2)
+				        * 0.75f                         // for Eve TODO make configurable
 		                * 39.37f                        // inch/meter
 		                * ppi                           // pixels per inch
 		                * ViewConfiguration.getScrollFriction();

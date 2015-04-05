@@ -1,9 +1,9 @@
 package com.kos.ktodo.widget;
 
 import android.app.Activity;
-import android.app.LoaderManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
@@ -11,15 +11,30 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CursorAdapter;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 
-import com.kos.ktodo.*;
+import com.kos.ktodo.Callback1;
+import com.kos.ktodo.CursorAdapterManagingLoaderCallbacks;
+import com.kos.ktodo.CustomCursorLoader;
+import com.kos.ktodo.R;
+import com.kos.ktodo.TagsStorage;
+import com.kos.ktodo.TodoItemsSortingMode;
+import com.kos.ktodo.Unit;
+import com.kos.ktodo.Util;
 
-public class ConfigureActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ConfigureActivity extends Activity {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "ConfigureActivity";
 	public static final int TAGS_LOADER_ID = 0;
 
+	@SuppressWarnings("RedundantFieldInitialization")
 	private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private WidgetSettingsStorage settingsStorage;
 	private WidgetSettings settings;
@@ -39,7 +54,7 @@ public class ConfigureActivity extends Activity implements LoaderManager.LoaderC
 		settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();
 
-		tagsAdapter = Util.createTagsAdapter2(this, null, android.R.layout.simple_spinner_item);
+		tagsAdapter = Util.createTagsAdapter(this, null, android.R.layout.simple_spinner_item);
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		settings = settingsStorage.load(appWidgetId); // TODO this should be done using Loaders too
@@ -56,7 +71,8 @@ public class ConfigureActivity extends Activity implements LoaderManager.LoaderC
 		initSortingButton();
 		initOKButton();
 
-		getLoaderManager().initLoader(TAGS_LOADER_ID, null, this);
+		final TagsLoaderCallbacks tagsLoaderCallbacks = new TagsLoaderCallbacks(this, tagsAdapter);
+		getLoaderManager().initLoader(TAGS_LOADER_ID, null, tagsLoaderCallbacks);
 	}
 
 	private void initTagsSelector() {
@@ -191,42 +207,41 @@ public class ConfigureActivity extends Activity implements LoaderManager.LoaderC
 		return (Spinner) findViewById(R.id.conf_tags);
 	}
 
-	@Override
-	public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-		switch (id) {
-			case TAGS_LOADER_ID:
-				return new CustomCursorLoader(this, TagsStorage.CHANGE_NOTIFICATION_URI) {
-					private TagsStorage tagsStorage;
+	private class TagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {
+		private final Context ctx;
 
-					@Override
-					public Cursor createCursor() {
-						tagsStorage = new TagsStorage(ConfigureActivity.this);
-						tagsStorage.open();
-
-						return tagsStorage.getAllTagsCursor();
-					}
-
-					@Override
-					protected void onReset() {
-						super.onReset();
-						if (tagsStorage != null)
-							tagsStorage.close();
-					}
-				};
-			default:
-				return null;
+		private TagsLoaderCallbacks(final Context ctx, final CursorAdapter cursorAdapter) {
+			super(cursorAdapter);
+			this.ctx = ctx;
 		}
-	}
 
-	@Override
-	public void onLoadFinished(final Loader<Cursor> loader, final Cursor cursor) {
-		tagsAdapter.swapCursor(cursor);
-		findViewById(R.id.conf_ok).setEnabled(true);
-		initTagsSelector();
-	}
+		@Override
+		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
+			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
+				private TagsStorage tagsStorage;
 
-	@Override
-	public void onLoaderReset(final Loader<Cursor> loader) {
-		tagsAdapter.swapCursor(null);
+				@Override
+				public Cursor createCursor() {
+					tagsStorage = new TagsStorage(ctx);
+					tagsStorage.open();
+
+					return tagsStorage.getAllTagsCursor();
+				}
+
+				@Override
+				protected void onReset() {
+					super.onReset();
+					if (tagsStorage != null)
+						tagsStorage.close();
+				}
+			};
+		}
+
+		@Override
+		public void onLoadFinished(final Loader<Cursor> loader, final Cursor data) {
+			super.onLoadFinished(loader, data);
+			findViewById(R.id.conf_ok).setEnabled(true);
+			initTagsSelector();
+		}
 	}
 }
