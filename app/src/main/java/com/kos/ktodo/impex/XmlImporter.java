@@ -37,7 +37,7 @@ public class XmlImporter extends XmlBase {
 
 	public static void importData(final Context ctx, final InputStream is, final boolean overwrite) throws IOException {
 		final InputStreamReader isr = new InputStreamReader(is, "UTF8");
-		final DBHelper dbh = new DBHelper(ctx);
+		final DBHelper dbh = DBHelper.getInstance(ctx);
 		final SQLiteDatabase db = dbh.getWritableDatabase();
 		try {
 			final XmlPullParser p = Xml.newPullParser();

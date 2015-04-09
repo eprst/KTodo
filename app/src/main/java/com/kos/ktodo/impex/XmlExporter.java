@@ -60,7 +60,7 @@ public class XmlExporter extends XmlBase {
 	}
 
 	public static void exportData(final Context ctx, final File f) throws IOException {
-		final DBHelper hlp = new DBHelper(ctx);
+		final DBHelper hlp = DBHelper.getInstance(ctx);
 		final SQLiteDatabase database = hlp.getReadableDatabase();
 		try {
 			exportData(database, f);
@@ -78,7 +78,7 @@ public class XmlExporter extends XmlBase {
 	}
 
 	public static void exportData(final Context ctx, final OutputStream os) throws IOException {
-		final DBHelper hlp = new DBHelper(ctx);
+		final DBHelper hlp = DBHelper.getInstance(ctx);
 		final SQLiteDatabase database = hlp.getReadableDatabase();
 		try {
 			exportData(database, os);

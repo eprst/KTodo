@@ -1,12 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.kos.ktodo.SlidingView xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:kos="http://schemas.android.com/apk/res/com.kos.ktodo"
-	android:id="@+id/sliding_view"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+<android.support.v4.widget.DrawerLayout
+	android:id="@+id/drawer_layout"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-	<RelativeLayout
-		android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<com.kos.ktodo.SlidingView
+		android:id="@+id/sliding_view"
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:kos="http://schemas.android.com/apk/res-auto"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+
+		<RelativeLayout
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+			<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:gravity="center_horizontal|center_vertical"
+				android:orientation="vertical">
+
+				<Spinner
+					android:id="@+id/tags"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:nextFocusRight="@id/tags"/>
+
+				<com.kos.ktodo.MyListView
+					android:id="@id/android:list"
+					android:layout_width="fill_parent"
+					android:layout_height="0dip"
+					android:layout_weight="1.0"
+					android:choiceMode="none"
+					android:layoutAnimation="@anim/list_slide_left"
+					android:nextFocusRight="@id/android:list"
+					android:scrollingCache="false"
+					kos:mainViewId="@id/sliding_view"
+					kos:maxThrowVelocity="1500"
+					kos:vibrateOnTearOff="20"/>
+
+				<LinearLayout
+					style="@android:style/Widget.Holo.ActionBar.Solid"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+					<!--suppress AndroidLintNestedWeights -->
+					<EditText
+						android:id="@+id/add_task"
+						android:layout_width="0dip"
+						android:layout_height="wrap_content"
+						android:layout_weight="5.0"
+						android:imeOptions="actionDone"
+						android:inputType="text"
+						android:maxLines="1"
+						android:singleLine="true"/>
+
+					<com.kos.ktodo.SlideLeftImageButton
+						android:id="@+id/add_task_button"
+						style="@style/ToolButton"
+						android:contentDescription="@string/add"
+						android:src="@drawable/ic_menu_mark"
+						kos:maxThrowVelocity="1500"/>
+
+					<View style="@style/ToolButtonDivider"/>
+
+					<Button
+						android:id="@+id/default_due_txt_button"
+						style="@style/ToolButton"
+						android:layout_weight="0.1"
+						android:contentDescription="@string/default_due_date"
+						android:padding="6dp"
+						android:visibility="gone"/>
+
+					<ImageButton
+						android:id="@+id/default_due_img_button"
+						style="@style/ToolButton"
+						android:contentDescription="@string/default_due_date"
+						android:src="@drawable/ic_menu_my_calendar"/>
+
+					<View style="@style/ToolButtonDivider"/>
+
+					<Button
+						android:id="@+id/default_prio_button"
+						style="@style/ToolButton"
+						android:layout_weight="0.1"
+						android:minWidth="32dip"
+						android:nextFocusRight="@id/default_prio_button"
+						android:textColor="@android:color/darker_gray"/>
+				</LinearLayout>
+			</LinearLayout>
+
+			<com.kos.ktodo.AnimatedVisibilityButton
+				android:id="@+id/undelete_button"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentEnd="true"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
+				android:layout_marginEnd="10dip"
+				android:layout_marginRight="10dip"
+				android:layout_marginTop="10dip"
+				android:text="@string/undelete"
+				android:visibility="gone"/>
+		</RelativeLayout>
 
 		<LinearLayout
 			android:layout_width="fill_parent"
@@ -15,23 +112,33 @@
 			android:orientation="vertical">
 
 			<Spinner
-				android:id="@+id/tags"
+				android:id="@+id/item_tag"
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
-				android:nextFocusRight="@id/tags" />
+				android:nextFocusLeft="@id/item_tag"/>
 
-			<com.kos.ktodo.MyListView
-				android:id="@id/android:list"
+			<EditText
+				android:id="@+id/edit_task_summary"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:imeOptions="actionDone"
+				android:inputType="text"
+				android:maxLines="1"
+				android:nextFocusLeft="@id/edit_task_summary"
+				android:singleLine="true"/>
+
+			<EditText
+				android:id="@+id/edit_task_body"
 				android:layout_width="fill_parent"
 				android:layout_height="0dip"
 				android:layout_weight="1.0"
-				android:choiceMode="none"
-				android:layoutAnimation="@anim/list_slide_left"
-				android:nextFocusRight="@id/android:list"
-				android:scrollingCache="false"
-				kos:mainViewId="@id/sliding_view"
-				kos:maxThrowVelocity="1500"
-				kos:vibrateOnTearOff="20" />
+				android:autoLink="none"
+				android:gravity="top"
+				android:imeOptions="actionDone"
+				android:inputType="textMultiLine"
+				android:nextFocusLeft="@id/edit_task_body"
+				android:scrollbars="vertical"
+				android:singleLine="false"/>
 
 			<LinearLayout
 				style="@android:style/Widget.Holo.ActionBar.Solid"
@@ -39,145 +146,62 @@
 				android:layout_height="wrap_content"
 				android:orientation="horizontal">
 				<!--suppress AndroidLintNestedWeights -->
-				<EditText
-					android:id="@+id/add_task"
-					android:layout_width="0dip"
-					android:layout_height="wrap_content"
-					android:layout_weight="5.0"
-					android:imeOptions="actionDone"
-					android:inputType="text"
-					android:maxLines="1"
-					android:singleLine="true" />
-
-				<com.kos.ktodo.SlideLeftImageButton
-					android:id="@+id/add_task_button"
+				<com.kos.ktodo.SliderButton
+					android:id="@+id/prio_sliding_button"
 					style="@style/ToolButton"
-					android:contentDescription="@string/add"
-					android:src="@drawable/ic_menu_mark"
-					kos:maxThrowVelocity="1500" />
+					android:layout_width="0dip"
+					android:layout_weight="1.0"
+					android:nextFocusDown="@id/prio_sliding_button"
+					android:nextFocusLeft="@id/prio_sliding_button"
+					android:text="@string/priority"
+					kos:separator=" "
+					kos:valuesList="1,2,3,4,5"/>
 
 				<View style="@style/ToolButtonDivider"/>
 
-				<Button
-					android:id="@+id/default_due_txt_button"
+				<com.kos.ktodo.SliderButton
+					android:id="@+id/progress_sliding_button"
 					style="@style/ToolButton"
-					android:layout_weight="0.1"
-					android:contentDescription="@string/default_due_date"
-					android:padding="6dp"
-					android:visibility="gone" />
+					android:layout_width="0dip"
+					android:layout_weight="1.0"
+					android:nextFocusDown="@id/progress_sliding_button"
+					android:text="@string/progress"
+					kos:separator=" "
+					kos:valueSuffix="%"
+					kos:valuesList="0,10,20,30,40,50,60,70,80,90,100"/>
+
+				<View style="@style/ToolButtonDivider"/>
 
 				<ImageButton
-					android:id="@+id/default_due_img_button"
-					style="@style/ToolButton"
-					android:contentDescription="@string/default_due_date"
-					android:src="@drawable/ic_menu_my_calendar" />
-
-				<View style="@style/ToolButtonDivider"/>
-
-				<Button
-					android:id="@+id/default_prio_button"
+					android:id="@+id/due_date_img_button"
 					style="@style/ToolButton"
 					android:layout_weight="0.1"
-					android:minWidth="32dip"
-					android:nextFocusRight="@id/default_prio_button"
-					android:textColor="@android:color/darker_gray" />
+					android:contentDescription="@string/due_date"
+					android:nextFocusDown="@id/due_date_img_button"
+					android:src="@drawable/ic_menu_my_calendar"/>
+
+				<Button
+					android:id="@+id/due_date_txt_button"
+					style="@style/ToolButton"
+					android:layout_weight="0.1"
+					android:contentDescription="@string/due_date"
+					android:nextFocusDown="@id/due_date_txt_button"
+					android:visibility="gone"/>
 			</LinearLayout>
 		</LinearLayout>
+	</com.kos.ktodo.SlidingView>
 
-		<com.kos.ktodo.AnimatedVisibilityButton
-			android:id="@+id/undelete_button"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
-			android:layout_marginRight="10dip"
-			android:layout_marginTop="10dip"
-			android:text="@string/undelete"
-			android:visibility="gone" />
-	</RelativeLayout>
-
-	<LinearLayout
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:gravity="center_horizontal|center_vertical"
-		android:orientation="vertical">
-
-		<Spinner
-			android:id="@+id/item_tag"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:nextFocusLeft="@id/item_tag" />
-
-		<EditText
-			android:id="@+id/edit_task_summary"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:imeOptions="actionDone"
-			android:inputType="text"
-			android:maxLines="1"
-			android:nextFocusLeft="@id/edit_task_summary"
-			android:singleLine="true" />
-
-		<EditText
-			android:id="@+id/edit_task_body"
-			android:layout_width="fill_parent"
-			android:layout_height="0dip"
-			android:layout_weight="1.0"
-			android:autoLink="none"
-			android:gravity="top"
-			android:imeOptions="actionDone"
-			android:inputType="textMultiLine"
-			android:nextFocusLeft="@id/edit_task_body"
-			android:scrollbars="vertical"
-			android:singleLine="false" />
-
-		<LinearLayout
-			style="@android:style/Widget.Holo.ActionBar.Solid"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal">
-			<!--suppress AndroidLintNestedWeights -->
-			<com.kos.ktodo.SliderButton
-				android:id="@+id/prio_sliding_button"
-				style="@style/ToolButton"
-				android:layout_width="0dip"
-				android:layout_weight="1.0"
-				android:nextFocusDown="@id/prio_sliding_button"
-				android:nextFocusLeft="@id/prio_sliding_button"
-				android:text="@string/priority"
-				kos:separator=" "
-				kos:valuesList="1,2,3,4,5" />
-
-			<View style="@style/ToolButtonDivider"/>
-
-			<com.kos.ktodo.SliderButton
-				android:id="@+id/progress_sliding_button"
-				style="@style/ToolButton"
-				android:layout_width="0dip"
-				android:layout_weight="1.0"
-				android:nextFocusDown="@id/progress_sliding_button"
-				android:text="@string/progress"
-				kos:separator=" "
-				kos:valueSuffix="%"
-				kos:valuesList="0,10,20,30,40,50,60,70,80,90,100" />
-
-			<View style="@style/ToolButtonDivider"/>
-
-			<ImageButton
-				android:id="@+id/due_date_img_button"
-				style="@style/ToolButton"
-				android:layout_weight="0.1"
-				android:contentDescription="@string/due_date"
-				android:nextFocusDown="@id/due_date_img_button"
-				android:src="@drawable/ic_menu_my_calendar" />
-
-			<Button
-				android:id="@+id/due_date_txt_button"
-				style="@style/ToolButton"
-				android:layout_weight="0.1"
-				android:contentDescription="@string/due_date"
-				android:nextFocusDown="@id/due_date_txt_button"
-				android:visibility="gone" />
-		</LinearLayout>
-	</LinearLayout>
-</com.kos.ktodo.SlidingView>
+	<ListView
+		android:id="@+id/left_drawer"
+		android:layout_width="140dp"
+		android:layout_height="match_parent"
+	    android:layout_gravity="start"
+	    android:choiceMode="singleChoice"
+	    android:divider="@android:color/transparent"
+	    android:dividerHeight="8dp"
+	    android:background="#111"
+	    android:paddingTop="16sp"
+	    android:paddingBottom="16sp"
+	    android:textSize="20sp"
+		/>
+</android.support.v4.widget.DrawerLayout>

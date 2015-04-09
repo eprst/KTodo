@@ -22,7 +22,7 @@ public class WidgetSettingsStorage {
 	private DBHelper helper;
 
 	public WidgetSettingsStorage(final Context context) {
-		helper = new DBHelper(context);
+		helper = DBHelper.getInstance(context);
 	}
 
 	public void open() {

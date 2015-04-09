@@ -20,13 +20,14 @@
 [.] decrease throw gravity (make configurable)
 [ ] action bar action for hide/show checked?
 [ ] current list combo to the action bar?
-[ ] categories on the right slide-out bar
+[.] categories on the right slide-out bar
 [ ] share-using handler to create new item
 [ ] add 'share' to the action bar (both list and specific item)
 [ ] figure out mipmaps
+[ ] revisit initial help (there's no combobox now)
 
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
-[ ] xhdpi/xxhdpi drawables
+[.] xhdpi/xxhdpi drawables
 [ ] market screenshot updates
 
 
@@ -35,6 +36,7 @@
 [v] priority not visible on items
 [v] items off-place when sliding
 [v] broken icons in the bottom action bar (use 01_core_accept, 05_content_event?)
+[v] W/SQLiteConnectionPool﹕ A SQLiteConnection object for database '/data/data/com.kos.ktodo/databases/ktodo.db' was leaked!  Please fix your application
 
 5.0 ideas
 [ ] use android.widget.Toolbar for bottom bars

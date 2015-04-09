@@ -31,7 +31,7 @@ public class TodoItemsStorage {
 
 	public TodoItemsStorage(final Context context) {
 		this.context = context;
-		helper = new DBHelper(context);
+		helper = DBHelper.getInstance(context);
 	}
 
 	public void open() {

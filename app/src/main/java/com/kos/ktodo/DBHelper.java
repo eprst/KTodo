@@ -70,12 +70,39 @@ public class DBHelper extends SQLiteOpenHelper {
 	                                                  WIDGET_SORTING_MODE + " integer default " + TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal() + " not null, " +
 	                                                  WIDGET_HIDE_COMPLETED + " boolean default 1 not null);";
 
+//	private static DBHelper instance = null;
+
 	private final Context context;
 	private boolean needToRecreateAllItems = false;
 
-	public DBHelper(final Context context) {
+	private boolean closed = false;
+	private Throwable createdST = new Throwable();
+
+	private DBHelper(final Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 		this.context = context;
+	}
+
+	public static DBHelper getInstance(final Context context) {
+//		if (instance == null) {
+//			instance = new DBHelper(context.getApplicationContext());
+//		}
+//
+//		return instance;
+		return new DBHelper(context.getApplicationContext());
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if (!closed)
+			Log.w(getClass().getName(), "Finalizing non-closed db helper", createdST);
+	}
+
+	@Override
+	public synchronized void close() {
+		super.close();
+		closed = true;
 	}
 
 	@Override

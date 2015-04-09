@@ -39,6 +39,7 @@ public class ConfigureActivity extends Activity {
 	private WidgetSettingsStorage settingsStorage;
 	private WidgetSettings settings;
 	private SimpleCursorAdapter tagsAdapter;
+	private TagsLoaderCallbacks tagsLoaderCallbacks;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -71,7 +72,7 @@ public class ConfigureActivity extends Activity {
 		initSortingButton();
 		initOKButton();
 
-		final TagsLoaderCallbacks tagsLoaderCallbacks = new TagsLoaderCallbacks(this, tagsAdapter);
+		tagsLoaderCallbacks = new TagsLoaderCallbacks(this, tagsAdapter);
 		getLoaderManager().initLoader(TAGS_LOADER_ID, null, tagsLoaderCallbacks);
 	}
 
@@ -188,6 +189,7 @@ public class ConfigureActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		settingsStorage.close();
+		tagsLoaderCallbacks.shutdown();
 		getLoaderManager().destroyLoader(TAGS_LOADER_ID);
 		super.onDestroy();
 	}
@@ -209,30 +211,22 @@ public class ConfigureActivity extends Activity {
 
 	private class TagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {
 		private final Context ctx;
+		private final TagsStorage tagsStorage;
 
 		private TagsLoaderCallbacks(final Context ctx, final CursorAdapter cursorAdapter) {
 			super(cursorAdapter);
 			this.ctx = ctx;
+			tagsStorage = new TagsStorage(ctx);
+			tagsStorage.open();
 		}
 
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
 			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
-				private TagsStorage tagsStorage;
 
 				@Override
 				public Cursor createCursor() {
-					tagsStorage = new TagsStorage(ctx);
-					tagsStorage.open();
-
 					return tagsStorage.getAllTagsCursor();
-				}
-
-				@Override
-				protected void onReset() {
-					super.onReset();
-					if (tagsStorage != null)
-						tagsStorage.close();
 				}
 			};
 		}
@@ -242,6 +236,10 @@ public class ConfigureActivity extends Activity {
 			super.onLoadFinished(loader, data);
 			findViewById(R.id.conf_ok).setEnabled(true);
 			initTagsSelector();
+		}
+
+		public void shutdown() {
+			tagsStorage.close();
 		}
 	}
 }

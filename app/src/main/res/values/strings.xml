@@ -132,4 +132,6 @@
 	<string name="day3">%1d days</string>
 	<string name="day4">%1d days</string>
 	<string name="day5">%1d days</string>
+	<string name="drawer_open">Open tag selector</string>
+	<string name="drawer_close">Close tag selector</string>
 </resources>

@@ -78,7 +78,7 @@ public class EditTags extends ListActivity {
 
 		findViewById(R.id.add_tag_text).requestFocus();
 
-		final TagsLoaderCallbacks tagsLoaderCallbacks = new TagsLoaderCallbacks(this, tagsAdapter);
+		TagsLoaderCallbacks tagsLoaderCallbacks = new TagsLoaderCallbacks(this, tagsAdapter);
 		getLoaderManager().initLoader(TAGS_LOADER_ID, null, tagsLoaderCallbacks);
 	}
 
@@ -282,21 +282,10 @@ public class EditTags extends ListActivity {
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
 			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
-				private TagsStorage tagsStorage;
-
 				@Override
 				public Cursor createCursor() {
-					tagsStorage = new TagsStorage(ctx);
-					tagsStorage.open();
 
 					return tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID);
-				}
-
-				@Override
-				protected void onReset() {
-					super.onReset();
-					if (tagsStorage != null)
-						tagsStorage.close();
 				}
 			};
 		}

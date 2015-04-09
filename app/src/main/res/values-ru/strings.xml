@@ -121,4 +121,6 @@
 	<string name="day3">%1d дня</string>
 	<string name="day4">%1d дня</string>
 	<string name="day5">%1d дней</string>
+	<string name="drawer_close">Открыть селектор тэга</string>
+	<string name="drawer_open">Закрыть селектор тэга</string>
 </resources>
