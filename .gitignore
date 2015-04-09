@@ -1,7 +1,8 @@
-.idea/workspace.xml
-**/.idea/workspace.xml
-bin/*
-gen/*
-out/*
-keypass
-local.properties
+.gradle
+gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/.name
+.DS_Store
+/build

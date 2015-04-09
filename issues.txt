@@ -23,6 +23,7 @@
 [ ] categories on the right slide-out bar
 [ ] share-using handler to create new item
 [ ] add 'share' to the action bar (both list and specific item)
+[ ] figure out mipmaps
 
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
 [ ] xhdpi/xxhdpi drawables
