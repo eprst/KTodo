@@ -21,29 +21,27 @@
 			<view
 				android:id="@+id/tags_list"
 				class="com.kos.ktodo.menu.NonScrollableListView"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:choiceMode="singleChoice"
 				android:divider="@android:color/transparent"
-				android:dividerHeight="6dp"
 				android:paddingBottom="10sp"
 				android:paddingTop="10sp"
-				android:textSize="18sp"
 				/>
 
 			<View
-				android:layout_width="fill_parent"
+				android:layout_width="match_parent"
 				android:layout_height="1dp"
 				android:background="@android:color/darker_gray"/>
 
 			<view
 				android:id="@+id/menu_list"
 				class="com.kos.ktodo.menu.NonScrollableListView"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:choiceMode="singleChoice"
 				android:divider="@android:color/transparent"
-				android:dividerHeight="1dp"
 				android:paddingTop="10sp"
-				android:textSize="18sp"
 				/>
 
 		</LinearLayout>

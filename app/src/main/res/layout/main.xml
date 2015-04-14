@@ -21,12 +21,6 @@
 				android:gravity="center_horizontal|center_vertical"
 				android:orientation="vertical">
 
-				<Spinner
-					android:id="@+id/tags"
-					android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:nextFocusRight="@id/tags"/>
-
 				<com.kos.ktodo.TodoItemsListView
 					android:id="@id/android:list"
 					android:layout_width="fill_parent"
