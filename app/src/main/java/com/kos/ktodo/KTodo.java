@@ -39,6 +39,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -84,13 +85,6 @@ public class KTodo extends ListActivity {
 	private static final boolean TRACE = false; //enables method tracing
 	private static final int HIDE_UNDELETE_AFTER = 4000; //ms
 	public static final int VOICE_RECOGNITION_REQUEST_CODE = 123422;
-	@SuppressWarnings({"FieldCanBeLocal"})
-	private final int EDIT_TAGS_MENU_ITEM = Menu.FIRST;
-	private final int SHOW_HIDE_COMPLETED_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 1;
-	private final int SORTING_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 2;
-	private final int EXPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 3;
-	private final int IMPORT_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 4;
-	private final int PREFERENCES_MENU_ITEM = EDIT_TAGS_MENU_ITEM + 5;
 
 	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
@@ -110,7 +104,7 @@ public class KTodo extends ListActivity {
 	private TodoItemsStorage todoItemsStorage;
 	private TagsStorage tagsStorage;
 	private SimpleCursorAdapter tagsAdapter;
-//	private Cursor currentTagItemsCursor;
+	//	private Cursor currentTagItemsCursor;
 	private SimpleCursorAdapter editingItemTagsAdapter;
 	@Nullable
 	private SimpleCursorAdapter todoAdapter;
@@ -207,7 +201,6 @@ public class KTodo extends ListActivity {
 		getTagsWidget().setAdapter(tagsAdapter);
 
 
-
 		editingItemTagsAdapter = Util.createTagsAdapter(this, null, android.R.layout.simple_spinner_item);
 		editingItemTagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		getEditItemTagsWidget().setAdapter(editingItemTagsAdapter);
@@ -256,62 +249,105 @@ public class KTodo extends ListActivity {
 
 	private void setupDrawer() {
 		actionBar = getActionBar();
+		if (actionBar == null) throw new NullPointerException("Action bar must be present");
 
-		if (actionBar != null) {
-			drawerToggle = new ActionBarDrawerToggle(this,
-					getDrawerLayout(),
+		drawerToggle = new ActionBarDrawerToggle(this,
+				getDrawerLayout(),
 //				R.drawable.ic_drawer,
-					R.string.drawer_open,
-					R.string.drawer_close) {
-				@Override
-				public void onDrawerOpened(View drawerView) {
-					super.onDrawerOpened(drawerView);
-					//actionBar.setTitle(R.string.select_tag_title);
-				}
+				R.string.drawer_open,
+				R.string.drawer_close) {
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				//actionBar.setTitle(R.string.select_tag_title);
+			}
 
-				@Override
-				public void onDrawerClosed(View drawerView) {
-					super.onDrawerClosed(drawerView);
-					//actionBar.setTitle(R.string.app_name);
-				}
-			};
-			getDrawerLayout().setDrawerListener(drawerToggle);
+			@Override
+			public void onDrawerClosed(View drawerView) {
+				super.onDrawerClosed(drawerView);
+				//actionBar.setTitle(R.string.app_name);
+			}
+		};
+		getDrawerLayout().setDrawerListener(drawerToggle);
 
-			getTagsList().setAdapter(tagsAdapter);
-			// TODO: register listener
-			// TODO: close drawer on item drags left/right
-			getDrawerLayout().setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		getTagsList().setAdapter(tagsAdapter);
+		// TODO: register listener
+		// TODO: close drawer on item drags left/right
+		getDrawerLayout().setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-			actionBar.setDisplayHomeAsUpEnabled(true);
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayUseLogoEnabled(false);
-			actionBar.setDisplayShowHomeEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayUseLogoEnabled(false);
+		actionBar.setDisplayShowHomeEnabled(true);
 
-			// add leftPadding around the logo
-			Resources resources = getResources();
-			int leftPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, resources.getDisplayMetrics());
-			ImageView view = (ImageView)findViewById(android.R.id.home);
-			view.setPadding(leftPadding, 0, 0, 0);
+		// add leftPadding around the logo
+		Resources resources = getResources();
+		int leftPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, resources.getDisplayMetrics());
+		ImageView view = (ImageView) findViewById(android.R.id.home);
+		view.setPadding(leftPadding, 0, 0, 0);
 
-			setupActionBarMenu();
+		setupActionBarMenu();
 
-			// hide old tags selector. TODO: remove it completely
+		// hide old tags selector. TODO: remove it completely
 //			getTagsWidget().setVisibility(View.INVISIBLE);
-		}
 	}
 
 	private void setupActionBarMenu() {
-		// init action bar menu
+		initActionBarMenuItems();
+
+		getDrawerMenu().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				closeDrawer();
+				invokeMenuAction(position);
+			}
+		});
+		// todo: register listener
+	}
+
+	private void invokeMenuAction(int position) {
+		switch (position) {
+			case 0:
+				hidingCompleted = !hidingCompleted;
+				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+				initActionBarMenuItems(); // menu item changes text
+				break;
+			case 1:
+				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
+					public Unit call(final TodoItemsSortingMode arg) {
+						sortingMode = arg;
+						getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+						updateTitle(false);
+						return Unit.u;
+					}
+				});
+				break;
+			case 2:
+				startActivity(new Intent(KTodo.this, EditTags.class));
+				break;
+			case 3:
+				exportData();
+				break;
+			case 4:
+				importData();
+				break;
+			case 5:
+				startActivity(new Intent(getBaseContext(), Preferences.class));
+				break;
+			default:
+				Log.e(TAG, "Unexpected menu item position: " + position);
+		}
+	}
+
+	private void initActionBarMenuItems() {
 		List<MenuItemModel> menuItems = new ArrayList<>(6);
-		menuItems.add(new MenuItemModel(R.drawable.ic_menu_view, R.string.hide_completed_items)); // todo toggle
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_view, hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items));
 		menuItems.add(new MenuItemModel(R.drawable.ic_menu_sort_alphabetically, R.string.sorting));
 		menuItems.add(new MenuItemModel(R.drawable.ic_menu_edit, R.string.edit_tags));
 		menuItems.add(new MenuItemModel(R.drawable.ic_menu_back, R.string.export));
 		menuItems.add(new MenuItemModel(R.drawable.ic_menu_forward, R.string._import));
 		menuItems.add(new MenuItemModel(R.drawable.ic_menu_preferences, R.string.prefs_title));
-
 		getDrawerMenu().setAdapter(new MenuAdapter(this, menuItems));
-		// todo: register listener
 	}
 
 //	private boolean isShowingWidgetData() {
@@ -334,7 +370,7 @@ public class KTodo extends ListActivity {
 					if (s.length() == 0)
 						getAddTaskButton().setImageDrawable(voiceDrawable);
 					else
-					    //requires API 21
+						//requires API 21
 						//noinspection deprecation
 						getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark));
 				}
@@ -614,6 +650,8 @@ public class KTodo extends ListActivity {
 
 	private void startEditingItem(final long id) {
 		if (todoItemsStorage != null) {
+			closeDrawer();
+
 			editingItem = todoItemsStorage.loadTodoItem(id);
 			getEditSummaryWidget().setText(editingItem.summary);
 			getEditBodyWidget().setText(editingItem.body);
@@ -749,6 +787,23 @@ public class KTodo extends ListActivity {
 	}
 
 	@Override
+	public void onBackPressed() {
+		if (isDrawerOpen()) {
+			closeDrawer();
+		} else {
+			super.onBackPressed();
+		}
+	}
+
+	private boolean isDrawerOpen() {
+		return getDrawerLayout().isDrawerOpen(Gravity.START);
+	}
+
+	private void closeDrawer() {
+		getDrawerLayout().closeDrawer(Gravity.START);
+	}
+
+	@Override
 	protected void onPause() {
 		checkDataChanged();
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
@@ -772,7 +827,7 @@ public class KTodo extends ListActivity {
 		loaderManager.destroyLoader(ALL_TAGS_LOADER_ID);
 		loaderManager.destroyLoader(EDITING_ITEM_TAGS_LOADER_ID);
 		allTagsLoaderCallbacks.shutdown();
-	    currentTagItemsLoaderCallbacks.shutdown();
+		currentTagItemsLoaderCallbacks.shutdown();
 		editingItemTagsLoaderCallbacks.shutdown();
 
 		todoItemsStorage.close();
@@ -937,57 +992,8 @@ public class KTodo extends ListActivity {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(final Menu menu) {
-		if (actionBar == null) {
-			menu.clear();
-			menu.add(0, SHOW_HIDE_COMPLETED_MENU_ITEM, Menu.NONE,
-					hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items);
-			menu.add(0, SORTING_MENU_ITEM, Menu.NONE, R.string.sorting);
-			final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
-			item.setIntent(new Intent(this, EditTags.class));
-			menu.add(0, EXPORT_MENU_ITEM, Menu.NONE, R.string.export);
-			menu.add(0, IMPORT_MENU_ITEM, Menu.NONE, R.string._import);
-			menu.add(0, PREFERENCES_MENU_ITEM, Menu.NONE, R.string.prefs_title);
-			return super.onPrepareOptionsMenu(menu);
-		} else {
-			return false;
-		}
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		if (drawerToggle.onOptionsItemSelected(item)) {
-			return true;
-		}
-
-		switch (item.getItemId()) {
-			case SHOW_HIDE_COMPLETED_MENU_ITEM:
-				hidingCompleted = !hidingCompleted;
-//				reloadTodoItems();
-				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
-				return true;
-			case SORTING_MENU_ITEM:
-				TodoItemsSortingMode.selectSortingMode(this, sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
-					public Unit call(final TodoItemsSortingMode arg) {
-						sortingMode = arg;
-//						reloadTodoItems();
-						getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
-						updateTitle(false);
-						return Unit.u;
-					}
-				});
-				return true;
-			case EXPORT_MENU_ITEM:
-				exportData();
-				return true;
-			case IMPORT_MENU_ITEM:
-				importData();
-				return true;
-			case PREFERENCES_MENU_ITEM:
-				startActivity(new Intent(getBaseContext(), Preferences.class));
-				return true;
-		}
-		return super.onOptionsItemSelected(item);
+		return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
 	}
 
 	@Override
