@@ -17,6 +17,7 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -35,6 +36,7 @@ import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -52,6 +54,7 @@ import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -60,6 +63,8 @@ import android.widget.TextView;
 
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
+import com.kos.ktodo.menu.MenuAdapter;
+import com.kos.ktodo.menu.MenuItemModel;
 import com.kos.ktodo.preferences.Preferences;
 import com.kos.ktodo.widget.UpdateService;
 import com.kos.ktodo.widget.WidgetSettingsStorage;
@@ -69,6 +74,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class KTodo extends ListActivity {
@@ -120,6 +126,7 @@ public class KTodo extends ListActivity {
 	private TodoItemsSortingMode sortingMode;
 	private boolean customTitleSupported;
 
+	private ActionBar actionBar = null;
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Nullable
@@ -128,7 +135,7 @@ public class KTodo extends ListActivity {
 	@Nullable
 	private TodoItem lastDeletedItem;
 
-	private final MyListView.DeleteItemListener deleteItemListener;
+	private final TodoItemsListView.DeleteItemListener deleteItemListener;
 	private final SlideLeftListener slideLeftListener;
 
 	//prefs
@@ -136,7 +143,7 @@ public class KTodo extends ListActivity {
 	private boolean clickAnywhereToCheck = true;
 
 	public KTodo() {
-		deleteItemListener = new MyListView.DeleteItemListener() {
+		deleteItemListener = new TodoItemsListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
 				if (todoItemsStorage != null) {
 					lastDeletedItem = todoItemsStorage.loadTodoItem(id);
@@ -248,7 +255,7 @@ public class KTodo extends ListActivity {
 	}
 
 	private void setupDrawer() {
-		final ActionBar actionBar = getActionBar();
+		actionBar = getActionBar();
 
 		if (actionBar != null) {
 			drawerToggle = new ActionBarDrawerToggle(this,
@@ -259,18 +266,18 @@ public class KTodo extends ListActivity {
 				@Override
 				public void onDrawerOpened(View drawerView) {
 					super.onDrawerOpened(drawerView);
-					actionBar.setTitle(R.string.select_tag_title);
+					//actionBar.setTitle(R.string.select_tag_title);
 				}
 
 				@Override
 				public void onDrawerClosed(View drawerView) {
 					super.onDrawerClosed(drawerView);
-					actionBar.setTitle(R.string.app_name);
+					//actionBar.setTitle(R.string.app_name);
 				}
 			};
 			getDrawerLayout().setDrawerListener(drawerToggle);
 
-			getLeftDrawer().setAdapter(tagsAdapter);
+			getTagsList().setAdapter(tagsAdapter);
 			// TODO: register listener
 			// TODO: close drawer on item drags left/right
 			getDrawerLayout().setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -278,8 +285,33 @@ public class KTodo extends ListActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setHomeButtonEnabled(true);
 			actionBar.setDisplayUseLogoEnabled(false);
-			actionBar.setDisplayShowHomeEnabled(false);
+			actionBar.setDisplayShowHomeEnabled(true);
+
+			// add leftPadding around the logo
+			Resources resources = getResources();
+			int leftPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, resources.getDisplayMetrics());
+			ImageView view = (ImageView)findViewById(android.R.id.home);
+			view.setPadding(leftPadding, 0, 0, 0);
+
+			setupActionBarMenu();
+
+			// hide old tags selector. TODO: remove it completely
+//			getTagsWidget().setVisibility(View.INVISIBLE);
 		}
+	}
+
+	private void setupActionBarMenu() {
+		// init action bar menu
+		List<MenuItemModel> menuItems = new ArrayList<>(6);
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_view, R.string.hide_completed_items)); // todo toggle
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_sort_alphabetically, R.string.sorting));
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_edit, R.string.edit_tags));
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_back, R.string.export));
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_forward, R.string._import));
+		menuItems.add(new MenuItemModel(R.drawable.ic_menu_preferences, R.string.prefs_title));
+
+		getDrawerMenu().setAdapter(new MenuAdapter(this, menuItems));
+		// todo: register listener
 	}
 
 //	private boolean isShowingWidgetData() {
@@ -371,7 +403,7 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		final MyListView listView = getMyListView();
+		final TodoItemsListView listView = getMyListView();
 
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
@@ -557,7 +589,7 @@ public class KTodo extends ListActivity {
 		//re-load settings
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		final MyListView listView = (MyListView) getListView();
+		final TodoItemsListView listView = (TodoItemsListView) getListView();
 		listView.setDeleteItemListener(
 				prefs.getBoolean("delByFling", true) ?
 						deleteItemListener : null);
@@ -906,16 +938,20 @@ public class KTodo extends ListActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(final Menu menu) {
-		menu.clear();
-		menu.add(0, SHOW_HIDE_COMPLETED_MENU_ITEM, Menu.NONE,
-				hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items);
-		menu.add(0, SORTING_MENU_ITEM, Menu.NONE, R.string.sorting);
-		final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
-		item.setIntent(new Intent(this, EditTags.class));
-		menu.add(0, EXPORT_MENU_ITEM, Menu.NONE, R.string.export);
-		menu.add(0, IMPORT_MENU_ITEM, Menu.NONE, R.string._import);
-		menu.add(0, PREFERENCES_MENU_ITEM, Menu.NONE, R.string.prefs_title);
-		return super.onPrepareOptionsMenu(menu);
+		if (actionBar == null) {
+			menu.clear();
+			menu.add(0, SHOW_HIDE_COMPLETED_MENU_ITEM, Menu.NONE,
+					hidingCompleted ? R.string.show_completed_items : R.string.hide_completed_items);
+			menu.add(0, SORTING_MENU_ITEM, Menu.NONE, R.string.sorting);
+			final MenuItem item = menu.add(0, EDIT_TAGS_MENU_ITEM, Menu.NONE, R.string.edit_tags);
+			item.setIntent(new Intent(this, EditTags.class));
+			menu.add(0, EXPORT_MENU_ITEM, Menu.NONE, R.string.export);
+			menu.add(0, IMPORT_MENU_ITEM, Menu.NONE, R.string._import);
+			menu.add(0, PREFERENCES_MENU_ITEM, Menu.NONE, R.string.prefs_title);
+			return super.onPrepareOptionsMenu(menu);
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -1261,8 +1297,12 @@ public class KTodo extends ListActivity {
 		return (DrawerLayout) findViewById(R.id.drawer_layout);
 	}
 
-	private ListView getLeftDrawer() {
-		return (ListView) findViewById(R.id.left_drawer);
+	private ListView getTagsList() {
+		return (ListView) findViewById(R.id.tags_list);
+	}
+
+	private ListView getDrawerMenu() {
+		return (ListView) findViewById(R.id.menu_list);
 	}
 
 	private EditText getAddTaskWidget() {
@@ -1277,8 +1317,8 @@ public class KTodo extends ListActivity {
 		return (SlideLeftImageButton) findViewById(R.id.add_task_button);
 	}
 
-	private MyListView getMyListView() {
-		return (MyListView) findViewById(android.R.id.list);
+	private TodoItemsListView getMyListView() {
+		return (TodoItemsListView) findViewById(android.R.id.list);
 	}
 
 	private AnimatedVisibilityButton getUndeleteButton() {

@@ -1,4 +1,5 @@
 <resources>
+
 	<style name="ToolButton" parent="android:Widget.Holo.Button.Borderless">
 		<!--<item name="android:background">@android:drawable/btn_default_holo_dark</item>-->
 		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
@@ -10,6 +11,7 @@
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 	</style>
+
 	<style name="ToolButtonWithBorder" parent="android:Widget.Holo.Button">
 		<!--<item name="android:background">@android:drawable/btn_default_holo_dark</item>-->
 		<item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
@@ -19,6 +21,7 @@
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 	</style>
+
 	<style name="ToolButtonDivider">
 		<item name="android:layout_height">fill_parent</item>
 		<item name="android:layout_width">1dip</item>
@@ -26,17 +29,21 @@
 		<item name="android:layout_marginTop">4dip</item>
 		<item name="android:background">?android:attr/dividerVertical</item>
 	</style>
+
 	<style name="WidgetBackground">
 		<item name="android:background">@drawable/widget_bg</item>
 	</style>
 
 	<style name="Text"/>
+
 	<style name="Text.Widget">
 		<item name="android:textSize">15sp</item>
 	</style>
+
 	<style name="Text.Widget.Loading">
 		<item name="android:textColor">@color/semi_white</item>
 	</style>
+
 	<style name="Text.Widget.Tag">
 		<item name="android:textColor">@color/white</item>
 		<item name="android:textStyle">bold</item>
@@ -45,6 +52,7 @@
 		<item name="android:ellipsize">end</item>
 		<item name="android:includeFontPadding">false</item>
 	</style>
+
 	<style name="Text.Widget.Item">
 		<item name="android:textColor">@color/white</item>
 		<item name="android:paddingLeft">3dip</item>
@@ -55,6 +63,7 @@
 		<item name="android:includeFontPadding">false</item>
 		<item name="android:ellipsize">end</item>
 	</style>
+
 	<style name="Text.Widget.Item_Compressed">
 		<item name="android:textColor">@color/white</item>
 		<item name="android:paddingLeft">3dip</item>

@@ -2,7 +2,7 @@
 	<declare-styleable name="Throwable">
 		<attr name="maxThrowVelocity" format="integer"/>
 	</declare-styleable>
-	<declare-styleable name="MyListView">
+	<declare-styleable name="TodoItemsListView">
 		<attr name="vibrateOnTearOff" format="integer"/>
 		<attr name="mainViewId" format="reference"/> <!-- TODO: unused, remove -->
 	</declare-styleable>

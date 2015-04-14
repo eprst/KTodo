@@ -2,7 +2,7 @@
 
 <com.kos.ktodo.TodoItemView
 		xmlns:android="http://schemas.android.com/apk/res/android"
-		xmlns:kos="http://schemas.android.com/apk/res/com.kos.ktodo"
+		xmlns:kos="http://schemas.android.com/apk/res-auto"
 		android:id="@+id/todo_item"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"

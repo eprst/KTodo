@@ -23,7 +23,7 @@ import java.util.ArrayList;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-public class MyListView extends ListView {
+public class TodoItemsListView extends ListView {
 	private static final String TAG = "MyListView";
 
 	private final int maxThrowVelocity;
@@ -115,7 +115,7 @@ public class MyListView extends ListView {
 		NORMAL, PRESSED_ON_ITEM, DRAGGING_ITEM, ITEM_FLYING, DRAGGING_VIEW_LEFT
 	}
 
-	public MyListView(final Context context, final AttributeSet attrs) {
+	public TodoItemsListView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		final ViewConfiguration viewConfiguration = ViewConfiguration.get(context);
 		scaledTouchSlop = viewConfiguration.getScaledTouchSlop();
@@ -132,10 +132,10 @@ public class MyListView extends ListView {
 			}
 		});
 
-		final TypedArray ta_mlv = context.obtainStyledAttributes(attrs, R.styleable.MyListView);
+		final TypedArray ta_mlv = context.obtainStyledAttributes(attrs, R.styleable.TodoItemsListView);
 		final TypedArray ta_thr = context.obtainStyledAttributes(attrs, R.styleable.Throwable);
 		maxThrowVelocity = ta_thr.getInt(R.styleable.Throwable_maxThrowVelocity, 1500);
-		vibrateOnTearOff = ta_mlv.getInt(R.styleable.MyListView_vibrateOnTearOff, 20);
+		vibrateOnTearOff = ta_mlv.getInt(R.styleable.TodoItemsListView_vibrateOnTearOff, 20);
 //		mainViewId = ta_mlv.getResourceId(R.styleable.MyListView_mainViewId, -1);
 		ta_mlv.recycle();
 		ta_thr.recycle();

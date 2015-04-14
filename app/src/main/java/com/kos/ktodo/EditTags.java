@@ -67,8 +67,8 @@ public class EditTags extends ListActivity {
 				addTag();
 			}
 		});
-		final MyListView mlv = getMyListView();
-		mlv.setDeleteItemListener(new MyListView.DeleteItemListener() {
+		final TodoItemsListView mlv = getMyListView();
+		mlv.setDeleteItemListener(new TodoItemsListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
 				deleteTag(id);
 			}
@@ -82,8 +82,8 @@ public class EditTags extends ListActivity {
 		getLoaderManager().initLoader(TAGS_LOADER_ID, null, tagsLoaderCallbacks);
 	}
 
-	private MyListView getMyListView() {
-		return (MyListView) findViewById(android.R.id.list);
+	private TodoItemsListView getMyListView() {
+		return (TodoItemsListView) findViewById(android.R.id.list);
 	}
 
 //	@Override

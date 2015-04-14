@@ -27,7 +27,7 @@
 					android:layout_height="wrap_content"
 					android:nextFocusRight="@id/tags"/>
 
-				<com.kos.ktodo.MyListView
+				<com.kos.ktodo.TodoItemsListView
 					android:id="@id/android:list"
 					android:layout_width="fill_parent"
 					android:layout_height="0dip"
@@ -191,17 +191,10 @@
 		</LinearLayout>
 	</com.kos.ktodo.SlidingView>
 
-	<ListView
-		android:id="@+id/left_drawer"
-		android:layout_width="140dp"
+	<include
+		layout="@layout/left_drawer"
+		android:layout_width="200dp"
 		android:layout_height="match_parent"
-	    android:layout_gravity="start"
-	    android:choiceMode="singleChoice"
-	    android:divider="@android:color/transparent"
-	    android:dividerHeight="8dp"
-	    android:background="#111"
-	    android:paddingTop="16sp"
-	    android:paddingBottom="16sp"
-	    android:textSize="20sp"
+		android:layout_gravity="start"
 		/>
 </android.support.v4.widget.DrawerLayout>
