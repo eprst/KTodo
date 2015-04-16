@@ -59,7 +59,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
@@ -103,7 +102,6 @@ public class KTodo extends ListActivity {
 	private TodoItemsStorage todoItemsStorage;
 	private TagsStorage tagsStorage;
 	private SimpleCursorAdapter tagsAdapter;
-	//	private Cursor currentTagItemsCursor;
 	private SimpleCursorAdapter editingItemTagsAdapter;
 	@Nullable
 	private SimpleCursorAdapter todoAdapter;
@@ -121,7 +119,7 @@ public class KTodo extends ListActivity {
 	private ActionBar actionBar = null;
 	private ActionBarDrawerToggle drawerToggle;
 
-	private long currentTagId = DBHelper.ALL_TAGS_METATAG_ID;
+	private long currentTagId;
 
 	@Nullable
 	private TodoItem editingItem;
@@ -232,6 +230,8 @@ public class KTodo extends ListActivity {
 		loaderManager.initLoader(ALL_TAGS_LOADER_ID, null, allTagsLoaderCallbacks);
 		loaderManager.initLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, editingItemTagsLoaderCallbacks);
+
+		setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID); // should be overwritten from settings/intent
 	}
 
 	private void setupDrawer() {
@@ -687,9 +687,14 @@ public class KTodo extends ListActivity {
 	}
 
 
-	private void reloadTodoItemsFromAnotherThread() {
-		// TODO check if this can be inlined or should indeed happen from a handler
-		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+	private void reloadTodoItemsFromUIThread() {
+		// otherwise this happens: Can't create handler inside thread that has not called Looper.prepare()
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+			}
+		});
 	}
 
 	private void reloadTodoItems(@NotNull final Cursor currentTagItemsCursor) {
@@ -1120,7 +1125,7 @@ public class KTodo extends ListActivity {
 							Log.e(TAG, "error importing data", e);
 							showErrorFromAnotherThread(e.toString());
 						}
-						reloadTodoItemsFromAnotherThread();
+						reloadTodoItemsFromUIThread();
 					}
 				});
 			}

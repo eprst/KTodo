@@ -16,12 +16,12 @@
 [ ] better voice input (add support for primary/additional languages)
 [ ] option to disable voice input
 [ ] option to leave virtual keyboard visible after entering a new item
-[ ] find a new spot for sorting order (was in the text)
+[ ] find a new spot for sorting order (was in the title)
 [.] decrease throw gravity (make configurable)
 [ ] action bar action for hide/show checked?
-[ ] current list combo to the action bar?
-[.] categories on the right drawer
-[ ] settings on the right drawer
+[-] current list combo to the action bar?
+[v] categories on the right drawer
+[v] settings on the right drawer
 [ ] share-using handler to create new item
 [ ] add 'share' to the action bar (both list and specific item)
 [ ] figure out mipmaps
@@ -29,10 +29,14 @@
 
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
 [.] xhdpi/xxhdpi drawables
-[ ] market screenshot updates
+[ ] market
+  [ ]screenshot updates
+  [ ] big image
 
 
 4.0 bugs:
+[v] initial run: no tag selected
+[v] crashes on import
 [v] main.xml deprecations
 [v] priority not visible on items
 [v] items off-place when sliding
@@ -40,4 +44,4 @@
 [v] W/SQLiteConnectionPool﹕ A SQLiteConnection object for database '/data/data/com.kos.ktodo/databases/ktodo.db' was leaked!  Please fix your application
 
 5.0 ideas
-[ ] use android.widget.Toolbar for bottom bars
+[ ] use android.widget.Toolbar for bottom bars?

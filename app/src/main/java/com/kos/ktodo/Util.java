@@ -33,12 +33,12 @@ public class Util {
 		if (!c) throw new RuntimeException("assertion failed");
 	}
 
-	public static void assumeEquals(final String expected, final String found) {
+	public static void assertEquals(final String expected, final String found) {
 		if (!expected.equals(found))
 			throw new RuntimeException("assertion failed; expected '" + expected + "', found '" + found + "'");
 	}
 
-	public static void assumeEquals(final int expected, final int found) {
+	public static void assertEquals(final int expected, final int found) {
 		if (expected != found)
 			throw new RuntimeException("assertion failed; expected " + expected + ", found " + found);
 	}

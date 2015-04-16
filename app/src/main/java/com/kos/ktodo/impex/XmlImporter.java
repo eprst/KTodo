@@ -8,6 +8,9 @@ import android.util.Log;
 import android.util.LongSparseArray;
 import android.util.Xml;
 import com.kos.ktodo.DBHelper;
+import com.kos.ktodo.Util;
+
+import org.jetbrains.annotations.Nullable;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -16,7 +19,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.kos.ktodo.Util.assumeEquals;
+import static com.kos.ktodo.Util.assertEquals;
 
 /**
  * Tables to XML importer.
@@ -54,11 +57,16 @@ public class XmlImporter extends XmlBase {
 		}
 	}
 
-	private static LongSparseArray<Long> importTable(final SQLiteDatabase db, final XmlPullParser p, final String expectedName, final boolean overwrite,
-	                                               final String fkColumn, final LongSparseArray<Long> fkRemapping,
-	                                               final String... mergeByColumn) throws IOException, XmlPullParserException {
+	private static LongSparseArray<Long> importTable(
+			final SQLiteDatabase db,
+			final XmlPullParser p,
+			final String expectedName,
+			final boolean overwrite,
+			@Nullable final String fkColumn,
+			@Nullable final LongSparseArray<Long> fkRemapping,
+			final String... mergeByColumn) throws IOException, XmlPullParserException {
 		readTag(p, TABLE_TAG, false);
-		assumeEquals(expectedName, p.getAttributeValue(null, NAME_ATTR));
+		Util.assertEquals(expectedName, p.getAttributeValue(null, NAME_ATTR));
 
 		final String pkColumn = p.getAttributeValue(null, PK_ATTR);
 		final LongSparseArray<Long> remapping = overwrite ? null : new LongSparseArray<Long>();
@@ -68,19 +76,23 @@ public class XmlImporter extends XmlBase {
 		while (true) {
 			final int et = p.nextTag();
 			if (et == XmlPullParser.END_TAG) {
-				assumeEquals(TABLE_TAG, p.getName());
+				Util.assertEquals(TABLE_TAG, p.getName());
 				return remapping;
 			} else {
-				assumeEquals(XmlPullParser.START_TAG, et);
-				assumeEquals(ROW_TAG, p.getName());
+				assertEquals(XmlPullParser.START_TAG, et);
+				Util.assertEquals(ROW_TAG, p.getName());
 				importRow(db, p, expectedName, pkColumn, remapping, fkColumn, fkRemapping, mb);
 			}
 		}
 	}
 
-	private static void importRow(final SQLiteDatabase db, final XmlPullParser p, final String tableName,
-	                              final String pkColumn, final LongSparseArray<Long> pkRemapping, //we fill pkRemapping
-	                              final String fkColumn, final LongSparseArray<Long> fkRemapping, //we use fkRemapping
+	private static void importRow(final SQLiteDatabase db,
+	                              final XmlPullParser p,
+	                              final String tableName,
+	                              final String pkColumn,
+	                              final LongSparseArray<Long> pkRemapping, //we fill pkRemapping
+	                              @Nullable final String fkColumn,
+	                              @Nullable final LongSparseArray<Long> fkRemapping, //we use fkRemapping
 	                              final Set<String> mergeByColumn) throws IOException, XmlPullParserException {
 		final ContentValues cv = new ContentValues();
 		int mergeCnt = 0;
@@ -94,10 +106,10 @@ public class XmlImporter extends XmlBase {
 			if (et == XmlPullParser.END_TAG) {
 				if (ROW_TAG.equals(p.getName()))
 					break;
-				assumeEquals(COLUMN_TAG, p.getName());
+				Util.assertEquals(COLUMN_TAG, p.getName());
 			} else {
-				assumeEquals(XmlPullParser.START_TAG, et);
-				assumeEquals(COLUMN_TAG, p.getName());
+				assertEquals(XmlPullParser.START_TAG, et);
+				Util.assertEquals(COLUMN_TAG, p.getName());
 				final String cname = p.getAttributeValue(null, NAME_ATTR);
 				final String val = valueForDB(tableName, cname, unescape(p.nextText()));
 
@@ -106,11 +118,12 @@ public class XmlImporter extends XmlBase {
 				if (fkRemapping != null && cname.equals(fkColumn)) {
 					final Long oldFK = Long.parseLong(val);
 					final Long newFK = fkRemapping.get(oldFK);
-					if (newFK != null && !newFK.equals(oldFK)) {
+					if (newFK == null) {
+						Log.w(TAG, "can't find remapping for " + oldFK);
+					} else if (!newFK.equals(oldFK)) {
 //						Log.i(TAG, "remapped " + tableName + '.' + fkColumn + ": " + oldFK + " -> " + newFK);
 						cv.put(cname, newFK);
-					} else
-						Log.w(TAG, "can't find remapping for " + oldFK);
+					} // else same FK
 				}
 				if (cname.equals(pkColumn))
 					oldPK = Long.parseLong(val);
