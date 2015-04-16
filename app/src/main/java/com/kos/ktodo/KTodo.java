@@ -202,8 +202,7 @@ public class KTodo extends ListActivity {
 			currentTag = wss.load(widgetId).tagID;
 			wss.close();
 		} else
-			currentTag = preferences.getLong("currentTag", 0);
-		setCurrentTag(currentTag);
+			currentTag = preferences.getLong("currentTag", DBHelper.ALL_TAGS_METATAG_ID);
 		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
 		setDefaultDue(preferences.getLong("defaultDue", -1));
 		setDefaultPrio(preferences.getInt("defaultPrio", 1));
@@ -231,7 +230,7 @@ public class KTodo extends ListActivity {
 		loaderManager.initLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, editingItemTagsLoaderCallbacks);
 
-		setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID); // should be overwritten from settings/intent
+		setCurrentTag(currentTag);
 	}
 
 	private void setupDrawer() {

@@ -11,7 +11,7 @@
 [v] import/export not in UI thread
 [v] Russian translation
 [ ] auto-link in notes body?
-[ ] real Open/Save As dialogs for import/export
+[ ] real Open/Save As dialogs for import/export | http://www.estrongs.com/res/develop_en.htm | http://stackoverflow.com/questions/12021622/need-file-save-dialog-for-android
 [ ] scrollable resizable widget
 [ ] better voice input (add support for primary/additional languages)
 [ ] option to disable voice input
