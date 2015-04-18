@@ -134,4 +134,5 @@
 	<string name="day5">%1d days</string>
 	<string name="drawer_open">Open tag selector</string>
 	<string name="drawer_close">Close tag selector</string>
+	<string name="widget">KTodo</string>
 </resources>

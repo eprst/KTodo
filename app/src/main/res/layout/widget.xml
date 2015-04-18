@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+	android:id="@+id/widget"
+	style="@style/WidgetBackground"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:focusable="true">
+
+	<LinearLayout
+		android:id="@+id/widget_tag_bar"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="1dip">
+
+		<ImageView
+			android:id="@+id/widget_app_icon"
+			android:src="@drawable/icon_small"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			/>
+
+		<TextView
+			android:id="@+id/widget_tag"
+			style="@style/Text.Widget.Tag"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1.0"
+			android:paddingTop="3dip"
+			android:text="tag"/>
+
+		<ImageView
+			android:id="@+id/widget_setup_icon"
+			android:src="@drawable/settings"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"/>
+	</LinearLayout>
+
+	<ListView
+		android:id="@+id/widget_list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@id/widget_tag_bar"/>
+</RelativeLayout>
