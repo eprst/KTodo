@@ -14,6 +14,8 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.CheckedTextView;
 
+import org.jetbrains.annotations.NotNull;
+
 public class TodoItemView extends CheckedTextView {
 	private static final String[] PRIO_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
 
@@ -109,11 +111,20 @@ public class TodoItemView extends CheckedTextView {
 	}
 
 	public void setDueDate(final String dueDate, final DueStatus dueStatus) {
-		this.dueDate = dueDate;
+		setDueDate(dueDate);
 		this.dueStatus = dueStatus;
 		dueDateWidth = null;
 		updateSuperCheckmark();
 	}
+
+	// for remote views
+	public void setDueDate(final String dueDate) {
+		this.dueDate = dueDate;
+	}
+	public void setDueDateStatus(final String dueStatusName) {
+		this.dueStatus = DueStatus.valueOf(dueStatusName);
+	}
+	//
 
 	@Override
 	public void setPadding(final int left, final int top, final int right, final int bottom) {
@@ -146,7 +157,7 @@ public class TodoItemView extends CheckedTextView {
 		final int checkmarkWidthExtra = (int) acc;
 
 		// pretend checkmark drawable is wider by checkmarkWidthExtra
-		// to accomodate more space for prio, notes mark and due date
+		// to accommodate more space for prio, notes mark and due date
 		super.setCheckMarkDrawable(new DelegatingDrawable(checkmark) {
 			@Override
 			public int getIntrinsicWidth() {
@@ -193,7 +204,7 @@ public class TodoItemView extends CheckedTextView {
 
 	@Override
 	public void setMinHeight(final int minHeight) {
-		//this allows to workaround the fact that setCheckmarkDrawable sets min heigh to 72 (check mark height)
+		//this allows to workaround the fact that setCheckmarkDrawable sets min height to 72 (check mark height)
 		//essentially we make the value set in constructor (and thus obtained from xml) to be the final one
 		if (this.minHeight == 0) {
 			this.minHeight = minHeight;
@@ -203,7 +214,7 @@ public class TodoItemView extends CheckedTextView {
 
 	private final Rect bounds = new Rect();
 	@Override
-	protected void onDraw(final Canvas canvas) {
+	protected void onDraw(@NotNull final Canvas canvas) {
 		super.onDraw(canvas);
 
 		@SuppressLint("DrawAllocation")

@@ -96,8 +96,8 @@ public class KTodoWidget extends AppWidgetProvider {
 		final int numLines = widgetSizeInfo.getNumLines();
 		final RemoteViews views = new RemoteViews(context.getPackageName(), layout);
 
-		views.setImageViewResource(R.id.widget_app_icon, R.drawable.icon_small);
-		views.setImageViewResource(R.id.widget_setup_icon, R.drawable.settings);
+//		views.setImageViewResource(R.id.widget_app_icon, R.drawable.icon_small);
+//		views.setImageViewResource(R.id.widget_setup_icon, R.drawable.settings);
 		for (int i = 0; i < LINES.length; i++) {
 			views.setViewVisibility(LINES[i], View.INVISIBLE);
 			views.setViewVisibility(ITEMS[i], View.INVISIBLE);

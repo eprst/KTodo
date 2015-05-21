@@ -10,18 +10,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.text.format.DateUtils;
-import android.text.format.Time;
 import android.widget.RemoteViews;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class UpdateService extends Service implements Runnable {
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
 
-	private static final String TAG = "UpdateService";
+//	private static final String TAG = "UpdateService";
 	private static final Object lock = new Object();
-	private static final Queue<Integer> appWidgetIds = new LinkedList<Integer>();
+	private static final Queue<Integer> appWidgetIds = new LinkedList<>();
 
 	private static boolean threadRunning = false;
 
@@ -86,7 +87,7 @@ public class UpdateService extends Service implements Runnable {
 				if (!s.configured) continue;
 				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId);
 				if (widgetInfo != null) {
-					final RemoteViews updViews = KTodoWidgetBase.buildUpdate(this, widgetId, widgetInfo);
+					final RemoteViews updViews = KTodoWidget.buildUpdate(this, widgetId, widgetInfo);
 					if (updViews != null)
 						widgetManager.updateAppWidget(widgetId, updViews);
 				}
@@ -94,17 +95,17 @@ public class UpdateService extends Service implements Runnable {
 			settingsStorage.close();
 
 			//schedule next update at noon
-			final Time t = new Time();
-			t.set(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
-			t.hour = 0;
-			t.minute = 0;
-			t.second = 0;
+			final GregorianCalendar calendar = new GregorianCalendar();
+			calendar.setTimeInMillis(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
+			calendar.set(Calendar.HOUR, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
 
 			final Intent intent = new Intent(ACTION_UPDATE_ALL);
 			intent.setClass(this, this.getClass());
 			final PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			alarmMgr.set(AlarmManager.RTC_WAKEUP, t.toMillis(false), pendingIntent);
+			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 			synchronized (lock) {
 				if (!hasMoreUpdates()) {
 					threadRunning = false;
