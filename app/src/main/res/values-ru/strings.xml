@@ -123,4 +123,5 @@
 	<string name="day5">%1d дней</string>
 	<string name="drawer_close">Открыть селектор тэга</string>
 	<string name="drawer_open">Закрыть селектор тэга</string>
+	<string name="widget_loading_item">Загрузка…</string>
 </resources>

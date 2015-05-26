@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+	android:id="@+id/widget_item"
+	style="@style/Text.Widget.Item"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:text="@string/widget_loading_item"
+	android:layout_height="match_parent">
+</TextView>

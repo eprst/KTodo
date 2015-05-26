@@ -66,8 +66,8 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 	public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		if (appWidgetIds == null)
 			appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, KTodoWidget22.class));
-		UpdateService.requestUpdate(appWidgetIds);
-		context.startService(new Intent(context, UpdateService.class));
+		WidgetUpdateService.requestUpdate(appWidgetIds);
+		context.startService(new Intent(context, WidgetUpdateService.class));
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public abstract class KTodoWidgetBase extends AppWidgetProvider {
 
 		final int FLAG_ACTIVITY_CLEAR_TASK = 32768; //In intent since API level 11
 
-		final Intent configureIntent = new Intent(context, ConfigureActivity.class);
+		final Intent configureIntent = new Intent(context, WidgetConfigureActivity.class);
 		configureIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
 		configureIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
 		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);

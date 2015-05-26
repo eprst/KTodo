@@ -42,5 +42,6 @@
 		android:id="@+id/widget_list"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_below="@id/widget_tag_bar"/>
+		android:layout_below="@id/widget_tag_bar"
+		/>
 </RelativeLayout>

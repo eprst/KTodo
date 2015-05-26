@@ -65,7 +65,7 @@ import com.kos.ktodo.impex.XmlImporter;
 import com.kos.ktodo.menu.MenuAdapter;
 import com.kos.ktodo.menu.MenuItemModel;
 import com.kos.ktodo.preferences.Preferences;
-import com.kos.ktodo.widget.UpdateService;
+import com.kos.ktodo.widget.WidgetUpdateService;
 import com.kos.ktodo.widget.WidgetSettingsStorage;
 
 import org.jetbrains.annotations.NotNull;
@@ -814,8 +814,8 @@ public class KTodo extends ListActivity {
 	}
 
 	private void onDataChanged() {
-		UpdateService.requestUpdateAll(this);
-		startService(new Intent(this, UpdateService.class));
+		WidgetUpdateService.requestUpdateAll(this);
+		startService(new Intent(this, WidgetUpdateService.class));
 		if (todoItemsStorage != null) {
 			todoItemsStorage.resetModifiedDB();
 		}

@@ -5,11 +5,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.kos.ktodo.R;
-import com.kos.ktodo.widget.UpdateService;
+import com.kos.ktodo.widget.WidgetUpdateService;
 
 /**
  * Preferences screen.
@@ -53,8 +52,8 @@ public class Preferences extends PreferenceActivity {
 
 	@Override
 	protected void onStop() {
-		UpdateService.requestUpdateAll(this);
-		startService(new Intent(this, UpdateService.class));
+		WidgetUpdateService.requestUpdateAll(this);
+		startService(new Intent(this, WidgetUpdateService.class));
 		super.onStop();
 	}
 }

@@ -3,7 +3,13 @@ package com.kos.ktodo.widget;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -103,26 +109,91 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 		if (items == null || position < 0 || position >= items.size()) {
 			return null;
 		} else {
-			TodoItem item = items.get(position);
-			RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.todo_item);// todo: separate item?
-			rv.setTextViewText(R.id.todo_item, item.summary);
-			rv.setInt(R.id.todo_item, "setPrio", item.prio);
-			rv.setInt(R.id.todo_item, "setProgress", item.getProgress());
-			rv.setBoolean(R.id.todo_item, "setShowNotesMark", false);
+			// todo cache?
+			final Resources r = context.getResources();
+			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+			final int todayDueDateColor = prefs.getInt("dueTodayColor", r.getColor(R.color.today_due_date_color));
+			final int expiredDueDateColor = prefs.getInt("overdueColor", r.getColor(R.color.expired_due_date_color));
+			final int completedColor = r.getColor(R.color.widget_completed);
+			final int defaultColor = r.getColor(R.color.white);
 
-			Long dueDate = item.getDueDate();
-			if (dueDate != null) {
-				rv.setString(R.id.todo_item, "setDueDate", Util.showDueDate(context, dueDate));
-				rv.setString(R.id.todo_item, "setDueDateStatus", Util.getDueStatus(dueDate).name());
-			}
+
+			TodoItem item = items.get(position);
+
+			RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_item);
+			rv.setTextViewText(R.id.widget_item, item.summary);
+			rv.setTextColor(R.id.widget_item, getItemColor(defaultColor, completedColor, todayDueDateColor, expiredDueDateColor, item));
+
+//			RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_item_bitmap);
+//
+//			LayoutInflater inflater = LayoutInflater.from(context);
+//			@SuppressLint("InflateParams")
+//			TodoItemView itemView = (TodoItemView) inflater.inflate(R.layout.todo_item, null); // todo cache it?
+//			itemView.setText(item.summary);
+//			itemView.setPrio(item.prio);
+//			itemView.setProgress(item.getProgress());
+////			itemView.setCheckMarkDrawable(null); // show checked still?
+//			Long dueDate = item.getDueDate();
+//			item.setDueDate(dueDate);
+//			if (dueDate != null) {
+//				itemView.setDueDate(Util.showDueDate(context, dueDate), Util.getDueStatus(dueDate));
+//			}
+//			itemView.measure(500, 200);
+//			int width = 500; // itemView.getMeasuredWidth
+//			int height = 200; // itemView.getMeasuredHeight
+//			itemView.layout(0, 0, width, height);
+//
+//			final Bitmap bm = Bitmap.createBitmap(itemView.getMeasuredWidth(), itemView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+//			final Canvas bitmapCanvas = new Canvas(bm);
+//			itemView.draw(bitmapCanvas);
+////			itemView.setDrawingCacheEnabled(true);
+////			Bitmap bitmap = itemView.getDrawingCache();
+//			rv.setImageViewBitmap(R.id.widget_item_bitmap, bm);
+
+
+//			RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.todo_item);// todo: separate item?
+//			rv.setTextViewText(R.id.todo_item, item.summary);
+//			rv.setInt(R.id.todo_item, "setPrio", item.prio);
+//			rv.setInt(R.id.todo_item, "setProgress", item.getProgress());
+//			rv.setBoolean(R.id.todo_item, "setShowNotesMark", false);
+//
+//			Long dueDate = item.getDueDate();
+//			if (dueDate != null) {
+//				rv.setString(R.id.todo_item, "setDueDate", Util.showDueDate(context, dueDate));
+//				rv.setString(R.id.todo_item, "setDueDateStatus", Util.getDueStatus(dueDate).name());
+//			}
+
+
+			// todo set onclick listener?
+/*			final Intent fillInIntent = new Intent();
+			fillInIntent.setAction(WidgetProvider.ACTION_TOAST);
+			final Bundle bundle = new Bundle();
+			bundle.putString(WidgetProvider.EXTRA_STRING,
+					mCollections.get(position));
+			fillInIntent.putExtras(bundle);
+			mView.setOnClickFillInIntent(android.R.id.text1, fillInIntent);*/
 
 			return rv;
 		}
 	}
 
+	private static int getItemColor(final int defaultColor, final int completedColor,
+	                                final int dueTodayColor, final int expiredColor,
+	                                final TodoItem i) {
+		switch (Util.getDueStatus(i.getDueDate())) {
+			case EXPIRED:
+				return expiredColor;
+			case TODAY:
+				return dueTodayColor;
+			default:
+				if (i.isDone()) return completedColor;
+				return defaultColor;
+		}
+	}
+
 	@Override
 	public RemoteViews getLoadingView() {
-		return new RemoteViews(context.getPackageName(), R.layout.widget_loading);
+		return null; // todo something better?
 	}
 
 	@Override

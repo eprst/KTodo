@@ -17,7 +17,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class UpdateService extends Service implements Runnable {
+public class WidgetUpdateService extends Service implements Runnable {
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
 
 //	private static final String TAG = "UpdateService";
@@ -29,7 +29,7 @@ public class UpdateService extends Service implements Runnable {
 	public static void requestUpdate(final int[] appWidgetIds) {
 		synchronized (lock) {
 			for (final int widgetId : appWidgetIds)
-				UpdateService.appWidgetIds.add(widgetId);
+				WidgetUpdateService.appWidgetIds.add(widgetId);
 		}
 	}
 
@@ -69,11 +69,12 @@ public class UpdateService extends Service implements Runnable {
 
 	public static void requestUpdateAll(final Context ctx) {
 		final AppWidgetManager manager = AppWidgetManager.getInstance(ctx);
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget21.class)));
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget22.class)));
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget24.class)));
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget42.class)));
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget44.class)));
+		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget.class)));
+//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget21.class)));
+//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget22.class)));
+//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget24.class)));
+//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget42.class)));
+//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget44.class)));
 	}
 
 	public void run() {
@@ -85,7 +86,7 @@ public class UpdateService extends Service implements Runnable {
 				final int widgetId = getNextUpdate();
 				final WidgetSettings s = settingsStorage.load(widgetId);
 				if (!s.configured) continue;
-				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId);
+				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId); // todo widget info not needed now?
 				if (widgetInfo != null) {
 					final RemoteViews updViews = KTodoWidget.buildUpdate(this, widgetId, widgetInfo);
 					if (updViews != null)

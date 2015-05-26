@@ -33,7 +33,7 @@
 		          android:launchMode="standard"
 		          android:windowSoftInputMode="adjustResize"/> <!-- was: singleTop -->
 
-		<activity android:name=".widget.ConfigureActivity"
+		<activity android:name=".widget.WidgetConfigureActivity"
 		          android:label="@string/widget_configure_title"
 		          android:launchMode="singleTop"
 		          android:windowSoftInputMode="stateHidden"
@@ -95,6 +95,8 @@
 			           <!--android:resource="@xml/appwidget_4x4_info"/>-->
 		<!--</receiver>-->
 
-		<service android:name=".widget.UpdateService"/>
+		<service
+			android:name=".widget.WidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
+		<service android:name=".widget.WidgetUpdateService"/>
 	</application>
 </manifest>

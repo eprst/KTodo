@@ -29,7 +29,7 @@ import com.kos.ktodo.TodoItemsSortingMode;
 import com.kos.ktodo.Unit;
 import com.kos.ktodo.Util;
 
-public class ConfigureActivity extends Activity {
+public class WidgetConfigureActivity extends Activity {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "ConfigureActivity";
 	public static final int TAGS_LOADER_ID = 0;
@@ -152,7 +152,7 @@ public class ConfigureActivity extends Activity {
 		final Button b = (Button) findViewById(R.id.conf_sorting);
 		b.setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
-				TodoItemsSortingMode.selectSortingMode(ConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
+				TodoItemsSortingMode.selectSortingMode(WidgetConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
 					public Unit call(final TodoItemsSortingMode arg) {
 						settings.sortingMode = arg;
 						updateSortingButtonText();
@@ -177,8 +177,8 @@ public class ConfigureActivity extends Activity {
 				if (!cb.isChecked())
 					settings.showOnlyDueIn = -1;
 				settingsStorage.save(settings);
-				UpdateService.requestUpdate(new int[]{settings.widgetID});
-				startService(new Intent(ConfigureActivity.this, UpdateService.class));
+				WidgetUpdateService.requestUpdate(new int[]{settings.widgetID});
+				startService(new Intent(WidgetConfigureActivity.this, WidgetUpdateService.class));
 				setConfigureResult(Activity.RESULT_OK);
 				finish();
 			}

@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 
-import com.kos.ktodo.widget.UpdateService;
+import com.kos.ktodo.widget.WidgetUpdateService;
 
 /**
  * Edit tags activity.
@@ -265,8 +265,8 @@ public class EditTags extends ListActivity {
 
 	private void updateWidgetsIfNeeded() {
 		if (tagsStorage.hasModifiedDB()) {
-			UpdateService.requestUpdateAll(this);
-			startService(new Intent(this, UpdateService.class));
+			WidgetUpdateService.requestUpdateAll(this);
+			startService(new Intent(this, WidgetUpdateService.class));
 			tagsStorage.resetModifiedDB();
 		}
 	}
