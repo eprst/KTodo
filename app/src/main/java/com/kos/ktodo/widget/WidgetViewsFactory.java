@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.util.TypedValue;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -49,6 +47,8 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 
 	@Override
 	public void onDataSetChanged() {
+		Log.i(WidgetViewsFactory.class.getName(), "onDataSetChanged");
+
 		if (widgetSettingsStorage != null &&
 				todoItemsStorage != null &&
 				widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -76,6 +76,11 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 		if (widgetSettingsStorage != null) {
 			widgetSettingsStorage.close();
 			widgetSettingsStorage = null;
+		}
+
+		if (todoItemsStorage != null) {
+			todoItemsStorage.close();
+			todoItemsStorage = null;
 		}
 
 		items = null;
@@ -116,7 +121,6 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 			final int expiredDueDateColor = prefs.getInt("overdueColor", r.getColor(R.color.expired_due_date_color));
 			final int completedColor = r.getColor(R.color.widget_completed);
 			final int defaultColor = r.getColor(R.color.white);
-
 
 			TodoItem item = items.get(position);
 
@@ -165,13 +169,13 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 
 
 			// todo set onclick listener?
-/*			final Intent fillInIntent = new Intent();
-			fillInIntent.setAction(WidgetProvider.ACTION_TOAST);
-			final Bundle bundle = new Bundle();
-			bundle.putString(WidgetProvider.EXTRA_STRING,
-					mCollections.get(position));
-			fillInIntent.putExtras(bundle);
-			mView.setOnClickFillInIntent(android.R.id.text1, fillInIntent);*/
+//			final Intent fillInIntent = new Intent();
+//			fillInIntent.setAction(WidgetProvider.ACTION_TOAST);
+//			final Bundle bundle = new Bundle();
+//			bundle.putString(WidgetProvider.EXTRA_STRING,
+//					mCollections.get(position));
+//			fillInIntent.putExtras(bundle);
+//			rv.setOnClickFillInIntent(android.R.id.text1, fillInIntent);
 
 			return rv;
 		}

@@ -24,7 +24,6 @@ public class TagsStorage {
 	private SQLiteDatabase db;
 	private final DBHelper helper;
 	private final Context context;
-	private boolean modifiedDB;
 
 	public TagsStorage(final Context context) {
 		this.context = context;
@@ -33,7 +32,6 @@ public class TagsStorage {
 
 	public void open() {
 		db = helper.getWritableDatabase();
-		modifiedDB = false;
 	}
 
 	public void close() {
@@ -45,7 +43,6 @@ public class TagsStorage {
 	}
 
 	public long addTag(final String tag) {
-		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, tag);
 		final long res = db.insert(TAG_TABLE_NAME, null, cv);
@@ -54,7 +51,6 @@ public class TagsStorage {
 	}
 
 	public boolean renameTag(final String oldName, final String newName) {
-		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, newName);
 		final boolean res = db.update(TAG_TABLE_NAME, cv, TAG_TAG + "=" + oldName, null) > 0;
@@ -63,7 +59,6 @@ public class TagsStorage {
 	}
 
 	public boolean renameTag(final long id, final String newName) {
-		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, newName);
 		final boolean res = db.update(TAG_TABLE_NAME, cv, TAG_ID + "=" + id, null) > 0;
@@ -76,14 +71,12 @@ public class TagsStorage {
 //	}
 
 	public boolean deleteTag(final long id) {
-		modifiedDB = true;
 		final boolean res = db.delete(TAG_TABLE_NAME, TAG_ID + "=" + id, null) > 0;
 		notifyChange();
 		return res;
 	}
 
 	public void deleteAllTags() {
-		modifiedDB = true;
 		db.delete(TAG_TABLE_NAME,
 				TAG_ID + "<>" + DBHelper.ALL_TAGS_METATAG_ID + " AND " + DBHelper.TAG_ID + "<>" + DBHelper.UNFILED_METATAG_ID,
 				null);
@@ -117,13 +110,5 @@ public class TagsStorage {
 		final String res = cursor.moveToFirst() ? cursor.getString(0) : null;
 		cursor.close();
 		return res;
-	}
-
-	public boolean hasModifiedDB() {
-		return modifiedDB;
-	}
-
-	public void resetModifiedDB() {
-		modifiedDB = false;
 	}
 }

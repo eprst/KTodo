@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -231,6 +232,16 @@ public class KTodo extends ListActivity {
 		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, editingItemTagsLoaderCallbacks);
 
 		setCurrentTag(currentTag);
+
+
+		ContentObserver contentObserver = new ContentObserver(new Handler()) {
+			@Override
+			public void onChange(boolean selfChange) {
+				onDataChanged();
+			}
+		};
+		getApplicationContext().getContentResolver().registerContentObserver(TodoItemsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
+		getApplicationContext().getContentResolver().registerContentObserver(TagsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
 	}
 
 	private void setupDrawer() {
@@ -775,7 +786,6 @@ public class KTodo extends ListActivity {
 
 	@Override
 	protected void onPause() {
-		checkDataChanged();
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		final SharedPreferences.Editor editor = preferences.edit();
 		editor.putLong("currentTag", getCurrentTagID());
@@ -789,8 +799,6 @@ public class KTodo extends ListActivity {
 
 	@Override
 	protected void onDestroy() {
-		checkDataChanged();
-
 		final LoaderManager loaderManager = getLoaderManager();
 		loaderManager.destroyLoader(CURRENT_TAG_ITEMS_LOADER_ID);
 		loaderManager.destroyLoader(ALL_TAGS_LOADER_ID);
@@ -805,23 +813,10 @@ public class KTodo extends ListActivity {
 		if (TRACE) Debug.stopMethodTracing();
 	}
 
-	private void checkDataChanged() {
-		if (todoItemsStorage != null) {
-			if (todoItemsStorage.hasModifiedDB() || tagsStorage.hasModifiedDB()) {
-				onDataChanged();
-			}
-		}
-	}
-
 	private void onDataChanged() {
 		WidgetUpdateService.requestUpdateAll(this);
 		startService(new Intent(this, WidgetUpdateService.class));
-		if (todoItemsStorage != null) {
-			todoItemsStorage.resetModifiedDB();
-		}
-		tagsStorage.resetModifiedDB();
 		LastModifiedState.touch(this);
-//		Log.i(TAG, "data changed");
 		new BackupManager(this).dataChanged();
 	}
 

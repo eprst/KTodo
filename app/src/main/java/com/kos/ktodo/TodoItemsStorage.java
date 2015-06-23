@@ -25,7 +25,6 @@ public class TodoItemsStorage {
 	private SQLiteDatabase db;
 	private final DBHelper helper;
 	private final Context context;
-	private boolean modifiedDB;
 //	private SQLiteStatement toggleDoneStmt1;
 //	private SQLiteStatement toggleDoneStmt2;
 
@@ -39,7 +38,6 @@ public class TodoItemsStorage {
 //		toggleDoneStmt1 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_DONE + " = NOT " + TODO_DONE + " WHERE " + TODO_ID + "=?");
 //		toggleDoneStmt2 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_PROGRESS + " = 0 " + " WHERE " +
 //		                                      TODO_ID + "=? AND " + TODO_PROGRESS + " = 100 AND " + TODO_DONE + " = 0");
-		modifiedDB = false;
 		if (helper.isNeedToRecreateAllItems()) {
 			recreateAllItems();
 			helper.resetNeedToRecreateAllItems();
@@ -55,7 +53,6 @@ public class TodoItemsStorage {
 	}
 
 	public TodoItem addTodoItem(final TodoItem item) {
-		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		final long id = db.insert(TODO_TABLE_NAME, null, cv);
 		final TodoItem res = new TodoItem(id, item.tagID, item.isDone(), item.summary, item.body, item.prio, item.getProgress(), item.getDueDate(), item.caretPos);
@@ -82,7 +79,6 @@ public class TodoItemsStorage {
 	}
 
 	public boolean saveTodoItem(final TodoItem item) {
-		modifiedDB = true;
 		final ContentValues cv = fillValues(item);
 		final boolean res = db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
 		if (res) notifyChange();
@@ -98,7 +94,6 @@ public class TodoItemsStorage {
 //	}
 
 	public void moveTodoItems(final long fromTag, final long toTag) {
-		modifiedDB = true;
 		final ContentValues cv = new ContentValues();
 		cv.put(TODO_TAG_ID, toTag);
 		db.update(TODO_TABLE_NAME, cv, TODO_TAG_ID + "=" + fromTag, null);
@@ -106,20 +101,17 @@ public class TodoItemsStorage {
 	}
 
 	public boolean deleteTodoItem(final long id) {
-		modifiedDB = true;
 		final boolean res = db.delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
 		if (res) notifyChange();
 		return res;
 	}
 
 	public void deleteAllTodoItems() {
-		modifiedDB = true;
 		db.delete(TODO_TABLE_NAME, null, null);
 		notifyChange();
 	}
 
 	public int deleteByTag(final long tagID) {
-		modifiedDB = true;
 		final int res = db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
 		if (res > 0) notifyChange();
 		return res;
@@ -173,13 +165,5 @@ public class TodoItemsStorage {
 			cursor.moveToNext();
 		}
 		cursor.close();
-	}
-
-	public boolean hasModifiedDB() {
-		return modifiedDB;
-	}
-
-	public void resetModifiedDB() {
-		modifiedDB = false;
 	}
 }

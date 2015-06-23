@@ -1,20 +1,24 @@
 package com.kos.ktodo.widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.kos.ktodo.DBHelper;
+import com.kos.ktodo.KTodo;
 import com.kos.ktodo.R;
 import com.kos.ktodo.TagsStorage;
 
-public class KTodoWidget extends AppWidgetProvider {
+public class KTodoWidgetProvider extends AppWidgetProvider {
 	private static final String TAG = "KTodoWidgetBase";
 
 	//implement real content provider?
@@ -24,7 +28,7 @@ public class KTodoWidget extends AppWidgetProvider {
 	@Override
 	public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		if (appWidgetIds == null)
-			appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, KTodoWidget.class));
+			appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, KTodoWidgetProvider.class));
 		WidgetUpdateService.requestUpdate(appWidgetIds);
 		context.startService(new Intent(context, WidgetUpdateService.class));
 	}
@@ -67,12 +71,32 @@ public class KTodoWidget extends AppWidgetProvider {
 		settingsStorage.close();
 
 		// update list items
+		Log.i(KTodoWidgetProvider.class.getName(), "buildUpdate: " + widgetId); // fixme: we get more and more updates every time
 
 		Intent intent = new Intent(context, WidgetService.class);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 		intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
 
 		remoteViews.setRemoteAdapter(R.id.widget_list, intent);
+
+		// todo is it OK to re-register intents on every update?
+
+		final Intent configureIntent = new Intent(context, WidgetConfigureActivity.class);
+		configureIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
+		configureIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
+		configureIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		final PendingIntent configurePendingIntent = PendingIntent.getActivity(context, 0, configureIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		remoteViews.setOnClickPendingIntent(R.id.widget_setup_icon, configurePendingIntent);
+
+		final Intent showTagIntent = new Intent(context, KTodo.class);
+		showTagIntent.setAction(KTodo.SHOW_WIDGET_DATA);
+		showTagIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
+		showTagIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		final PendingIntent showTagPendingIntent = PendingIntent.getActivity(context, 0, showTagIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+		remoteViews.setOnClickPendingIntent(R.id.widget, showTagPendingIntent);
+
+		AppWidgetManager.getInstance(context).notifyAppWidgetViewDataChanged(widgetId, R.id.widget_list);
+
 		return remoteViews;
 	}
 }

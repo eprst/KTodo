@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -19,8 +18,6 @@ import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
-
-import com.kos.ktodo.widget.WidgetUpdateService;
 
 /**
  * Edit tags activity.
@@ -220,7 +217,7 @@ public class EditTags extends ListActivity {
 
 	private void renameTag(final long id) {
 		final LayoutInflater inf = LayoutInflater.from(this);
-		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
+		final View textEntryView = inf.inflate(R.layout.alert_text_entry, getMyListView());
 		final String currentName = tagsStorage.getTag(id);
 		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
 		editText.setMaxLines(1);
@@ -250,25 +247,10 @@ public class EditTags extends ListActivity {
 	}
 
 	@Override
-	protected void onPause() {
-		updateWidgetsIfNeeded();
-		super.onPause();
-	}
-
-	@Override
 	protected void onDestroy() {
-		updateWidgetsIfNeeded();
 		getLoaderManager().destroyLoader(TAGS_LOADER_ID);
 		tagsStorage.close();
 		super.onDestroy();
-	}
-
-	private void updateWidgetsIfNeeded() {
-		if (tagsStorage.hasModifiedDB()) {
-			WidgetUpdateService.requestUpdateAll(this);
-			startService(new Intent(this, WidgetUpdateService.class));
-			tagsStorage.resetModifiedDB();
-		}
 	}
 
 	private class TagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {

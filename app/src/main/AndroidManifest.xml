@@ -47,7 +47,7 @@
 
 		<activity android:name=".preferences.Preferences" android:label="@string/prefs_title"/>
 
-		<receiver android:name=".widget.KTodoWidget" android:label="@string/widget">
+		<receiver android:name=".widget.KTodoWidgetProvider" android:label="@string/widget">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
 			</intent-filter>
