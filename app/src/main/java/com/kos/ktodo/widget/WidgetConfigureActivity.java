@@ -66,6 +66,7 @@ public class WidgetConfigureActivity extends Activity {
 			return;
 		}
 
+		initItemOnClickActionSelector();
 		initHideCompleted();
 		initDue();
 		initDueIn();
@@ -90,6 +91,23 @@ public class WidgetConfigureActivity extends Activity {
 			}
 
 			public void onNothingSelected(final AdapterView<?> parent) {
+			}
+		});
+	}
+
+	private void initItemOnClickActionSelector() {
+		final Spinner spinner = getItemOnClickActionWidget();
+		spinner.setSelection(settings.itemOnClickAction.ordinal());
+
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				settings.itemOnClickAction = WidgetItemOnClickAction.fromOrdinal((int) spinner.getSelectedItemId());
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
 			}
 		});
 	}
@@ -147,7 +165,7 @@ public class WidgetConfigureActivity extends Activity {
 		});
 	}
 
-	private void initSortingButton() {
+	private void initSortingButton() { // todo it should be a spinner
 		updateSortingButtonText();
 		final Button b = (Button) findViewById(R.id.conf_sorting);
 		b.setOnClickListener(new View.OnClickListener() {
@@ -207,6 +225,10 @@ public class WidgetConfigureActivity extends Activity {
 
 	private Spinner getTagsWidget() {
 		return (Spinner) findViewById(R.id.conf_tags);
+	}
+
+	private Spinner getItemOnClickActionWidget() {
+		return (Spinner) findViewById(R.id.conf_on_item_click);
 	}
 
 	private class TagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {

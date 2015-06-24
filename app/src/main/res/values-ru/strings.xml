@@ -124,4 +124,12 @@
 	<string name="drawer_close">Открыть селектор тэга</string>
 	<string name="drawer_open">Закрыть селектор тэга</string>
 	<string name="widget_loading_item">Загрузка…</string>
+	<string name="widget_on_item_click">По клику на элемент…</string>
+
+	<string-array name="widget_item_on_click_options">
+		<item>Ничего не делать</item>
+		<item>Пометить как готовый</item>
+		<item>Редактировать элемент</item>
+		<item>Открыть тэг</item>
+	</string-array>
 </resources>

@@ -10,6 +10,7 @@ public class WidgetSettings {
 	public boolean showOnlyDue = false;
 	public int showOnlyDueIn = -1;
 	public TodoItemsSortingMode sortingMode = TodoItemsSortingMode.PRIO_DUE_SUMMARY;
+	public WidgetItemOnClickAction itemOnClickAction = WidgetItemOnClickAction.DEFAULT;
 
 	public WidgetSettings(final int widgetID) {
 		this.widgetID = widgetID;
@@ -17,6 +18,7 @@ public class WidgetSettings {
 
 	@Override
 	public String toString() {
+		@SuppressWarnings("StringBufferReplaceableByString")
 		final StringBuilder sb = new StringBuilder();
 		sb.append("WidgetSettings");
 		sb.append("{configured=").append(configured);
@@ -26,6 +28,7 @@ public class WidgetSettings {
 		sb.append(", showOnlyDue=").append(showOnlyDue);
 		sb.append(", showOnlyDueIn=").append(showOnlyDueIn);
 		sb.append(", sortingMode=").append(sortingMode);
+		sb.append(", itemOnClickAction=").append(itemOnClickAction);
 		sb.append('}');
 		return sb.toString();
 	}

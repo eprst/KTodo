@@ -135,6 +135,13 @@ public class KTodo extends ListActivity {
 	private Float listFontSize;
 	private boolean clickAnywhereToCheck = true;
 
+	private final ContentObserver contentObserver = new ContentObserver(new Handler()) {
+		@Override
+		public void onChange(boolean selfChange) {
+			onDataChanged();
+		}
+	};
+
 	public KTodo() {
 		deleteItemListener = new TodoItemsListView.DeleteItemListener() {
 			public void deleteItem(final long id) {
@@ -233,13 +240,6 @@ public class KTodo extends ListActivity {
 
 		setCurrentTag(currentTag);
 
-
-		ContentObserver contentObserver = new ContentObserver(new Handler()) {
-			@Override
-			public void onChange(boolean selfChange) {
-				onDataChanged();
-			}
-		};
 		getApplicationContext().getContentResolver().registerContentObserver(TodoItemsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
 		getApplicationContext().getContentResolver().registerContentObserver(TagsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
 	}
@@ -304,7 +304,6 @@ public class KTodo extends ListActivity {
 				invokeMenuAction(position);
 			}
 		});
-		// todo: register listener
 	}
 
 	private void invokeMenuAction(int position) {
@@ -809,13 +808,17 @@ public class KTodo extends ListActivity {
 
 		todoItemsStorage.close();
 		tagsStorage.close();
+
+		getApplicationContext().getContentResolver().unregisterContentObserver(contentObserver);
+
 		super.onDestroy();
 		if (TRACE) Debug.stopMethodTracing();
 	}
 
 	private void onDataChanged() {
-		WidgetUpdateService.requestUpdateAll(this);
+		Log.i(TAG, "onDataChanged");
 		startService(new Intent(this, WidgetUpdateService.class));
+		WidgetUpdateService.requestUpdateAll(this);
 		LastModifiedState.touch(this);
 		new BackupManager(this).dataChanged();
 	}

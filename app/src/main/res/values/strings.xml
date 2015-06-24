@@ -46,11 +46,6 @@
 	<string name="no_date">No date</string>
 	<string name="choose_date">Choose date…</string>
 	<string name="due_date_format_short">M/d</string>
-	<string name="widget_2x2">KTodo 2x2</string>
-	<string name="widget_2x1">KTodo 2x1</string>
-	<string name="widget_2x4">KTodo 2x4</string>
-	<string name="widget_4x2">KTodo 4x2</string>
-	<string name="widget_4x4">KTodo 4x4</string>
 	<string name="widget_loading">Loading widget…</string>
 	<string name="widget_configure_title">Configure KTodo widget</string>
 	<string name="widget_ok">OK</string>
@@ -136,4 +131,12 @@
 	<string name="drawer_close">Close tag selector</string>
 	<string name="widget">KTodo</string>
 	<string name="widget_loading_item">Loading…</string>
+	<string name="widget_on_item_click">On item click…</string>
+	
+	<string-array name="widget_item_on_click_options">
+		<item>Do nothing</item>
+		<item>Mark as done</item>
+		<item>Edit item</item>
+		<item>Open tag</item>
+	</string-array>
 </resources>

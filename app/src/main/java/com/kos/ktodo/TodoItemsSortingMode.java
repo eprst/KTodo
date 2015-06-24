@@ -19,7 +19,7 @@ public enum TodoItemsSortingMode {
 	private final int titleResId;
 	private final String orderBy;
 
-	private TodoItemsSortingMode(final int nameResId, final int titleResId, final String... cols) {
+	TodoItemsSortingMode(final int nameResId, final int titleResId, final String... cols) {
 		this.nameResId = nameResId;
 		this.titleResId = titleResId;
 		final StringBuilder sb = new StringBuilder();

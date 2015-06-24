@@ -71,7 +71,6 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 		settingsStorage.close();
 
 		// update list items
-		Log.i(KTodoWidgetProvider.class.getName(), "buildUpdate: " + widgetId); // fixme: we get more and more updates every time
 
 		Intent intent = new Intent(context, WidgetService.class);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);

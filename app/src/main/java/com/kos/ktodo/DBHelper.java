@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.kos.ktodo.widget.WidgetItemOnClickAction;
+
 /**
  * SQLite helper.
  *
@@ -15,7 +17,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 7;
+	private static final int DB_VERSION = 8;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
@@ -44,6 +46,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String WIDGET_SHOW_ONLY_DUE_IN = "show_only_due_in";
 	public static final String WIDGET_SORTING_MODE = "sorting_mode";
 	public static final String WIDGET_CONFIGURED = "configured";
+	public static final String WIDGET_ITEM_ON_CLICK_ACTION = "item_on_click_action";
 
 	private static final String CREATE_TAG_TABLE = "create table if not exists " + TAG_TABLE_NAME +
 	                                               " (" + TAG_ID + " integer primary key autoincrement, " +
@@ -68,6 +71,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	                                                  WIDGET_SHOW_ONLY_DUE + " boolean default 0 not null, " +
 	                                                  WIDGET_SHOW_ONLY_DUE_IN + " integer default -1 not null, " +
 	                                                  WIDGET_SORTING_MODE + " integer default " + TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal() + " not null, " +
+	                                                  WIDGET_ITEM_ON_CLICK_ACTION + " integer default " + WidgetItemOnClickAction.DEFAULT.ordinal() + " not null, " +
 	                                                  WIDGET_HIDE_COMPLETED + " boolean default 1 not null);";
 
 //	private static DBHelper instance = null;
@@ -147,6 +151,9 @@ public class DBHelper extends SQLiteOpenHelper {
 			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_CARET_POSITION + " integer default 0 null;");
 		if (oldv < 7)
 			needToRecreateAllItems = true;
+		if (oldv < 8)
+			sqLiteDatabase.execSQL("alter table " + WIDGET_TABLE_NAME + " add " + WIDGET_ITEM_ON_CLICK_ACTION +
+			                       " integer default " + WidgetItemOnClickAction.DEFAULT.ordinal() + " not null");
 	}
 
 	public boolean isNeedToRecreateAllItems() {
