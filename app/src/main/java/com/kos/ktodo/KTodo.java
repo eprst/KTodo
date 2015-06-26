@@ -22,6 +22,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
@@ -79,6 +80,7 @@ import java.util.List;
 
 public class KTodo extends ListActivity {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
+	public static final String SHOW_WIDGET_ITEM_DATA = "com.kos.ktodo.SHOW_WIDGET_ITEM_DATA";
 
 	private static final String TAG = "KTodo";
 	private static final boolean TRACE = false; //enables method tracing
@@ -203,14 +205,10 @@ public class KTodo extends ListActivity {
 		final SharedPreferences preferences = getPreferences(Activity.MODE_PRIVATE);
 		final long currentTag;
 		final Intent intent = getIntent();
-		if (intent != null && SHOW_WIDGET_DATA.equals(intent.getAction())) {
-			final int widgetId = (int) ContentUris.parseId(intent.getData());
-			final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
-			wss.open();
-			currentTag = wss.load(widgetId).tagID;
-			wss.close();
-		} else
-			currentTag = preferences.getLong("currentTag", DBHelper.ALL_TAGS_METATAG_ID);
+
+		Integer tagId = extractTagIdFromIntent(intent);
+		currentTag = tagId != null ? tagId : preferences.getLong("currentTag", DBHelper.ALL_TAGS_METATAG_ID);
+
 		hidingCompleted = preferences.getBoolean("hidingCompleted", false);
 		setDefaultDue(preferences.getLong("defaultDue", -1));
 		setDefaultPrio(preferences.getInt("defaultPrio", 1));
@@ -242,6 +240,8 @@ public class KTodo extends ListActivity {
 
 		getApplicationContext().getContentResolver().registerContentObserver(TodoItemsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
 		getApplicationContext().getContentResolver().registerContentObserver(TagsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
+
+		runIntent(intent);
 	}
 
 	private void setupDrawer() {
@@ -351,10 +351,6 @@ public class KTodo extends ListActivity {
 		getDrawerMenu().setAdapter(new MenuAdapter(this, menuItems));
 	}
 
-//	private boolean isShowingWidgetData() {
-//		return getIntent() != null && SHOW_WIDGET_DATA.equals(getIntent().getAction());
-//	}
-
 	private void setupAddButtonIcon() {
 		if (voiceDrawable != null) {
 			getAddTaskWidget().addTextChangedListener(new TextWatcher() {
@@ -380,23 +376,67 @@ public class KTodo extends ListActivity {
 		}
 	}
 
-	@Override
-	protected void onNewIntent(final Intent intent) {
-		if (intent != null && SHOW_WIDGET_DATA.equals(intent.getAction())) {
-			final int widgetId = (int) ContentUris.parseId(intent.getData());
-			final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
-			wss.open();
-			final int currentTag = wss.load(widgetId).tagID;
-			wss.close();
-			handler.post(new Runnable() {
-				public void run() {
-					setCurrentTag(currentTag);
-//					reloadTodoItems();
-					getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
-				}
-			});
-			setIntent(intent);
+//	@Override
+//	protected void onNewIntent(final Intent intent) {
+//		Log.i(TAG, "onNewIntent: " + intent);
+//		final Integer tagId = extractTagIdFromIntent(intent);
+//		if (tagId != null) {
+//			handler.post(new Runnable() {
+//				public void run() {
+//					setCurrentTag(tagId.longValue());
+//					getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+//				}
+//			});
+//			setIntent(intent);
+//		}
+//	}
+
+	private void runIntent(final Intent intent) {
+		switch (intent.getAction()) {
+			case SHOW_WIDGET_ITEM_DATA:
+				// do we have to switch current tag?
+				Long itemId = Long.parseLong(intent.getData().getLastPathSegment());
+				editItem(itemId);
+				break;
+			// SHOW_WIDGET_DATA is processed in onCreate by selecting correct initial currentTag
 		}
+	}
+
+	private void editItem(Long itemId) {
+		startEditingItem(itemId);
+		handler.postDelayed(new Runnable() {
+			public void run() {
+				getSlidingView().switchRight();
+			}
+		}, 100);
+	}
+
+	@Nullable
+	private Integer extractTagIdFromIntent(final Intent intent) {
+		if (intent != null) {
+			int widgetId = -1;
+			switch (intent.getAction()) {
+				case SHOW_WIDGET_DATA:
+					widgetId = (int) ContentUris.parseId(intent.getData());
+					break;
+				case SHOW_WIDGET_ITEM_DATA:
+					Uri data = intent.getData();
+					List<String> pathSegments = data.getPathSegments();
+					if (pathSegments.size() == 3) {
+						widgetId = Integer.parseInt(pathSegments.get(1));
+					}
+					break;
+			}
+			if (widgetId != -1) {
+				final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
+				wss.open();
+				int tagId = wss.load(widgetId).tagID;
+				wss.close();
+				return tagId;
+			}
+			return null;
+		} else
+			return null;
 	}
 
 	private void onSlideBack() {
@@ -816,7 +856,6 @@ public class KTodo extends ListActivity {
 	}
 
 	private void onDataChanged() {
-		Log.i(TAG, "onDataChanged");
 		startService(new Intent(this, WidgetUpdateService.class));
 		WidgetUpdateService.requestUpdateAll(this);
 		LastModifiedState.touch(this);
@@ -861,14 +900,8 @@ public class KTodo extends ListActivity {
 		final boolean onLeft = savedInstanceState.getBoolean("onLeft");
 		if (onLeft)
 			getSlidingView().switchLeft();
-		else {
-			startEditingItem(savedInstanceState.getLong("itemBeingEditedID"));
-			handler.postDelayed(new Runnable() {
-				public void run() {
-					getSlidingView().switchRight();
-				}
-			}, 100);
-		}
+		else
+			editItem(savedInstanceState.getLong("itemBeingEditedID"));
 //		reloadTodoItems();
 		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 	}

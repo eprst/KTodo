@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -47,8 +47,6 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 
 	@Override
 	public void onDataSetChanged() {
-		Log.i(WidgetViewsFactory.class.getName(), "onDataSetChanged");
-
 		if (widgetSettingsStorage != null &&
 				todoItemsStorage != null &&
 				widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -128,54 +126,12 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 			rv.setTextViewText(R.id.widget_item, item.summary);
 			rv.setTextColor(R.id.widget_item, getItemColor(defaultColor, completedColor, todayDueDateColor, expiredDueDateColor, item));
 
-//			RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_item_bitmap);
-//
-//			LayoutInflater inflater = LayoutInflater.from(context);
-//			@SuppressLint("InflateParams")
-//			TodoItemView itemView = (TodoItemView) inflater.inflate(R.layout.todo_item, null); // todo cache it?
-//			itemView.setText(item.summary);
-//			itemView.setPrio(item.prio);
-//			itemView.setProgress(item.getProgress());
-////			itemView.setCheckMarkDrawable(null); // show checked still?
-//			Long dueDate = item.getDueDate();
-//			item.setDueDate(dueDate);
-//			if (dueDate != null) {
-//				itemView.setDueDate(Util.showDueDate(context, dueDate), Util.getDueStatus(dueDate));
-//			}
-//			itemView.measure(500, 200);
-//			int width = 500; // itemView.getMeasuredWidth
-//			int height = 200; // itemView.getMeasuredHeight
-//			itemView.layout(0, 0, width, height);
-//
-//			final Bitmap bm = Bitmap.createBitmap(itemView.getMeasuredWidth(), itemView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-//			final Canvas bitmapCanvas = new Canvas(bm);
-//			itemView.draw(bitmapCanvas);
-////			itemView.setDrawingCacheEnabled(true);
-////			Bitmap bitmap = itemView.getDrawingCache();
-//			rv.setImageViewBitmap(R.id.widget_item_bitmap, bm);
-
-
-//			RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.todo_item);// todo: separate item?
-//			rv.setTextViewText(R.id.todo_item, item.summary);
-//			rv.setInt(R.id.todo_item, "setPrio", item.prio);
-//			rv.setInt(R.id.todo_item, "setProgress", item.getProgress());
-//			rv.setBoolean(R.id.todo_item, "setShowNotesMark", false);
-//
-//			Long dueDate = item.getDueDate();
-//			if (dueDate != null) {
-//				rv.setString(R.id.todo_item, "setDueDate", Util.showDueDate(context, dueDate));
-//				rv.setString(R.id.todo_item, "setDueDateStatus", Util.getDueStatus(dueDate).name());
-//			}
-
-
-			// todo set onclick listener?
-//			final Intent fillInIntent = new Intent();
-//			fillInIntent.setAction(WidgetProvider.ACTION_TOAST);
-//			final Bundle bundle = new Bundle();
-//			bundle.putString(WidgetProvider.EXTRA_STRING,
-//					mCollections.get(position));
-//			fillInIntent.putExtras(bundle);
-//			rv.setOnClickFillInIntent(android.R.id.text1, fillInIntent);
+			final Intent fillInIntent = new Intent();
+			final Bundle bundle = new Bundle();
+			bundle.putLong(KTodoWidgetProvider.ON_ITEM_CLICK_ITEM_ID_EXTRA, item.id);
+			bundle.putLong(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+			fillInIntent.putExtras(bundle);
+			rv.setOnClickFillInIntent(R.id.widget_item, fillInIntent);
 
 			return rv;
 		}

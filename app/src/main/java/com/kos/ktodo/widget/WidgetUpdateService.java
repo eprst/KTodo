@@ -21,13 +21,14 @@ import java.util.Queue;
 public class WidgetUpdateService extends Service implements Runnable {
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
 
-//	private static final String TAG = "UpdateService";
+	private static final String TAG = "WidgetUpdateService";
 	private static final Object lock = new Object();
 	private static final Queue<Integer> appWidgetIds = new LinkedList<>();
 
 	private static boolean threadRunning = false;
 
 	public static void requestUpdate(final int[] appWidgetIds) {
+//		Log.i(TAG, "requestUpdate: " + appWidgetIds.length);
 		synchronized (lock) {
 			for (final int widgetId : appWidgetIds)
 				WidgetUpdateService.appWidgetIds.add(widgetId);
@@ -69,19 +70,14 @@ public class WidgetUpdateService extends Service implements Runnable {
 	}
 
 	public static void requestUpdateAll(final Context ctx) {
+//		Log.i(WidgetUpdateService.class.getName(), "requestUpdateAll");
 		final AppWidgetManager manager = AppWidgetManager.getInstance(ctx);
 		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidgetProvider.class)));
-//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget21.class)));
-//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget22.class)));
-//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget24.class)));
-//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget42.class)));
-//		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidget44.class)));
 	}
 
 	public void run() {
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
 		while (true) {
-			Log.i(getClass().getName(), "tick-----------------------------------");
 			settingsStorage.open();
 			final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
 			while (hasMoreUpdates()) {
@@ -92,7 +88,6 @@ public class WidgetUpdateService extends Service implements Runnable {
 				if (widgetInfo != null) {
 					final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId, widgetInfo);
 					if (updViews != null) {
-						Log.i(getClass().getName(), "requesting widget update:" + widgetId);
 						widgetManager.updateAppWidget(widgetId, updViews);
 					}
 				}

@@ -35,7 +35,6 @@ public class LastModifiedState {
 
 	public static Long getLastModified(final Context ctx) {
 		final File lastModFile = getLastModFile(ctx);
-		if (lastModFile == null) return null;
 		return lastModFile.lastModified();
 	}
 }

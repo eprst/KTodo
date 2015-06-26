@@ -1,6 +1,7 @@
 package com.kos.ktodo.widget;
 
 import android.app.PendingIntent;
+import android.app.backup.BackupManager;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.appwidget.AppWidgetProviderInfo;
@@ -15,8 +16,13 @@ import android.widget.RemoteViews;
 
 import com.kos.ktodo.DBHelper;
 import com.kos.ktodo.KTodo;
+import com.kos.ktodo.LastModifiedState;
 import com.kos.ktodo.R;
 import com.kos.ktodo.TagsStorage;
+import com.kos.ktodo.TodoItem;
+import com.kos.ktodo.TodoItemsStorage;
+
+import org.jetbrains.annotations.NotNull;
 
 public class KTodoWidgetProvider extends AppWidgetProvider {
 	private static final String TAG = "KTodoWidgetBase";
@@ -24,6 +30,9 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 	//implement real content provider?
 	protected static final String AUTHORITY = "com.kos.ktodo";
 	protected static final Uri WIDGET_URI = Uri.parse("content://" + AUTHORITY + "/appwidgets");
+
+	protected static final String ON_ITEM_CLICK = "onItemClick";
+	public static final String ON_ITEM_CLICK_ITEM_ID_EXTRA = "position"; // constant for on item click intent bundle
 
 	@Override
 	public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -42,23 +51,82 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 		wss.close();
 	}
 
+	@Override
+	public void onReceive(@NotNull Context context, @NotNull Intent intent) {
+		if (intent.getAction().equals(ON_ITEM_CLICK)) {
+			final int invalid = Integer.MIN_VALUE;
+
+			long widgetId = intent.getLongExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, invalid);
+			long itemId = intent.getLongExtra(ON_ITEM_CLICK_ITEM_ID_EXTRA, invalid);
+
+			if (widgetId != invalid && itemId != invalid) {
+				// unfortunately can't get it from template, it gets reused by different widgets
+				WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(context);
+				settingsStorage.open();
+				WidgetSettings settings = settingsStorage.load((int) widgetId);
+				settingsStorage.close();
+
+				WidgetItemOnClickAction action = settings.itemOnClickAction;
+
+				boolean sendIntent = false;
+				Intent intentToFire = new Intent(context, KTodo.class);
+
+				switch (action) {
+					case NONE:
+						break;
+					case OPEN_TAG:
+						sendIntent = true;
+						intentToFire.setAction(KTodo.SHOW_WIDGET_DATA);
+						intentToFire.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
+						break;
+					case EDIT_ITEM:
+						sendIntent = true;
+						intentToFire.setAction(KTodo.SHOW_WIDGET_ITEM_DATA);
+						Uri uri = ContentUris.appendId(ContentUris.appendId(WIDGET_URI.buildUpon(), widgetId), itemId).build();
+						intentToFire.setData(uri);
+						break;
+					case MARK_DONE:
+						// todo move this to a service?
+						TodoItemsStorage todoItemsStorage = new TodoItemsStorage(context);
+						todoItemsStorage.open();
+						TodoItem todoItem = todoItemsStorage.loadTodoItem(itemId);
+						todoItem.setDone(true);
+						todoItemsStorage.saveTodoItem(todoItem);
+						todoItemsStorage.close();
+						context.startService(new Intent(context, WidgetUpdateService.class));
+						WidgetUpdateService.requestUpdateAll(context);
+						LastModifiedState.touch(context);
+						new BackupManager(context).dataChanged();
+						break;
+				}
+
+				if (sendIntent) {
+					intentToFire.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+					context.startActivity(intentToFire);
+				}
+			}
+		}
+		super.onReceive(context, intent);
+	}
+
 	public static RemoteViews buildUpdate(final Context context, final int widgetId, final AppWidgetProviderInfo providerInfo) {
+//		Log.i(TAG, "buildUpdate: " + widgetId);
 		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
 
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(context);
 		settingsStorage.open();
-		final WidgetSettings s = settingsStorage.load(widgetId);
+		final WidgetSettings settings = settingsStorage.load(widgetId);
 
 		final Resources r = context.getResources();
 
 		final TagsStorage tagsStorage = new TagsStorage(context);
 		tagsStorage.open();
-		int tagID = s.tagID;
+		int tagID = settings.tagID;
 		String tagName = tagsStorage.getTag(tagID);
 		if (tagName == null) {
 			tagID = DBHelper.ALL_TAGS_METATAG_ID;
-			s.tagID = tagID;
-			settingsStorage.save(s);
+			settings.tagID = tagID;
+			settingsStorage.save(settings);
 		}
 		if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
 			tagName = r.getString(R.string.all);
@@ -78,8 +146,6 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 
 		remoteViews.setRemoteAdapter(R.id.widget_list, intent);
 
-		// todo is it OK to re-register intents on every update?
-
 		final Intent configureIntent = new Intent(context, WidgetConfigureActivity.class);
 		configureIntent.setAction("android.appwidget.action.APPWIDGET_UPDATE");
 		configureIntent.setData(ContentUris.withAppendedId(WIDGET_URI, widgetId));
@@ -93,6 +159,11 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 		showTagIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		final PendingIntent showTagPendingIntent = PendingIntent.getActivity(context, 0, showTagIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 		remoteViews.setOnClickPendingIntent(R.id.widget, showTagPendingIntent);
+
+		Intent itemClickIntent = new Intent(context, KTodoWidgetProvider.class);
+		itemClickIntent.setAction(ON_ITEM_CLICK);
+		PendingIntent itemClickPendingIntent = PendingIntent.getBroadcast(context, 0, itemClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		remoteViews.setPendingIntentTemplate(R.id.widget_list, itemClickPendingIntent);
 
 		AppWidgetManager.getInstance(context).notifyAppWidgetViewDataChanged(widgetId, R.id.widget_list);
 
