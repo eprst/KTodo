@@ -13,20 +13,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 
-import com.kos.ktodo.Callback1;
 import com.kos.ktodo.CursorAdapterManagingLoaderCallbacks;
 import com.kos.ktodo.CustomCursorLoader;
 import com.kos.ktodo.R;
 import com.kos.ktodo.TagsStorage;
 import com.kos.ktodo.TodoItemsSortingMode;
-import com.kos.ktodo.Unit;
 import com.kos.ktodo.Util;
 
 public class WidgetConfigureActivity extends Activity {
@@ -70,7 +67,7 @@ public class WidgetConfigureActivity extends Activity {
 		initHideCompleted();
 		initDue();
 		initDueIn();
-		initSortingButton();
+		initSortingSpinner();
 		initOKButton();
 
 		tagsLoaderCallbacks = new TagsLoaderCallbacks(this, tagsAdapter);
@@ -165,26 +162,32 @@ public class WidgetConfigureActivity extends Activity {
 		});
 	}
 
-	private void initSortingButton() { // todo it should be a spinner
-		updateSortingButtonText();
-		final Button b = (Button) findViewById(R.id.conf_sorting);
-		b.setOnClickListener(new View.OnClickListener() {
-			public void onClick(final View v) {
-				TodoItemsSortingMode.selectSortingMode(WidgetConfigureActivity.this, settings.sortingMode, new Callback1<TodoItemsSortingMode, Unit>() {
-					public Unit call(final TodoItemsSortingMode arg) {
-						settings.sortingMode = arg;
-						updateSortingButtonText();
-						return Unit.u;
-					}
-				});
+	private void initSortingSpinner() {
+		final Spinner s = (Spinner) findViewById(R.id.conf_sorting);
+		String[] items = {
+				getString(TodoItemsSortingMode.PRIO_DUE_SUMMARY.getNameResId()),
+				getString(TodoItemsSortingMode.DUE_PRIO_SUMMARY.getNameResId()),
+				getString(TodoItemsSortingMode.PRIO_SUMMARY_DUE.getNameResId()),
+				getString(TodoItemsSortingMode.SUMMARY_PRIO_DUE.getNameResId()),
+				getString(TodoItemsSortingMode.DUE_SUMMARY_PRIO.getNameResId()),
+				getString(TodoItemsSortingMode.SUMMARY_DUE_PRIO.getNameResId())
+		};
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, items);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		s.setAdapter(adapter);
+		s.setSelection(settings.sortingMode.ordinal());
+
+		s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				settings.sortingMode = TodoItemsSortingMode.fromOrdinal(position);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
 			}
 		});
-	}
-
-	private Button updateSortingButtonText() {
-		final Button b = (Button) findViewById(R.id.conf_sorting);
-		b.setText(settings.sortingMode.getNameResId());
-		return b;
 	}
 
 	private void initOKButton() {

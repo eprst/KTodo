@@ -51,7 +51,8 @@
 				android:layout_height="wrap_content"
 				android:layout_width="fill_parent"
 				android:orientation="vertical"
-				android:layout_marginLeft="20dip">
+				android:layout_marginStart="20dip"
+			    android:layout_marginLeft="20dip">
 			<CheckBox
 					android:id="@+id/conf_show_only_due_x"
 					android:layout_height="wrap_content"
@@ -60,6 +61,7 @@
 			<LinearLayout
 					android:layout_height="wrap_content"
 					android:layout_width="fill_parent"
+					android:layout_marginStart="20dip"
 					android:layout_marginLeft="20dip"
 					android:orientation="horizontal">
 				<Spinner
@@ -79,13 +81,12 @@
 				android:padding="10dip"
 				android:textAppearance="?android:attr/textAppearanceSmall"
 				android:text="@string/sorting"/>
-		<Button
+		<Spinner
 				android:id="@+id/conf_sorting"
 				android:layout_marginLeft="20dip"
 				android:layout_marginRight="20dip"
 				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:text="@string/prio_due_summary"/>
+				android:layout_width="wrap_content"/>
 		<TextView
 				android:layout_width="fill_parent"
 				android:layout_height="0dip"

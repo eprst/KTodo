@@ -79,12 +79,6 @@
 	<string name="summary_prio_due">Summary, Priority, Due date</string>
 	<string name="due_summary_prio">Due date, Summary, Priority</string>
 	<string name="summary_due_prio">Summary, Due date, Priority</string>
-	<string name="prio_due_summary_t">prio, due, summ</string>
-	<string name="due_prio_summary_t">due, prio, summ</string>
-	<string name="prio_summary_due_t">prio, summ, due</string>
-	<string name="summary_prio_due_t">summ, prio, due</string>
-	<string name="due_summary_prio_t">due, summ, prio</string>
-	<string name="summary_due_prio_t">summ, due, prio</string>
 	<string name="undelete">Undelete</string>
 	<string name="voice_rec_prompt">Item text</string>
 	<string name="voice_rec_confirm_title">Recognized correctly?</string>
