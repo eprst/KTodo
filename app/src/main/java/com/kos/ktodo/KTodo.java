@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.app.backup.BackupManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -238,8 +239,9 @@ public class KTodo extends ListActivity {
 
 		setCurrentTag(currentTag);
 
-		getApplicationContext().getContentResolver().registerContentObserver(TodoItemsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
-		getApplicationContext().getContentResolver().registerContentObserver(TagsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
+		final ContentResolver contentResolver = getApplicationContext().getContentResolver();
+		contentResolver.registerContentObserver(TodoItemsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
+		contentResolver.registerContentObserver(TagsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
 
 		runIntent(intent);
 	}
@@ -680,17 +682,23 @@ public class KTodo extends ListActivity {
 			getEditSummaryWidget().setText(editingItem.summary);
 			getEditBodyWidget().setText(editingItem.body);
 
-			final Spinner spinner = getEditItemTagsWidget();
-			final int position = Util.getItemPosition(editingItemTagsAdapter, editingItem.tagID);
-			if (position != -1)
-				spinner.setSelection(position);
+			editingItemTagsLoaderCallbacks.addOnLoadFinishedAction(new Runnable() {
+				@Override
+				public void run() {
+					final Spinner spinner = getEditItemTagsWidget();
+					final int position = Util.getItemPosition(editingItemTagsAdapter, editingItem.tagID);
+					if (position != -1)
+						spinner.setSelection(position);
+					else
+						Log.w(TAG, "Can't find spinner position for tag " + editingItem.tagID);
+				}
+			});
 
 			getPrioSliderButton().setSelection(editingItem.prio - 1);
 			getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
 			updateDueDateButton();
 			getSlidingView().setSlideListener(new SlidingView.SlideListener() {
 				public void slidingFinished() {
-					//				getEditSummaryWidget().requestFocus();
 					final EditText editText = getEditBodyWidget();
 					if (editingItem.caretPos != null) {
 						final Editable text = editText.getText();
