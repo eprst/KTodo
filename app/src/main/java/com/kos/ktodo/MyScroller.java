@@ -1,10 +1,14 @@
 package com.kos.ktodo;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.SensorManager;
+import android.preference.PreferenceManager;
 import android.view.ViewConfiguration;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+
+import com.kos.ktodo.preferences.Preferences;
 
 /**
  * A <code>Scroller</code> variant that can do 'inverse' flings: the ones that
@@ -48,7 +52,8 @@ public class MyScroller {
 	private static final int FLING_MODE = 1;
 	private static final int INV_FLING_MODE = 2;
 
-	private final float mDeceleration;
+	private final Context mContext;
+	private float mDeceleration;
 
 	public MyScroller(final Context context) {
 		this(context, null);
@@ -57,12 +62,31 @@ public class MyScroller {
 	public MyScroller(final Context context, final Interpolator interpolator) {
 		mFinished = true;
 		mInterpolator = interpolator;
-		final float ppi = context.getResources().getDisplayMetrics().density * 160.0f;
-		mDeceleration = SensorManager.GRAVITY_EARTH   // g (m/s^2)
-				        * 0.75f                         // for Eve TODO make configurable
+		mContext = context;
+		updateDeceleration();
+
+		SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+				if (Preferences.FLING_GRAVITY.equals(key)) {
+					updateDeceleration();
+				}
+			}
+		};
+
+		PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+	}
+
+	private void updateDeceleration() {
+		int gravityAdj = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(Preferences.FLING_GRAVITY, 100);
+
+		final float ppi = mContext.getResources().getDisplayMetrics().density * 160.0f;
+		mDeceleration = SensorManager.GRAVITY_EARTH     // g (m/s^2)
+		                * ((float) gravityAdj) / 100f   // adjustment by given %
 		                * 39.37f                        // inch/meter
 		                * ppi                           // pixels per inch
 		                * ViewConfiguration.getScrollFriction();
+
 	}
 
 	/**

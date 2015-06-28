@@ -15,6 +15,7 @@ import com.kos.ktodo.R;
 import com.kos.ktodo.TodoItem;
 import com.kos.ktodo.TodoItemsStorage;
 import com.kos.ktodo.Util;
+import com.kos.ktodo.preferences.Preferences;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -115,8 +116,8 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 			// todo cache?
 			final Resources r = context.getResources();
 			final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-			final int todayDueDateColor = prefs.getInt("dueTodayColor", r.getColor(R.color.today_due_date_color));
-			final int expiredDueDateColor = prefs.getInt("overdueColor", r.getColor(R.color.expired_due_date_color));
+			final int todayDueDateColor = prefs.getInt(Preferences.DUE_TODAY_COLOR, r.getColor(R.color.today_due_date_color));
+			final int expiredDueDateColor = prefs.getInt(Preferences.OVERDUE_COLOR, r.getColor(R.color.expired_due_date_color));
 			final int completedColor = r.getColor(R.color.widget_completed);
 			final int defaultColor = r.getColor(R.color.white);
 

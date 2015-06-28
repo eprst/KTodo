@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.kos.ktodo.preferences.Preferences;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
@@ -99,7 +101,7 @@ public class Util {
 		if (dueDate == null) return null;
 
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-		if (prefs.getBoolean("dueAsDaysLeft", false)) {
+		if (prefs.getBoolean(Preferences.DUE_AS_DAYS_LEFT, false)) {
 			final Integer dueInDays = getDueInDays(dueDate);
 			switch (Math.abs(dueInDays)) {
 				case 0:  return ctx.getString(R.string.day0, dueInDays);

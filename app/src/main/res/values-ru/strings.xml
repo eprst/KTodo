@@ -126,4 +126,6 @@
 		<item>Редактировать элемент</item>
 		<item>Открыть тэг</item>
 	</string-array>
+	<string name="prefs_fling_gravity">Гравитация</string>
+	<string name="prefs_fling_gravity_s">Гравитация при выбрасывании элементов</string>
 </resources>

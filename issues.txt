@@ -12,8 +12,8 @@
 [v] Russian translation
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export | http://www.estrongs.com/res/develop_en.htm | http://stackoverflow.com/questions/12021622/need-file-save-dialog-for-android
-[.] scrollable resizable widget
-  [ ] KTodoWidget
+[v] scrollable resizable widget
+  [?] KTodoWidget
 [ ] better voice input (add support for primary/additional languages)
 [ ] option to disable voice input
 [ ] option to leave virtual keyboard visible after entering a new item
@@ -26,18 +26,19 @@
 [ ] share-using handler to create new item
 [ ] add 'share' to the action bar (both list and specific item)
 [ ] figure out mipmaps
-[ ] revisit initial help (there's no combo-box now)
+[!] revisit initial help (there's no combo-box now)
 [ ] 'today' meta-tag?
 
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
+[ ] fragment-based properties
 [.] xhdpi/xxhdpi drawables
-[ ] market
+[!] market
   [ ]screenshot updates
   [ ] big image
 
 
 4.0 bugs:
-[ ] change title from tag name to 'edit' when going to the edit screen
+[!] change title from tag name to 'edit' when going to the edit screen
 [ ] hide undelete button on tray open/item edit
 [v] initial run: no tag selected
 [v] crashes on import

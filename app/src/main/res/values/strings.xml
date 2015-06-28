@@ -133,4 +133,6 @@
 		<item>Edit item</item>
 		<item>Open tag</item>
 	</string-array>
+	<string name="prefs_fling_gravity">Gravity</string>
+	<string name="prefs_fling_gravity_s">Items throwing gravity</string>
 </resources>

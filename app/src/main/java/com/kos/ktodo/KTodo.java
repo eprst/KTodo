@@ -651,11 +651,9 @@ public class KTodo extends ListActivity {
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 		final TodoItemsListView listView = (TodoItemsListView) getListView();
-		listView.setDeleteItemListener(
-				prefs.getBoolean("delByFling", true) ?
-						deleteItemListener : null);
+		listView.setDeleteItemListener(prefs.getBoolean(Preferences.DELETE_BY_FLING, true) ? deleteItemListener : null);
 
-		if (prefs.getBoolean("slideToEdit", true)) {
+		if (prefs.getBoolean(Preferences.SLIDE_TO_EDIT, true)) {
 			getAddTaskButton().setSlideLeftInfo(getSlidingView(), slideLeftListener);
 			listView.setSlideLeftInfo(getSlidingView(), slideLeftListener);
 		} else {
@@ -664,13 +662,13 @@ public class KTodo extends ListActivity {
 		}
 
 		final String _default = "default";
-		final String fontSize = prefs.getString("mainListFontSize", _default);
+		final String fontSize = prefs.getString(Preferences.MAIN_LIST_FONT_SIZE, _default);
 		if (_default.equals(fontSize))
 			listFontSize = null;
 		else
 			listFontSize = Float.parseFloat(fontSize);
 
-		clickAnywhereToCheck = prefs.getBoolean("clickAnywhereToCheck", true);
+		clickAnywhereToCheck = prefs.getBoolean(Preferences.CLICK_ANYWHERE_TO_CHECK, true);
 	}
 
 	private void startEditingItem(final long id) {

@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:robobunny="http://robobunny.com">
 	<CheckBoxPreference
 			android:title="@string/prefs_enable_fling_delete"
 			android:summary="@string/prefs_enable_fling_delete_s"
 			android:defaultValue="true"
 			android:key="delByFling"/>
+	<com.robobunny.SeekBarPreference
+		android:title="@string/prefs_fling_gravity"
+	    android:summary="@string/prefs_fling_gravity_s"
+	    android:defaultValue="100"
+	    android:max="200"
+	    android:key="flingGravity"
+		robobunny:min="1"
+	    robobunny:unitsLeft=""
+		robobunny:unitsRight="%"/>
 	<CheckBoxPreference
 			android:title="@string/prefs_enable_slide_edit"
 			android:summary="@string/prefs_enable_slide_edit_s"
