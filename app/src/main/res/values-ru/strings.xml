@@ -128,4 +128,5 @@
 	</string-array>
 	<string name="prefs_fling_gravity">Гравитация</string>
 	<string name="prefs_fling_gravity_s">Гравитация при выбрасывании элементов</string>
+	<string name="edit_item">Редактирование элемента</string>
 </resources>

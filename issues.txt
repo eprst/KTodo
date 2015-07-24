@@ -13,12 +13,11 @@
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export | http://www.estrongs.com/res/develop_en.htm | http://stackoverflow.com/questions/12021622/need-file-save-dialog-for-android
 [v] scrollable resizable widget
-  [?] KTodoWidget
 [ ] better voice input (add support for primary/additional languages)
 [ ] option to disable voice input
 [ ] option to leave virtual keyboard visible after entering a new item
 [ ] find a new spot for sorting order (was in the title)
-[.] decrease throw gravity (make configurable)
+[v] decrease throw gravity (make configurable)
 [ ] action bar action for hide/show checked?
 [-] current list combo to the action bar?
 [v] categories on the right drawer
@@ -38,8 +37,9 @@
 
 
 4.0 bugs:
-[!] change title from tag name to 'edit' when going to the edit screen
-[ ] hide undelete button on tray open/item edit
+[ ] fling an item to remove it - it briefly flashes back in the list
+[v] change title from tag name to 'edit' when going to the edit screen
+[v] hide undelete button on tray open/item edit
 [v] initial run: no tag selected
 [v] crashes on import
 [v] main.xml deprecations

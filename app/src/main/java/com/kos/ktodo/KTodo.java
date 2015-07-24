@@ -159,7 +159,6 @@ public class KTodo extends ListActivity {
 			public void slideLeftStarted(final long id) {
 				hideSoftKeyboard();
 				startEditingItem(id);
-				updateTitle();
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
 			}
@@ -252,18 +251,18 @@ public class KTodo extends ListActivity {
 
 		drawerToggle = new ActionBarDrawerToggle(this,
 				getDrawerLayout(),
-//				R.drawable.ic_drawer,
 				R.string.drawer_open,
 				R.string.drawer_close) {
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
+				getUndeleteButton().setVisibility(View.INVISIBLE);
 			}
-
-			@Override
-			public void onDrawerClosed(View drawerView) {
-				super.onDrawerClosed(drawerView);
-			}
+//
+//			@Override
+//			public void onDrawerClosed(View drawerView) {
+//				super.onDrawerClosed(drawerView);
+//			}
 		};
 		getDrawerLayout().setDrawerListener(drawerToggle);
 
@@ -675,7 +674,9 @@ public class KTodo extends ListActivity {
 		if (todoItemsStorage != null) {
 			closeDrawer();
 			lockDrawer();
+			getUndeleteButton().setVisibility(View.INVISIBLE);
 
+			actionBar.setTitle(R.string.edit_item);
 			editingItem = todoItemsStorage.loadTodoItem(id);
 			getEditSummaryWidget().setText(editingItem.summary);
 			getEditBodyWidget().setText(editingItem.body);
@@ -822,11 +823,15 @@ public class KTodo extends ListActivity {
 	private void lockDrawer() {
 		getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 		actionBar.setDisplayHomeAsUpEnabled(false);
+		drawerToggle.setDrawerIndicatorEnabled(false);
+		drawerToggle.syncState();
 	}
 
 	private void unlockDrawer() {
 		getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+		drawerToggle.setDrawerIndicatorEnabled(true);
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		drawerToggle.syncState();
 	}
 
 	@Override
@@ -1149,6 +1154,7 @@ public class KTodo extends ListActivity {
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
 				if (wipe.isChecked() && todoItemsStorage != null) { //additional warning?
+					setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID);
 					todoItemsStorage.deleteAllTodoItems();
 					tagsStorage.deleteAllTags();
 				}

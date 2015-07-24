@@ -12,6 +12,7 @@
 	<string name="rename">Rename</string>
 	<string name="delete">Delete</string>
 	<string name="edit">Edit</string>
+	<string name="edit_item">Edit item</string>
 	<string name="rename_tag_title">Rename tag</string>
 	<string name="new_tag_name_text">New tag name</string>
 	<string name="tag_already_exists">Such tag already exists</string>
