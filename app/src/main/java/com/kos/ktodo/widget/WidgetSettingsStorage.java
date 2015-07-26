@@ -44,6 +44,7 @@ public class WidgetSettingsStorage {
 		cv.put(WIDGET_SORTING_MODE, s.sortingMode.ordinal());
 		cv.put(WIDGET_ITEM_ON_CLICK_ACTION, s.itemOnClickAction.ordinal());
 		db.replace(WIDGET_TABLE_NAME, null, cv);
+		Log.i(TAG, "Saved widget settings for " + s.widgetID);
 	}
 
 	public boolean delete(final int widgetID) {
@@ -73,7 +74,7 @@ public class WidgetSettingsStorage {
 				res.showOnlyDueIn = c.getInt(4);
 				res.sortingMode = TodoItemsSortingMode.fromOrdinal(c.getInt(5));
 				res.itemOnClickAction = WidgetItemOnClickAction.fromOrdinal(c.getInt(6));
-			} else Log.i(TAG, "widget not found: " + widgetID);
+			} else Log.i(TAG, "widget settings not found: " + widgetID);
 			return res;
 		} finally {c.close();}
 	}

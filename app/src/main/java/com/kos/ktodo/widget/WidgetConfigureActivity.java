@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -197,6 +198,7 @@ public class WidgetConfigureActivity extends Activity {
 				final CheckBox cb = (CheckBox) findViewById(R.id.conf_show_only_due_x);
 				if (!cb.isChecked())
 					settings.showOnlyDueIn = -1;
+				Log.i(TAG, "Configuration done for widget " + settings.widgetID + ", saving and updating");
 				settingsStorage.save(settings);
 				WidgetUpdateService.requestUpdate(new int[]{settings.widgetID});
 				startService(new Intent(WidgetConfigureActivity.this, WidgetUpdateService.class));

@@ -28,7 +28,7 @@ public class WidgetUpdateService extends Service implements Runnable {
 	private static boolean threadRunning = false;
 
 	public static void requestUpdate(final int[] appWidgetIds) {
-//		Log.i(TAG, "requestUpdate: " + appWidgetIds.length);
+		Log.i(TAG, "requestUpdate: " + appWidgetIds.length);
 		synchronized (lock) {
 			for (final int widgetId : appWidgetIds)
 				WidgetUpdateService.appWidgetIds.add(widgetId);
@@ -83,6 +83,7 @@ public class WidgetUpdateService extends Service implements Runnable {
 			while (hasMoreUpdates()) {
 				final int widgetId = getNextUpdate();
 				final WidgetSettings s = settingsStorage.load(widgetId);
+				Log.i(TAG, "Updating widget " + widgetId + " " + s.configured);
 				if (!s.configured) continue;
 				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId); // todo widget info not needed now?
 				if (widgetInfo != null) {
