@@ -37,7 +37,7 @@
 
 
 4.0 bugs:
-[ ] fling an item to remove it - it briefly flashes back in the list
+[v] fling an item to remove it - it briefly flashes back in the list
 [v] change title from tag name to 'edit' when going to the edit screen
 [v] hide undelete button on tray open/item edit
 [v] initial run: no tag selected

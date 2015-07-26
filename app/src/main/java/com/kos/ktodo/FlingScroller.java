@@ -18,7 +18,7 @@ import com.kos.ktodo.preferences.Preferences;
  * so I had to copy all the source..
  */
 @SuppressWarnings({"UnusedDeclaration"})
-public class MyScroller {
+public class FlingScroller {
 	private int mMode;
 
 	private int mStartX;
@@ -55,11 +55,11 @@ public class MyScroller {
 	private final Context mContext;
 	private float mDeceleration;
 
-	public MyScroller(final Context context) {
+	public FlingScroller(final Context context) {
 		this(context, null);
 	}
 
-	public MyScroller(final Context context, final Interpolator interpolator) {
+	public FlingScroller(final Context context, final Interpolator interpolator) {
 		mFinished = true;
 		mInterpolator = interpolator;
 		mContext = context;

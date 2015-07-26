@@ -29,7 +29,7 @@ public class TodoItemsListView extends ListView {
 	private final int maxThrowVelocity;
 	private final int vibrateOnTearOff;
 	private final int scaledTouchSlop;
-//	private final int mainViewId;
+	//	private final int mainViewId;
 	private int statusBarHeight = -1;
 
 	private ImageView dragView;
@@ -43,7 +43,7 @@ public class TodoItemsListView extends ListView {
 	private int /*coordOffsetY,*/ coordOffsetX;  // the difference between screen coordinates and coordinates in this view
 	private boolean scrolling;
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
-	private MyScroller flightScroller;
+	private FlingScroller flightScroller;
 	private State state = State.NORMAL;
 	private DeleteItemListener deleteItemListener;
 	private int dragItemY = -1;
@@ -88,8 +88,10 @@ public class TodoItemsListView extends ListView {
 			if (deleteItemListener != null) {
 				final long id = getItemIdAtPosition(dragItemNum);
 				deleteItemListener.deleteItem(id);
+				setState(State.FLYING_DELETED);
+			} else {
+				setState(State.NORMAL);
 			}
-			setState(State.NORMAL);
 		}
 	};
 
@@ -111,8 +113,9 @@ public class TodoItemsListView extends ListView {
 		void deleteItem(final long id);
 	}
 
-	private static enum State {
-		NORMAL, PRESSED_ON_ITEM, DRAGGING_ITEM, ITEM_FLYING, DRAGGING_VIEW_LEFT
+	private enum State {
+		// NORMAL and FLYING_DELETED is the same state. The only difference is that 'flying item' shouldn't be displayed back in the latter case (because it was just deleted and we don't want any flicker)
+		NORMAL, PRESSED_ON_ITEM, DRAGGING_ITEM, ITEM_FLYING, DRAGGING_VIEW_LEFT, FLYING_DELETED
 	}
 
 	public TodoItemsListView(final Context context, final AttributeSet attrs) {
@@ -157,6 +160,9 @@ public class TodoItemsListView extends ListView {
 		if (state == newState) return;
 		final IllegalStateException impossibleTransition = new IllegalStateException("impossible transition from " + state + " to " + newState);
 		switch (state) {
+			case FLYING_DELETED:
+				if (newState == State.NORMAL) break;
+				// intentionally no break
 			case NORMAL:
 				if (newState == State.PRESSED_ON_ITEM) break;
 				throw impossibleTransition;
@@ -169,11 +175,13 @@ public class TodoItemsListView extends ListView {
 				throw impossibleTransition;
 			case ITEM_FLYING:
 				if (newState == State.NORMAL) break;
+				if (newState == State.FLYING_DELETED) break;
 				if (newState == State.DRAGGING_ITEM) break;
 				throw impossibleTransition;
 			case DRAGGING_VIEW_LEFT:
 				if (newState == State.NORMAL) break;
-				if (newState == State.PRESSED_ON_ITEM) break; //this is only a temporary change, either DRAGGING or NORMAL follow immediately
+				if (newState == State.PRESSED_ON_ITEM)
+					break; //this is only a temporary change, either DRAGGING or NORMAL follow immediately
 				if (newState == State.DRAGGING_ITEM) break;
 				throw impossibleTransition;
 			default:
@@ -192,8 +200,9 @@ public class TodoItemsListView extends ListView {
 	private void onStateChange(final State prevState) {
 		switch (state) {
 			case NORMAL:
+			case FLYING_DELETED:
 				if (prevState == State.DRAGGING_ITEM || prevState == State.ITEM_FLYING)
-					stopDragging();
+					stopDragging(state == State.NORMAL);
 				dragItemNum = -1;
 				dragItemY = -1;
 				scrolling = false;
@@ -214,7 +223,7 @@ public class TodoItemsListView extends ListView {
 				superCancel();
 				dragVelocityTracker.clear();
 				if (prevState == State.DRAGGING_ITEM)
-					stopDragging();
+					stopDragging(true);
 		}
 	}
 
@@ -329,7 +338,7 @@ public class TodoItemsListView extends ListView {
 			dragVelocityTracker.computeCurrentVelocity(1000, maxThrowVelocity);
 			final float xVelocity = dragVelocityTracker.getXVelocity();
 //					Log.i(TAG, "x velocity: " + xVelocity);
-			if (flightScroller == null) flightScroller = new MyScroller(getContext());
+			if (flightScroller == null) flightScroller = new FlingScroller(getContext());
 			flightScroller.fling(lastLeft, 0, xVelocity == 0 ? -1 : (int) xVelocity, 0, 0, getWidth(), 0, 0, xVelocity < 0);
 			setState(State.ITEM_FLYING);
 			post(itemFlinger);
@@ -349,10 +358,10 @@ public class TodoItemsListView extends ListView {
 		if (state == State.ITEM_FLYING) {
 			final int x = (int) ev.getX();
 			final int y = (int) ev.getY();
-			final int itemnum = pointToPositionWithInvisible(x, y);
-			if (itemnum == AdapterView.INVALID_POSITION) return false;
+			final int itemNum = pointToPositionWithInvisible(x, y);
+			if (itemNum == AdapterView.INVALID_POSITION) return false;
 			final int lastLeft = lastDragX - dragPointX + coordOffsetX;
-			if (lastLeft <= x && itemnum == dragItemNum && itemInBounds(dragItemNum)) {
+			if (lastLeft <= x && itemNum == dragItemNum && itemInBounds(dragItemNum)) {
 				dragPointX = x - lastLeft;
 				setState(State.DRAGGING_ITEM);
 				processed = true;
@@ -401,7 +410,7 @@ public class TodoItemsListView extends ListView {
 				final int deltaYFromDown = y - dragStartY;
 				if (Math.abs(deltaYFromDown) >= scaledTouchSlop)
 					scrolling = true;
-				final int itemnum = pointToPositionWithInvisible(x, y);
+				final int itemNum = pointToPositionWithInvisible(x, y);
 				if (!scrolling) {
 					dragVelocityTracker.addMovement(ev, false);
 					if (state == State.PRESSED_ON_ITEM &&
@@ -412,10 +421,10 @@ public class TodoItemsListView extends ListView {
 //						processed = true;
 					} else if (state == State.PRESSED_ON_ITEM &&
 					           deltaXFromDown < -scaledTouchSlop &&
-					           slideLeftListener != null && itemnum != AdapterView.INVALID_POSITION) {
+					           slideLeftListener != null && itemNum != AdapterView.INVALID_POSITION) {
 						setState(State.DRAGGING_VIEW_LEFT);
 						dragPointX = x;
-						slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemnum));
+						slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemNum));
 //						processed = true;
 					}
 					processed = true;
@@ -462,11 +471,11 @@ public class TodoItemsListView extends ListView {
 		final int y = (int) ev.getY();
 		dragStartX = x;
 		dragStartY = y;
-		final int itemnum = pointToPosition(x, y);
-		if (itemnum == AdapterView.INVALID_POSITION) return false;
-//		if (!itemInBounds(itemnum)) return false;
-		dragItemNum = itemnum;
-		final View item = getChildAt(itemnum - getFirstVisiblePosition());
+		final int itemNum = pointToPosition(x, y);
+		if (itemNum == AdapterView.INVALID_POSITION) return false;
+//		if (!itemInBounds(itemNum)) return false;
+		dragItemNum = itemNum;
+		final View item = getChildAt(itemNum - getFirstVisiblePosition());
 		dragPointX = x - item.getLeft();
 		//coordOffsetY = ((int) ev.getRawY()) - y;
 		coordOffsetX = ((int) ev.getRawX()) - x;
@@ -513,6 +522,9 @@ public class TodoItemsListView extends ListView {
 		final WindowManager wm = getWindowManager();
 		wm.addView(v, windowParams);
 		dragView = v;
+
+		dragView.setVisibility(View.VISIBLE);
+		item.setVisibility(View.INVISIBLE);
 
 		setState(State.DRAGGING_ITEM);
 		return true;
@@ -635,11 +647,6 @@ public class TodoItemsListView extends ListView {
 			if (!itemInBounds(dragItemNum))
 				setState(State.NORMAL); //we're out of screen; todo: this could be a flight
 			else {
-				final View item = getDragItem();
-				if (item != null && item.getVisibility() == View.VISIBLE) {
-					dragView.setVisibility(View.VISIBLE);
-					item.setVisibility(View.INVISIBLE);
-				}
 				windowParams.y = getDragItemY();
 				getWindowManager().updateViewLayout(dragView, windowParams);
 				lastDragX = x;
@@ -661,13 +668,13 @@ public class TodoItemsListView extends ListView {
 		return item.getTop() >= 0 && item.getBottom() <= getHeight();
 	}
 
-	private void stopDragging() {
+	private void stopDragging(boolean restoreFlyingItemView) {
 //		View dragItem = getDragItem();
 //		if (dragItem != null)
 //			dragItem.setDrawingCacheEnabled(false);
 
 		intercepted.clear();
-		unExpandViews(true);
+		unExpandViews(restoreFlyingItemView);
 		if (dragView != null) {
 			final Context mContext = getContext();
 			final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -682,25 +689,24 @@ public class TodoItemsListView extends ListView {
 		}
 	}
 
-	private void unExpandViews(final boolean deletion) { //todo: remove unnecessary stuff
+	private void unExpandViews(boolean makeAllVisible) { //todo: remove unnecessary stuff
 		for (int i = 0; ; i++) {
 			View v = getChildAt(i);
 			if (v == null) {
-				if (deletion) {
-					// HACK force update of mItemCount
-					final int position = getFirstVisiblePosition();
-					final int y = getChildAt(0).getTop();
-					setAdapter(getAdapter());
-					setSelectionFromTop(position, y);
-					// end hack
-				}
+				// HACK force update of mItemCount  (checked on 5.1.1: still needed)
+				final int position = getFirstVisiblePosition();
+				final int y = getChildAt(0).getTop();
+				setAdapter(getAdapter());
+				setSelectionFromTop(position, y);
+				// end hack
 				layoutChildren(); // force children to be recreated where needed
 				v = getChildAt(i);
 				if (v == null) {
 					break;
 				}
 			}
-			v.setVisibility(View.VISIBLE);
+			if(makeAllVisible)
+				v.setVisibility(View.VISIBLE);
 		}
 	}
 

@@ -28,7 +28,7 @@ public class MyBackupAgent extends BackupAgent {
 		try {
 			final long stMod = dis.readLong();
 			lastMod = LastModifiedState.getLastModified(this);
-			if (lastMod != null && lastMod == stMod) {
+			if (lastMod == stMod) {
 //				Log.i(TAG, "last mod check failed, skipping backup");
 				return;
 			}
