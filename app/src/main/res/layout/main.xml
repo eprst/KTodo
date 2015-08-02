@@ -55,6 +55,7 @@
 						style="@style/ToolButton"
 						android:contentDescription="@string/add"
 						android:src="@drawable/ic_menu_mark"
+						android:imeOptions="actionDone"
 						kos:maxThrowVelocity="1500"/>
 
 					<View style="@style/ToolButtonDivider"/>

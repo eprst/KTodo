@@ -32,6 +32,16 @@
 			android:summary="@string/prefs_show_due_date_as_days_left_s"
 			android:defaultValue="false"
 			android:key="dueAsDaysLeft"/>
+	<CheckBoxPreference
+		android:title="@string/prefs_keep_kbd_open"
+		android:summary="@string/prefs_keep_kbd_open_s"
+		android:defaultValue="false"
+		android:key="keepKbdOpen"/>
+	<CheckBoxPreference
+		android:title="@string/prefs_use_voice_input"
+		android:summary="@string/prefs_use_voice_input_s"
+		android:defaultValue="true"
+		android:key="useVoiceInput"/>
 	<ListPreference
 			android:title="@string/prefs_main_list_font_size"
 			android:summary="@string/prefs_main_list_font_size_s"

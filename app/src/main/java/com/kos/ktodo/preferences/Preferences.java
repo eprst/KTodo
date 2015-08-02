@@ -23,6 +23,8 @@ public class Preferences extends PreferenceActivity {
 	public static final String SLIDE_TO_EDIT = "slideToEdit";
 	public static final String MAIN_LIST_FONT_SIZE = "mainListFontSize";
 	public static final String CLICK_ANYWHERE_TO_CHECK = "clickAnywhereToCheck";
+	public static final String KEEP_KBD_OPEN = "keepKbdOpen";
+	public static final String USE_VOICE_INPUT = "useVoiceInput";
 
 	public static final String DUE_TODAY_COLOR = "dueTodayColor";
 	public static final String OVERDUE_COLOR = "overdueColor";

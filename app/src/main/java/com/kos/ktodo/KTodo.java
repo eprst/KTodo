@@ -50,6 +50,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -62,6 +63,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
@@ -99,8 +101,8 @@ public class KTodo extends ListActivity {
 	private static final int CURRENT_TAG_ITEMS_LOADER_ID = 1;
 	private static final int EDITING_ITEM_TAGS_LOADER_ID = 2;
 
-	private Intent voiceRecognitionIntent;
-	private Drawable voiceDrawable;
+	private Intent voiceRecognitionIntent = null;
+	private Drawable voiceDrawable = null;
 
 	private Handler handler;
 	private TodoItemsStorage todoItemsStorage;
@@ -137,6 +139,8 @@ public class KTodo extends ListActivity {
 	//prefs
 	private Float listFontSize;
 	private boolean clickAnywhereToCheck = true;
+	private boolean keepKbdOpen;
+	private boolean useVoiceInput;
 
 	private final ContentObserver contentObserver = new ContentObserver(new Handler()) {
 		@Override
@@ -219,8 +223,9 @@ public class KTodo extends ListActivity {
 
 		registerForContextMenu(getMyListView());
 
-		setupVoiceRecognition();
-		setupAddButtonIcon();
+		// should be done from onStart, depends on useVoiceInput preference value
+//		setupVoiceRecognition();
+//		setupAddButtonIcon();
 
 //		reloadTodoItems(); //will be called from spinner.onMeasure->fireOnSelected->KTodo$4.onItemSelected
 
@@ -374,6 +379,8 @@ public class KTodo extends ListActivity {
 				}
 			});
 			getAddTaskButton().setImageDrawable(voiceDrawable);
+		} else {
+			getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark));
 		}
 	}
 
@@ -461,13 +468,15 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-		getAddTaskWidget().setOnKeyListener(new View.OnKeyListener() {
-			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
-				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+		getAddTaskWidget().setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
 					addTodoItem();
-					return true;
+					return keepKbdOpen; // return true to keep kbd
+				} else {
+					return false;
 				}
-				return false;
 			}
 		});
 
@@ -608,8 +617,7 @@ public class KTodo extends ListActivity {
 					getEditBodyWidget().onTouchEvent(cancelEvent);
 					final View focus = getSlidingView().findFocus();
 					if (focus != null) {
-						final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-						imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+						hideSoftKeyboard();
 					}
 					getMyListView().handleBack();
 					return true;
@@ -668,6 +676,11 @@ public class KTodo extends ListActivity {
 			listFontSize = Float.parseFloat(fontSize);
 
 		clickAnywhereToCheck = prefs.getBoolean(Preferences.CLICK_ANYWHERE_TO_CHECK, true);
+		keepKbdOpen = prefs.getBoolean(Preferences.KEEP_KBD_OPEN, false);
+		useVoiceInput = prefs.getBoolean(Preferences.USE_VOICE_INPUT, true);
+
+		setupVoiceRecognition();
+		setupAddButtonIcon();
 	}
 
 	private void startEditingItem(final long id) {
@@ -882,8 +895,7 @@ public class KTodo extends ListActivity {
 		outState.putInt("sortingMode", sortingMode.ordinal());
 		final EditText addTask = getAddTaskWidget();
 		outState.putString("addTaskText", addTask.getText().toString());
-		outState.
-				putInt("addTaskSelStart", addTask.getSelectionStart());
+		outState.putInt("addTaskSelStart", addTask.getSelectionStart());
 		outState.putInt("addTaskSelEnd", addTask.getSelectionEnd());
 		final boolean onLeft = getSlidingView().isOnLeft();
 		outState.putBoolean("onLeft", onLeft);
@@ -944,8 +956,7 @@ public class KTodo extends ListActivity {
 	}
 
 	private long addTodoItem() {
-		final EditText et = getAddTaskWidget();
-		final String st = et.getText().toString();
+		final String st = getAddTaskWidget().getText().toString();
 		return addTodoItem(st);
 	}
 
@@ -1184,25 +1195,29 @@ public class KTodo extends ListActivity {
 	}
 
 	private void setupVoiceRecognition() {
-		final PackageManager pm = getPackageManager();
+		voiceDrawable = null;
+		voiceRecognitionIntent = null;
+		if (useVoiceInput) {
+			final PackageManager pm = getPackageManager();
 
-		voiceRecognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+			voiceRecognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 //		voiceRecognitionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //		voiceRecognitionIntent.putExtra("android.speech.extras.SEND_APPLICATION_ID_EXTRA", false);
-		voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-		voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_rec_prompt));
-		voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+			voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+			voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_rec_prompt));
+			voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
 //		voiceRecognitionIntent.putExtra("android.speech.extras.SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 750L);
 //		voiceRecognitionIntent.putExtra("android.speech.extras.SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS", -1L);
 //		voiceRecognitionIntent.putExtra("calling_package", "com.kos.ktodo");
 //		voiceRecognitionIntent.putExtra("contact_auth", true);
 
-		if (pm.resolveActivity(voiceRecognitionIntent, PackageManager.MATCH_DEFAULT_ONLY) == null)
-			voiceRecognitionIntent = null;
-		else
-			//requires API 21
-			//noinspection deprecation
-			voiceDrawable = getResources().getDrawable(android.R.drawable.ic_btn_speak_now);
+			if (pm.resolveActivity(voiceRecognitionIntent, PackageManager.MATCH_DEFAULT_ONLY) == null)
+				voiceRecognitionIntent = null;
+			else
+				//requires API 21
+				//noinspection deprecation
+				voiceDrawable = getResources().getDrawable(android.R.drawable.ic_btn_speak_now);
+		}
 	}
 
 	@Override

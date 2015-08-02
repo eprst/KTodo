@@ -15,8 +15,6 @@
 			android:name="com.google.android.backup.api_key"
 			android:value="AEdPqrEAAAAIEBz6YvAP7vPDajfXEpDWoYAwRrANAakiO3xJCw" />
 
-		<!--android:theme="@android:style/Theme.NoTitleBar.Fullscreen"-->
-		<!--android:launchMode="singleTop", "singleTask"-->
 		<activity android:name=".KTodo"
 		          android:launchMode="singleTop"
 		          android:windowSoftInputMode="stateHidden|adjustResize"
@@ -54,46 +52,6 @@
 			<meta-data android:name="android.appwidget.provider"
 			           android:resource="@xml/appwidget"/>
 		</receiver>
-
-		<!--<receiver android:name=".widget.KTodoWidget22" android:label="@string/widget_2x2">-->
-			<!--<intent-filter>-->
-				<!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
-			<!--</intent-filter>-->
-			<!--<meta-data android:name="android.appwidget.provider"-->
-			           <!--android:resource="@xml/appwidget_2x2_info"/>-->
-		<!--</receiver>-->
-
-		<!--<receiver android:name=".widget.KTodoWidget21" android:label="@string/widget_2x1">-->
-			<!--<intent-filter>-->
-				<!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
-			<!--</intent-filter>-->
-			<!--<meta-data android:name="android.appwidget.provider"-->
-			           <!--android:resource="@xml/appwidget_2x1_info"/>-->
-		<!--</receiver>-->
-
-		<!--<receiver android:name=".widget.KTodoWidget24" android:label="@string/widget_2x4">-->
-			<!--<intent-filter>-->
-				<!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
-			<!--</intent-filter>-->
-			<!--<meta-data android:name="android.appwidget.provider"-->
-			           <!--android:resource="@xml/appwidget_2x4_info"/>-->
-		<!--</receiver>-->
-
-		<!--<receiver android:name=".widget.KTodoWidget42" android:label="@string/widget_4x2">-->
-			<!--<intent-filter>-->
-				<!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
-			<!--</intent-filter>-->
-			<!--<meta-data android:name="android.appwidget.provider"-->
-			           <!--android:resource="@xml/appwidget_4x2_info"/>-->
-		<!--</receiver>-->
-
-		<!--<receiver android:name=".widget.KTodoWidget44" android:label="@string/widget_4x4">-->
-			<!--<intent-filter>-->
-				<!--<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>-->
-			<!--</intent-filter>-->
-			<!--<meta-data android:name="android.appwidget.provider"-->
-			           <!--android:resource="@xml/appwidget_4x4_info"/>-->
-		<!--</receiver>-->
 
 		<service
 			android:name=".widget.WidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>

@@ -129,4 +129,8 @@
 	<string name="prefs_fling_gravity">Гравитация</string>
 	<string name="prefs_fling_gravity_s">Гравитация при выбрасывании элементов</string>
 	<string name="edit_item">Редактирование элемента</string>
+	<string name="prefs_keep_kbd_open">Оставлять клавиатуру открытой</string>
+	<string name="prefs_keep_kbd_open_s">Оставлять клавиатуру на экране после нажатия Done</string>
+	<string name="prefs_use_voice_input">Использовать голосовой ввод</string>
+	<string name="prefs_use_voice_input_s">Использовать разпознавание голоса для создания элементов</string>
 </resources>
