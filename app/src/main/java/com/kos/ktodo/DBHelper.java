@@ -17,10 +17,11 @@ import com.kos.ktodo.widget.WidgetItemOnClickAction;
 public class DBHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DBHelper";
 	private static final String DB_NAME = "ktodo.db";
-	private static final int DB_VERSION = 8;
+	private static final int DB_VERSION = 9;
 
 	public static final int ALL_TAGS_METATAG_ID = 1;
 	public static final int UNFILED_METATAG_ID = 2;
+	public static final int TODAY_METATAG_ID = -1;
 
 	public static final String TAG_TABLE_NAME = "tag";
 	public static final String TAG_ID = "_id";
@@ -80,6 +81,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private boolean needToRecreateAllItems = false;
 
 	private boolean closed = false;
+	@SuppressWarnings("ThrowableInstanceNeverThrown")
 	private Throwable createdST = new Throwable();
 
 	private DBHelper(final Context context) {
@@ -120,6 +122,10 @@ public class DBHelper extends SQLiteOpenHelper {
 		cv.put(TAG_TAG, context.getString(R.string.all_untranslated)); //will be localized in KTodo
 		cv.put(TAG_ORDER, 1);
 		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
+		cv.put(TAG_ID, TODAY_METATAG_ID);
+		cv.put(TAG_TAG, context.getString(R.string.today_untranslated)); //will be localized in KTodo
+		cv.put(TAG_ORDER, 99);
+		sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
 		cv.put(TAG_ID, UNFILED_METATAG_ID);
 		cv.put(TAG_TAG, context.getString(R.string.unfiled_untranslated)); //will be localized in KTodo
 		cv.put(TAG_ORDER, 100);
@@ -154,6 +160,13 @@ public class DBHelper extends SQLiteOpenHelper {
 		if (oldv < 8)
 			sqLiteDatabase.execSQL("alter table " + WIDGET_TABLE_NAME + " add " + WIDGET_ITEM_ON_CLICK_ACTION +
 			                       " integer default " + WidgetItemOnClickAction.DEFAULT.ordinal() + " not null");
+		if (oldv < 9) {
+			final ContentValues cv = new ContentValues();
+			cv.put(TAG_ID, TODAY_METATAG_ID);
+			cv.put(TAG_TAG, context.getString(R.string.today_untranslated)); //will be localized in KTodo
+			cv.put(TAG_ORDER, 99);
+			sqLiteDatabase.insert(TAG_TABLE_NAME, null, cv);
+		}
 	}
 
 	public boolean isNeedToRecreateAllItems() {

@@ -90,7 +90,7 @@ public class Util {
 		return (int) daysDiff;
 	}
 
-	private static void killTime(final Calendar due) {
+	public static void killTime(final Calendar due) {
 		due.set(Calendar.HOUR_OF_DAY, 0);
 		due.set(Calendar.MINUTE, 0);
 		due.set(Calendar.SECOND, 0);
@@ -195,6 +195,8 @@ public class Util {
 					final int tagID = cursor.getInt(tagIDIndex);
 					if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
 						((TextView) view).setText(R.string.all);
+					else if (tagID == DBHelper.TODAY_METATAG_ID)
+						((TextView) view).setText(R.string.today);
 					else if (tagID == DBHelper.UNFILED_METATAG_ID)
 						((TextView) view).setText(R.string.unfiled);
 				}

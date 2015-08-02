@@ -78,7 +78,9 @@ public class TagsStorage {
 
 	public void deleteAllTags() {
 		db.delete(TAG_TABLE_NAME,
-				TAG_ID + "<>" + DBHelper.ALL_TAGS_METATAG_ID + " AND " + DBHelper.TAG_ID + "<>" + DBHelper.UNFILED_METATAG_ID,
+				TAG_ID + "<>" + DBHelper.ALL_TAGS_METATAG_ID + " AND " +
+				DBHelper.TAG_ID + "<>" + DBHelper.TODAY_METATAG_ID + " AND " +
+				DBHelper.TAG_ID + "<>" + DBHelper.UNFILED_METATAG_ID,
 				null);
 		notifyChange();
 	}

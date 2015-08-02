@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
+import java.util.Calendar;
+
 import static com.kos.ktodo.DBHelper.*;
 
 /**
@@ -125,12 +127,18 @@ public class TodoItemsStorage {
 		final String tagConstraint = getTagConstraint(tagID);
 		final String doneConstraint = TODO_DONE + " = 0";
 		final String constraint = tagConstraint == null ? doneConstraint :
-		                          tagConstraint + " AND " + doneConstraint;
+				tagConstraint + " AND " + doneConstraint;
 		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, constraint, null, null, null, sortingMode.getOrderBy());
 	}
 
 	private String getTagConstraint(final long tagID) {
-		return tagID == DBHelper.ALL_TAGS_METATAG_ID ? null : TODO_TAG_ID + "=" + tagID;
+		if (tagID == DBHelper.ALL_TAGS_METATAG_ID) return null;
+		else if (tagID == DBHelper.TODAY_METATAG_ID) {
+			final Calendar today = Calendar.getInstance();
+			Util.killTime(today);
+			long tomorrowMillis = today.getTimeInMillis() + 24 * 60 * 60 * 1000L;
+			return TODO_DUE_DATE + "<" + tomorrowMillis;
+		} else return TODO_TAG_ID + "=" + tagID;
 	}
 
 	public TodoItem loadTodoItem(final long id) {

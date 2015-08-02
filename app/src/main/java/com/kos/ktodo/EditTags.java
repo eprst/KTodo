@@ -174,7 +174,8 @@ public class EditTags extends ListActivity {
 	private void moveItemsAndDeleteTag(final long id) {
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string.select_tag_title);
-		final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID, id);
+		final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID,
+				DBHelper.UNFILED_METATAG_ID, DBHelper.TODAY_METATAG_ID, id);
 		final ListAdapter adapter = new SimpleCursorAdapter(
 				this, android.R.layout.select_dialog_item,
 				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}, 0);
@@ -266,8 +267,8 @@ public class EditTags extends ListActivity {
 			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
 				@Override
 				public Cursor createCursor() {
-
-					return tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID);
+					return tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID,
+							DBHelper.UNFILED_METATAG_ID, DBHelper.TODAY_METATAG_ID);
 				}
 			};
 		}

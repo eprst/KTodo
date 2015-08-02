@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">KTodo</string>
+	<!-- don't translate this! -->
 	<string name="all_untranslated">All</string>
 	<!-- don't translate this! -->
 	<string name="unfiled_untranslated">Unfiled</string>
 	<!-- don't translate this! -->
+	<string name="today_untranslated">Today</string>
 	<string name="edit_tags">Edit tags</string>
 	<string name="show_completed_items">Show checked</string>
 	<string name="hide_completed_items">Hide checked</string>

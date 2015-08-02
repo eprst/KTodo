@@ -13,10 +13,10 @@
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export | http://www.estrongs.com/res/develop_en.htm | http://stackoverflow.com/questions/12021622/need-file-save-dialog-for-android
 [v] scrollable resizable widget
-[ ] better voice input (add support for primary/additional languages)
-[ ] option to disable voice input
-[ ] option to leave virtual keyboard visible after entering a new item
-[ ] find a new spot for sorting order (was in the title)
+[-] better voice input (add support for primary/additional languages) - no support in SDK. android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES
+[v] option to disable voice input
+[v] option to leave virtual keyboard visible after entering a new item : only after pressing 'Done', not checkmark button
+[?] find a new spot for sorting order (was in the title)
 [v] decrease throw gravity (make configurable)
 [ ] action bar action for hide/show checked?
 [-] current list combo to the action bar?
@@ -26,7 +26,7 @@
 [ ] add 'share' to the action bar (both list and specific item)
 [ ] figure out mipmaps
 [!] revisit initial help (there's no combo-box now)
-[ ] 'today' meta-tag?
+[v] 'today' meta-tag?
 
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
 [ ] fragment-based properties

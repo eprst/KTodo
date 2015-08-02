@@ -130,6 +130,8 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 		}
 		if (tagID == DBHelper.ALL_TAGS_METATAG_ID)
 			tagName = r.getString(R.string.all);
+		else if (tagID == DBHelper.TODAY_METATAG_ID)
+			tagName = r.getString(R.string.today);
 		else if (tagID == DBHelper.UNFILED_METATAG_ID)
 			tagName = r.getString(R.string.unfiled);
 

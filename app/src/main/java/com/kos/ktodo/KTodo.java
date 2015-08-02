@@ -964,7 +964,7 @@ public class KTodo extends ListActivity {
 		final EditText et = getAddTaskWidget();
 		if (todoItemsStorage != null && st.length() > 0) {
 			long currentTagID = getCurrentTagID();
-			if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID) {
+			if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID || currentTagId == DBHelper.TODAY_METATAG_ID) {
 				currentTagID = DBHelper.UNFILED_METATAG_ID;
 			}
 			final Long due = defaultDue == -1 ? null : defaultDue;
@@ -1072,7 +1072,8 @@ public class KTodo extends ListActivity {
 			case CHANGE_TAG_CONTEXT_MENU_ITEM:
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_tag_title);
-				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID, DBHelper.ALL_TAGS_METATAG_ID);
+				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID,
+						DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
 				final ListAdapter adapter = Util.createTagsAdapter(this, cursor, android.R.layout.simple_dropdown_item_1line);
 
 				b.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -1201,15 +1202,9 @@ public class KTodo extends ListActivity {
 			final PackageManager pm = getPackageManager();
 
 			voiceRecognitionIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//		voiceRecognitionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//		voiceRecognitionIntent.putExtra("android.speech.extras.SEND_APPLICATION_ID_EXTRA", false);
 			voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
 			voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_rec_prompt));
 			voiceRecognitionIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-//		voiceRecognitionIntent.putExtra("android.speech.extras.SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 750L);
-//		voiceRecognitionIntent.putExtra("android.speech.extras.SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS", -1L);
-//		voiceRecognitionIntent.putExtra("calling_package", "com.kos.ktodo");
-//		voiceRecognitionIntent.putExtra("contact_auth", true);
 
 			if (pm.resolveActivity(voiceRecognitionIntent, PackageManager.MATCH_DEFAULT_ONLY) == null)
 				voiceRecognitionIntent = null;
@@ -1467,7 +1462,7 @@ public class KTodo extends ListActivity {
 
 				@Override
 				public Cursor createCursor() {
-					return loaderTagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID);
+					return loaderTagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
 				}
 			};
 		}
