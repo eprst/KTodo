@@ -674,7 +674,12 @@ public class TodoItemsListView extends ListView {
 //			dragItem.setDrawingCacheEnabled(false);
 
 		intercepted.clear();
-		unExpandViews(restoreFlyingItemView);
+//		updateViews(restoreFlyingItemView);
+//		unExpandViews(restoreFlyingItemView);
+		if (restoreFlyingItemView) {
+			makeAllVisible();
+		}
+
 		if (dragView != null) {
 			final Context mContext = getContext();
 			final WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -689,24 +694,21 @@ public class TodoItemsListView extends ListView {
 		}
 	}
 
-	private void unExpandViews(boolean makeAllVisible) { //todo: remove unnecessary stuff
-		for (int i = 0; ; i++) {
+	public void makeAllVisible() {
+		for (int i = 0; i < getChildCount(); i++) {
 			View v = getChildAt(i);
-			if (v == null) {
-				// HACK force update of mItemCount  (checked on 5.1.1: still needed)
-				final int position = getFirstVisiblePosition();
-				final int y = getChildAt(0).getTop();
-				setAdapter(getAdapter());
-				setSelectionFromTop(position, y);
-				// end hack
-				layoutChildren(); // force children to be recreated where needed
-				v = getChildAt(i);
-				if (v == null) {
-					break;
-				}
-			}
-			if(makeAllVisible)
+			if (v != null)
 				v.setVisibility(View.VISIBLE);
+		}
+	}
+
+	public void updateChildren() { // should be called only after underlying adapter is updated, to prevent flickering
+		if (getChildCount() > 0) {
+			final int position = getFirstVisiblePosition();
+			final int y = getChildAt(0).getTop();
+			setAdapter(getAdapter()); // updates mItemCount
+			setSelectionFromTop(position, y); // update selection, to prevent scrolling to the top
+			layoutChildren();
 		}
 	}
 

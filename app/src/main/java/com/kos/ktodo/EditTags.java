@@ -153,6 +153,12 @@ public class EditTags extends ListActivity {
 						deleteItemsAndDeleteTag(id);
 					}
 				});
+				b.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						getMyListView().makeAllVisible();
+					}
+				});
 				b.show();
 			}
 		} finally {
@@ -260,6 +266,13 @@ public class EditTags extends ListActivity {
 		private TagsLoaderCallbacks(final Context ctx, final CursorAdapter cursorAdapter) {
 			super(cursorAdapter);
 			this.ctx = ctx;
+
+			addOnLoadFinishedAction(new Runnable() {
+				@Override
+				public void run() {
+					getMyListView().updateChildren();
+				}
+			});
 		}
 
 		@Override

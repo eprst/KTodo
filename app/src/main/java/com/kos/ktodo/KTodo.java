@@ -79,6 +79,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class KTodo extends ListActivity {
@@ -657,7 +658,7 @@ public class KTodo extends ListActivity {
 		//re-load settings
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-		final TodoItemsListView listView = (TodoItemsListView) getListView();
+		final TodoItemsListView listView = getMyListView();
 		listView.setDeleteItemListener(prefs.getBoolean(Preferences.DELETE_BY_FLING, true) ? deleteItemListener : null);
 
 		if (prefs.getBoolean(Preferences.SLIDE_TO_EDIT, true)) {
@@ -814,6 +815,7 @@ public class KTodo extends ListActivity {
 		} else {
 			todoAdapter.swapCursor(currentTagItemsCursor);
 		}
+		getMyListView().updateChildren();
 	}
 
 	@Override
@@ -967,7 +969,18 @@ public class KTodo extends ListActivity {
 			if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID || currentTagId == DBHelper.TODAY_METATAG_ID) {
 				currentTagID = DBHelper.UNFILED_METATAG_ID;
 			}
-			final Long due = defaultDue == -1 ? null : defaultDue;
+
+			final Long due;
+			if (defaultDue == -1) {
+				if (currentTagID == DBHelper.TODAY_METATAG_ID) {
+					due = Calendar.getInstance().getTimeInMillis();
+				} else {
+					due = null;
+				}
+			} else {
+				due = defaultDue;
+			}
+
 			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, due, null));
 			et.setText("");
 			et.requestFocus();
@@ -1303,6 +1316,10 @@ public class KTodo extends ListActivity {
 		if (callback != null && resultCode == Activity.RESULT_OK)
 			callback.onResultOK(data);
 	}*/
+
+	private TodoItemsListView getTodoItemsListView() {
+		return (TodoItemsListView) getListView();
+	}
 
 	private DrawerLayout getDrawerLayout() {
 		return (DrawerLayout) findViewById(R.id.drawer_layout);
