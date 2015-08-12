@@ -16,11 +16,14 @@
   [ ] big image
 
 development release bugs:
-[ ] no app icon in title on 4.2.2
+[?] no app icon in title on 4.1 devices (android bug?) | try using toolbar?
+
+next release
+[ ] material design: Toolbars, light scheme? | http://android-developers.blogspot.ru/2014/10/appcompat-v21-material-design-for-pre.html
 
 5.0 ideas
-[ ] use android.widget.Toolbar for bottom bars?
-[ ] google now pagelet?
+[ ] use android.widget.Toolbar for bottom bars? | can be done in appcompat v21
+[ ] google now pagelet? | API not available yet
 
 changelog for new release
 [v] scrollable resizable widget
