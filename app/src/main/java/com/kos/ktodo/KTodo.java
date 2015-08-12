@@ -171,7 +171,7 @@ public class KTodo extends ListActivity {
 			public void onSlideBack() {
 				//Log.i(TAG, "slide back");
 //				getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-				KTodo.this.onSlideBack();
+				KTodo.this.stopEditingItem(false);
 			}
 		};
 	}
@@ -255,7 +255,8 @@ public class KTodo extends ListActivity {
 		actionBar = getActionBar();
 		if (actionBar == null) throw new NullPointerException("Action bar must be present");
 
-		drawerToggle = new ActionBarDrawerToggle(this,
+		drawerToggle = new ActionBarDrawerToggle(
+				this,
 				getDrawerLayout(),
 				R.string.drawer_open,
 				R.string.drawer_close) {
@@ -264,11 +265,6 @@ public class KTodo extends ListActivity {
 				super.onDrawerOpened(drawerView);
 				getUndeleteButton().setVisibility(View.INVISIBLE);
 			}
-//
-//			@Override
-//			public void onDrawerClosed(View drawerView) {
-//				super.onDrawerClosed(drawerView);
-//			}
 		};
 		getDrawerLayout().setDrawerListener(drawerToggle);
 
@@ -285,19 +281,15 @@ public class KTodo extends ListActivity {
 
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setHomeButtonEnabled(true);
-		actionBar.setDisplayUseLogoEnabled(false);
 		actionBar.setDisplayShowHomeEnabled(true);
 
-		// add leftPadding around the logo
+		// add leftPadding to the logo
 		Resources resources = getResources();
 		int leftPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, resources.getDisplayMetrics());
 		ImageView view = (ImageView) findViewById(android.R.id.home);
 		view.setPadding(leftPadding, 0, 0, 0);
 
 		setupActionBarMenu();
-
-		// hide old tags selector. TODO: remove it completely
-//			getTagsWidget().setVisibility(View.INVISIBLE);
 	}
 
 	private void setupActionBarMenu() {
@@ -447,11 +439,15 @@ public class KTodo extends ListActivity {
 			return null;
 	}
 
-	private void onSlideBack() {
+	private void stopEditingItem(boolean slideBack) {
+		if (slideBack)
+			getSlidingView().switchLeft();
+
 		saveItemBeingEdited();
 		updateTitle();
 		unlockDrawer();
 		getAddTaskWidget().requestFocus();
+		editingItem = null;
 	}
 
 	private void setupFirstScreenWidgets() {
@@ -561,8 +557,7 @@ public class KTodo extends ListActivity {
 		prioSliderButton.setOnTrackballListener(new Callback1<MotionEvent, Boolean>() {
 			public Boolean call(final MotionEvent evt) {
 				if (evt.getX() < 0) {
-					getSlidingView().switchLeft();
-					onSlideBack();
+					stopEditingItem(true);
 					return Boolean.TRUE;
 				}
 				return Boolean.FALSE;
@@ -712,7 +707,7 @@ public class KTodo extends ListActivity {
 			getSlidingView().setSlideListener(new SlidingView.SlideListener() {
 				public void slidingFinished() {
 					final EditText editText = getEditBodyWidget();
-					if (editingItem.caretPos != null) {
+					if (editingItem != null && editingItem.caretPos != null) {
 						final Editable text = editText.getText();
 						final int savedCaretPos = editingItem.caretPos;
 						if (savedCaretPos >= 0 && savedCaretPos < text.length())
@@ -836,7 +831,6 @@ public class KTodo extends ListActivity {
 
 	private void lockDrawer() {
 		getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-		actionBar.setDisplayHomeAsUpEnabled(false);
 		drawerToggle.setDrawerIndicatorEnabled(false);
 		drawerToggle.syncState();
 	}
@@ -844,7 +838,6 @@ public class KTodo extends ListActivity {
 	private void unlockDrawer() {
 		getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 		drawerToggle.setDrawerIndicatorEnabled(true);
-		actionBar.setDisplayHomeAsUpEnabled(true);
 		drawerToggle.syncState();
 	}
 
@@ -1021,7 +1014,12 @@ public class KTodo extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+		if (editingItem != null) {
+			stopEditingItem(true);
+			return true;
+		} else {
+			return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

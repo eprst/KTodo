@@ -9,6 +9,7 @@
 [!] revisit initial help | add one more help me notice for upgrading users (there's no combo-box now)
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
 [ ] fragment-based properties
+[ ] logo
 [.] xhdpi/xxhdpi drawables
 [!] market
   [ ]screenshot updates
