@@ -13,11 +13,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 /**
  * Edit tags activity.
@@ -52,11 +54,15 @@ public class EditTags extends ListActivity {
 
 		setListAdapter(tagsAdapter);
 
-		findViewById(R.id.add_tag_text).setOnKeyListener(new View.OnKeyListener() {
-			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
-				if (keyCode == KeyEvent.KEYCODE_ENTER)
+		((TextView) (findViewById(R.id.add_tag_text))).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
 					addTag();
-				return false;
+					return true; // return true to keep kbd open
+				} else {
+					return false;
+				}
 			}
 		});
 		findViewById(R.id.add_tag_button).setOnClickListener(new View.OnClickListener() {

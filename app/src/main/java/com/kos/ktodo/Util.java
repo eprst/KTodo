@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
@@ -46,13 +47,15 @@ public class Util {
 	}
 
 	public static void setupEditTextEnterListener(final EditText et, final AlertDialog dlg) {
-		et.setOnKeyListener(new View.OnKeyListener() {
-			public boolean onKey(final View view, final int keyCode, final KeyEvent keyEvent) {
-				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+		et.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
 					dlg.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
 					return true;
+				} else {
+					return false;
 				}
-				return false;
 			}
 		});
 	}
@@ -104,12 +107,18 @@ public class Util {
 		if (prefs.getBoolean(Preferences.DUE_AS_DAYS_LEFT, false)) {
 			final Integer dueInDays = getDueInDays(dueDate);
 			switch (Math.abs(dueInDays)) {
-				case 0:  return ctx.getString(R.string.day0, dueInDays);
-				case 1:  return ctx.getString(R.string.day1, dueInDays);
-				case 2:  return ctx.getString(R.string.day2, dueInDays);
-				case 3:  return ctx.getString(R.string.day3, dueInDays);
-				case 4:  return ctx.getString(R.string.day4, dueInDays);
-				default: return ctx.getString(R.string.day5, dueInDays);
+				case 0:
+					return ctx.getString(R.string.day0, dueInDays);
+				case 1:
+					return ctx.getString(R.string.day1, dueInDays);
+				case 2:
+					return ctx.getString(R.string.day2, dueInDays);
+				case 3:
+					return ctx.getString(R.string.day3, dueInDays);
+				case 4:
+					return ctx.getString(R.string.day4, dueInDays);
+				default:
+					return ctx.getString(R.string.day5, dueInDays);
 			}
 		}
 

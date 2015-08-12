@@ -107,6 +107,13 @@ public class TagsStorage {
 		return res;
 	}
 
+	public boolean hasTag(final long id) {
+		final Cursor cursor = db.query(TAG_TABLE_NAME, new String[]{TAG_ID}, TAG_ID + "=" + id, null, null, null, null);
+		final boolean res = cursor.getCount() > 0;
+		cursor.close();
+		return res;
+	}
+
 	public String getTag(final long id) {
 		final Cursor cursor = db.query(TAG_TABLE_NAME, new String[]{TAG_TAG}, TAG_ID + "=" + id, null, null, null, null);
 		final String res = cursor.moveToFirst() ? cursor.getString(0) : null;

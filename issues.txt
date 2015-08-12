@@ -1,33 +1,12 @@
-[v] can't drag left when an item is partially visible
-[v] possible to leave main view half-slided
-[v] editor state isn't saved (on screen rotation) : fixed
-
-[v] try smaller items, currently on 6 fit on one screen
-[-] when on right screen: soft keyboard should hide priority buttons | no way to do this as of android 2.1
-[v] Add a small indication that an item has notes
-[v] % done
-[v] bug: long tap - menu - drag left
-[-] faster item check/uncheck response | setting mark explicitly doesn't help
-[v] import/export not in UI thread
-[v] Russian translation
 [ ] auto-link in notes body?
 [ ] real Open/Save As dialogs for import/export | http://www.estrongs.com/res/develop_en.htm | http://stackoverflow.com/questions/12021622/need-file-save-dialog-for-android
-[v] scrollable resizable widget
 [-] better voice input (add support for primary/additional languages) - no support in SDK. android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES
-[v] option to disable voice input
-[v] option to leave virtual keyboard visible after entering a new item : only after pressing 'Done', not checkmark button
 [?] find a new spot for sorting order (was in the title)
-[v] decrease throw gravity (make configurable)
 [ ] action bar action for hide/show checked?
-[-] current list combo to the action bar?
-[v] categories on the right drawer
-[v] settings on the right drawer
 [ ] share-using handler to create new item
 [ ] add 'share' to the action bar (both list and specific item)
 [ ] figure out mipmaps
-[!] revisit initial help (there's no combo-box now)
-[v] 'today' meta-tag?
-
+[!] revisit initial help | add one more help me notice for upgrading users (there's no combo-box now)
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
 [ ] fragment-based properties
 [.] xhdpi/xxhdpi drawables
@@ -35,19 +14,18 @@
   [ ]screenshot updates
   [ ] big image
 
-
-4.0 bugs:
-[v] fling an item to remove it - it briefly flashes back in the list
-[v] change title from tag name to 'edit' when going to the edit screen
-[v] hide undelete button on tray open/item edit
-[v] initial run: no tag selected
-[v] crashes on import
-[v] main.xml deprecations
-[v] priority not visible on items
-[v] items off-place when sliding
-[v] broken icons in the bottom action bar (use 01_core_accept, 05_content_event?)
-[v] W/SQLiteConnectionPool﹕ A SQLiteConnection object for database '/data/data/com.kos.ktodo/databases/ktodo.db' was leaked!  Please fix your application
+development release bugs:
+[ ] no app icon in title on 4.2.2
 
 5.0 ideas
 [ ] use android.widget.Toolbar for bottom bars?
 [ ] google now pagelet?
+
+changelog for new release
+[v] scrollable resizable widget
+[v] option to disable voice input
+[v] option to leave virtual keyboard visible after entering a new item : only after pressing 'Done', not checkmark button
+[v] decrease throw gravity (make configurable)
+[v] categories on the right drawer
+[v] settings on the right drawer
+[v] 'today' meta-tag?

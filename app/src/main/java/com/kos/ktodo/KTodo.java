@@ -242,7 +242,7 @@ public class KTodo extends ListActivity {
 		loaderManager.initLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 		loaderManager.initLoader(EDITING_ITEM_TAGS_LOADER_ID, null, editingItemTagsLoaderCallbacks);
 
-		setCurrentTag(currentTag);
+		setCurrentTag(currentTag, false);
 
 		final ContentResolver contentResolver = getApplicationContext().getContentResolver();
 		contentResolver.registerContentObserver(TodoItemsStorage.CHANGE_NOTIFICATION_URI, false, contentObserver);
@@ -277,8 +277,7 @@ public class KTodo extends ListActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				closeDrawer();
-				setCurrentTag(id);
-				getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+				setCurrentTag(id, true);
 			}
 		});
 
@@ -882,6 +881,10 @@ public class KTodo extends ListActivity {
 	}
 
 	private void onDataChanged() {
+		if (!allTagsLoaderCallbacks.getTagsStorage().hasTag(KTodo.this.currentTagId)) {
+			// current tag has been removed, switch to 'all tags'
+			setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID, true);
+		}
 		startService(new Intent(this, WidgetUpdateService.class));
 		WidgetUpdateService.requestUpdateAll(this);
 		LastModifiedState.touch(this);
@@ -911,7 +914,7 @@ public class KTodo extends ListActivity {
 	@Override
 	protected void onRestoreInstanceState(@NotNull final Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		setCurrentTag(savedInstanceState.getLong("currentTag"));
+		setCurrentTag(savedInstanceState.getLong("currentTag"), false);
 		hidingCompleted = savedInstanceState.getBoolean("hidingCompleted");
 		setDefaultDue(savedInstanceState.getLong("defaultDue", -1));
 		setDefaultPrio(savedInstanceState.getInt("defaultPrio"));
@@ -1005,9 +1008,11 @@ public class KTodo extends ListActivity {
 		}
 	}
 
-	private void setCurrentTag(final long id) {
+	private void setCurrentTag(final long id, boolean reload) {
 		currentTagId = id;
 		updateTitle();
+		if (reload)
+			getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
 	}
 
 	private long getCurrentTagID() {
@@ -1179,7 +1184,7 @@ public class KTodo extends ListActivity {
 		b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialogInterface, final int i) {
 				if (wipe.isChecked() && todoItemsStorage != null) { //additional warning?
-					setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID);
+					setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID, true);
 					todoItemsStorage.deleteAllTodoItems();
 					tagsStorage.deleteAllTags();
 				}
@@ -1420,6 +1425,10 @@ public class KTodo extends ListActivity {
 
 		public void shutdown() {
 			loaderTagsStorage.close();
+		}
+
+		public TagsStorage getTagsStorage() {
+			return loaderTagsStorage;
 		}
 	}
 
