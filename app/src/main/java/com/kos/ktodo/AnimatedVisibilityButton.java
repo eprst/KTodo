@@ -30,6 +30,7 @@ public class AnimatedVisibilityButton extends Button {
 		final int outAnimId = ta.getResourceId(R.styleable.AnimatedVisibilityButton_inAnim, R.anim.fade_out);
 		inAnimation = AnimationUtils.loadAnimation(context, inAnimId);
 		outAnimation = AnimationUtils.loadAnimation(context, outAnimId);
+		ta.recycle();
 	}
 
 	@Override

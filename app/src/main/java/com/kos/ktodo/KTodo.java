@@ -262,8 +262,14 @@ public class KTodo extends ListActivity {
 				R.string.drawer_close) {
 			@Override
 			public void onDrawerOpened(View drawerView) {
+				hideUndeleteButton(false);
 				super.onDrawerOpened(drawerView);
-				getUndeleteButton().setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onDrawerSlide(View drawerView, float slideOffset) {
+				hideUndeleteButton(false);
+				super.onDrawerSlide(drawerView, slideOffset);
 			}
 		};
 		getDrawerLayout().setDrawerListener(drawerToggle);
@@ -448,6 +454,13 @@ public class KTodo extends ListActivity {
 		unlockDrawer();
 		getAddTaskWidget().requestFocus();
 		editingItem = null;
+	}
+
+	private void hideUndeleteButton(boolean animate) {
+		if (animate)
+			getUndeleteButton().setVisibility(View.INVISIBLE);
+		else
+			getUndeleteButton().hideNoAnimation();
 	}
 
 	private void setupFirstScreenWidgets() {
@@ -682,7 +695,7 @@ public class KTodo extends ListActivity {
 		if (todoItemsStorage != null) {
 			closeDrawer();
 			lockDrawer();
-			getUndeleteButton().setVisibility(View.INVISIBLE);
+			hideUndeleteButton(false);
 
 			actionBar.setTitle(R.string.edit_item);
 			editingItem = todoItemsStorage.loadTodoItem(id);
@@ -961,14 +974,14 @@ public class KTodo extends ListActivity {
 	private long addTodoItem(final String st) {
 		final EditText et = getAddTaskWidget();
 		if (todoItemsStorage != null && st.length() > 0) {
-			long currentTagID = getCurrentTagID();
-			if (currentTagID == DBHelper.ALL_TAGS_METATAG_ID || currentTagId == DBHelper.TODAY_METATAG_ID) {
-				currentTagID = DBHelper.UNFILED_METATAG_ID;
+			long currentTagId = getCurrentTagID();
+			if (currentTagId == DBHelper.ALL_TAGS_METATAG_ID || currentTagId == DBHelper.TODAY_METATAG_ID) {
+				currentTagId = DBHelper.UNFILED_METATAG_ID;
 			}
 
 			final Long due;
 			if (defaultDue == -1) {
-				if (currentTagID == DBHelper.TODAY_METATAG_ID) {
+				if (this.currentTagId == DBHelper.TODAY_METATAG_ID) {
 					due = Calendar.getInstance().getTimeInMillis();
 				} else {
 					due = null;
@@ -977,7 +990,7 @@ public class KTodo extends ListActivity {
 				due = defaultDue;
 			}
 
-			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagID, false, st, null, defaultPrio, 0, due, null));
+			final TodoItem todoItem = todoItemsStorage.addTodoItem(new TodoItem(-1, currentTagId, false, st, null, defaultPrio, 0, due, null));
 			et.setText("");
 			et.requestFocus();
 			return todoItem.id;
