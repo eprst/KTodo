@@ -16,7 +16,8 @@
   [ ] big image
 
 development release bugs:
-[?] no app icon in title on 4.1 devices (android bug?) | try using toolbar?
+[?] no app icon in title on 4.1, 4.2 devices (android bug?) | try using toolbar? | can be fixed by using appcompat, but it's ugly
+[ ] marking item as done makes it blink in the emulator
 
 next release
 [ ] material design: Toolbars, light scheme? | http://android-developers.blogspot.ru/2014/10/appcompat-v21-material-design-for-pre.html
