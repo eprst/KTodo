@@ -489,28 +489,6 @@ public class KTodo extends ListActivity {
 			}
 		});
 
-
-		final TodoItemsListView listView = getMyListView();
-
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
-				//making it async (uncommenting this code) seems to make it visually worse
-//				final TodoItemView tiv = (TodoItemView) view;
-//				tiv.toggle();
-
-//				handler.post(new Runnable() {
-//					public void run() {
-				if (todoItemsStorage != null && (clickAnywhereToCheck || listView.isClickedOnCheckMark())) { //why the heck I can't get event coordinates here
-					final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
-					todoItem.setDone(!todoItem.isDone());
-					todoItemsStorage.saveTodoItem(todoItem);
-//				    todoItemsStorage.toggleDone(id);
-				}
-//					}
-//				});
-			}
-		});
-
 		getEditItemTagsWidget().setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(final AdapterView<?> parent, final View view, final int position, final long id) {
 				if (editingItem != null) {
@@ -835,11 +813,11 @@ public class KTodo extends ListActivity {
 	}
 
 	private boolean isDrawerOpen() {
-		return getDrawerLayout().isDrawerOpen(Gravity.START);
+		return getDrawerLayout().isDrawerOpen(Gravity.LEFT);
 	}
 
 	private void closeDrawer() {
-		getDrawerLayout().closeDrawer(Gravity.START);
+		getDrawerLayout().closeDrawer(Gravity.LEFT);
 	}
 
 	private void lockDrawer() {
@@ -938,6 +916,15 @@ public class KTodo extends ListActivity {
 			editItem(savedInstanceState.getLong("itemBeingEditedID"));
 //		reloadTodoItems();
 		getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
+	}
+
+	@Override
+	protected void onListItemClick(ListView listView, View v, int position, long id) {
+		if (todoItemsStorage != null && (clickAnywhereToCheck || ((TodoItemsListView)listView).isClickedOnCheckMark())) { //why the heck I can't get event coordinates here
+			final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
+			todoItem.setDone(!todoItem.isDone());
+			todoItemsStorage.saveTodoItem(todoItem);
+		}
 	}
 
 	@Override

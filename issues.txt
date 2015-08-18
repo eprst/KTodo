@@ -6,7 +6,6 @@
 [ ] share-using handler to create new item
 [ ] add 'share' to the action bar (both list and specific item)
 [ ] figure out mipmaps
-[!] revisit initial help | add one more help me notice for upgrading users (there's no combo-box now)
 [ ] separate main screen into 2 fragments: list/item details (for tablets UI)
 [ ] fragment-based properties
 [ ] logo
@@ -15,12 +14,12 @@
   [ ]screenshot updates
   [ ] big image
 
-development release bugs:
+known bugs:
 [?] no app icon in title on 4.1, 4.2 devices (android bug?) | try using toolbar? | can be fixed by using appcompat, but it's ugly
-[ ] marking item as done makes it blink in the emulator
+[-] marking item as done makes it blink in the emulator | first blink is selection, second is progress. changing selection color to transparent doesn't help, it starts blinking on UNcheck
 
 next release
-[ ] material design: Toolbars, light scheme? | http://android-developers.blogspot.ru/2014/10/appcompat-v21-material-design-for-pre.html
+[ ] material design: Toolbars, light scheme?
 
 5.0 ideas
 [ ] use android.widget.Toolbar for bottom bars? | can be done in appcompat v21
@@ -33,4 +32,4 @@ changelog for new release
 [v] decrease throw gravity (make configurable)
 [v] categories on the right drawer
 [v] settings on the right drawer
-[v] 'today' meta-tag?
+[v] 'today' meta-tag
