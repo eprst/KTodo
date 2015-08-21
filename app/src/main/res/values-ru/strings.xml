@@ -88,13 +88,13 @@
 	<string name="prefs_default_color_confirm">default_col_conf</string>
 	<string name="prefs_enable_fling_delete">Удаление броском</string>
 	<string name="prefs_enable_fling_delete_s">Удалять элементы выбрасыванием за правый край</string>
-	<string name="prefs_enable_slide_edit">Ред. сдвигом</string>
+	<string name="prefs_enable_slide_edit">Редактировать сдвигом</string>
 	<string name="prefs_enable_slide_edit_s">Редактировать элементы сдвиганием за левый край</string>
 	<string name="prefs_click_anywhere_to_check">Клик где угодно</string>
 	<string name="prefs_click_anywhere_to_check_s">Элемент помечается кликом где угодно или только по галке</string>
 	<string name="prefs_main_list_font_size">Размер элементов</string>
 	<string name="prefs_main_list_font_size_s">Размер шрифта элементов списка</string>
-	<string name="prefs_show_due_date_as_days_left">Срок как кол-во дней</string>
+	<string name="prefs_show_due_date_as_days_left">Срок как количество дней</string>
 	<string name="prefs_show_due_date_as_days_left_s">Показывать срок как количество дней до окончания</string>
 	<string name="prefs_colors">Цвета</string>
 	<string name="prefs_prio_colors">Цвета приоритетов</string>
@@ -129,8 +129,9 @@
 	<string name="prefs_fling_gravity">Гравитация</string>
 	<string name="prefs_fling_gravity_s">Гравитация при выбрасывании элементов</string>
 	<string name="edit_item">Редактирование элемента</string>
-	<string name="prefs_keep_kbd_open">Оставлять клавиатуру открытой</string>
+	<string name="prefs_keep_kbd_open">Оставлять клавиатуру</string>
 	<string name="prefs_keep_kbd_open_s">Оставлять клавиатуру на экране после нажатия Done</string>
 	<string name="prefs_use_voice_input">Использовать голосовой ввод</string>
 	<string name="prefs_use_voice_input_s">Использовать разпознавание голоса для создания элементов</string>
+	<string name="prefs_default">по умолчанию</string>
 </resources>

@@ -654,12 +654,16 @@ public class KTodo extends ListActivity {
 			listView.setSlideLeftInfo(null, null);
 		}
 
+		Float prevListFontSize = listFontSize;
 		final String _default = "default";
 		final String fontSize = prefs.getString(Preferences.MAIN_LIST_FONT_SIZE, _default);
-		if (_default.equals(fontSize))
-			listFontSize = null;
-		else
-			listFontSize = Float.parseFloat(fontSize);
+		if (!fontSize.equals(_default)) {
+			try {
+				listFontSize = Float.parseFloat(fontSize);
+			} catch (NumberFormatException e) {
+				listFontSize = null;
+			}
+		} else listFontSize = null;
 
 		clickAnywhereToCheck = prefs.getBoolean(Preferences.CLICK_ANYWHERE_TO_CHECK, true);
 		keepKbdOpen = prefs.getBoolean(Preferences.KEEP_KBD_OPEN, false);
@@ -667,6 +671,10 @@ public class KTodo extends ListActivity {
 
 		setupVoiceRecognition();
 		setupAddButtonIcon();
+
+		// !Objects.equals(prevListFontSize, listFontSize)
+		if (!(prevListFontSize == null ? listFontSize == null : prevListFontSize.equals(listFontSize)))
+			reloadTodoItemsFromUIThread(); // for font size changes to kick in
 	}
 
 	private void startEditingItem(final long id) {
@@ -920,7 +928,7 @@ public class KTodo extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView listView, View v, int position, long id) {
-		if (todoItemsStorage != null && (clickAnywhereToCheck || ((TodoItemsListView)listView).isClickedOnCheckMark())) { //why the heck I can't get event coordinates here
+		if (todoItemsStorage != null && (clickAnywhereToCheck || ((TodoItemsListView) listView).isClickedOnCheckMark())) {
 			final TodoItem todoItem = todoItemsStorage.loadTodoItem(id);
 			todoItem.setDone(!todoItem.isDone());
 			todoItemsStorage.saveTodoItem(todoItem);

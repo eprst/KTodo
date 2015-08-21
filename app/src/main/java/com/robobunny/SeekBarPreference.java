@@ -190,9 +190,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
 	@Override
 	protected Object onGetDefaultValue(TypedArray ta, int index) {
-
 		return ta.getInt(index, DEFAULT_VALUE);
-
 	}
 
 	@Override

@@ -142,4 +142,5 @@
 	<string name="prefs_keep_kbd_open_s">Keep keyboard open after pressing Done</string>
 	<string name="prefs_use_voice_input">Use voice input</string>
 	<string name="prefs_use_voice_input_s">Use voice recognition input</string>
+	<string name="prefs_default">default</string>
 </resources>

@@ -76,6 +76,19 @@
 			</LinearLayout>
 		</LinearLayout>
 		<TextView
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:padding="10dip"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:text="@string/widget_on_item_click"/>
+		<Spinner
+			android:id="@+id/conf_on_item_click"
+			android:layout_marginLeft="20dip"
+			android:layout_marginRight="20dip"
+			android:layout_height="wrap_content"
+			android:layout_width="fill_parent"
+			android:entries="@array/widget_item_on_click_options"/>
+		<TextView
 				android:layout_width="fill_parent"
 				android:layout_height="wrap_content"
 				android:padding="10dip"
@@ -94,13 +107,14 @@
 		<LinearLayout android:orientation="horizontal"
 		              android:layout_width="fill_parent"
 		              android:layout_height="wrap_content"
-		              style="@android:style/ButtonBar">
+		              style="@android:style/Widget.Holo.ActionBar.Solid">
 			<TextView
 					android:layout_width="0dip"
 					android:layout_height="fill_parent"
 					android:layout_weight="0.6"/>
 			<Button
 					android:id="@+id/conf_ok"
+					style="@style/ToolButtonWithBorder"
 					android:layout_width="0dip"
 					android:layout_weight="0.3"
 					android:layout_height="wrap_content"

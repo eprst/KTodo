@@ -1,6 +1,6 @@
 <resources>
 	<string-array name="main_list_font_sizes">
-		<item>default</item>
+		<item>@string/prefs_default</item>
 		<item>12</item>
 		<item>13</item>
 		<item>14</item>

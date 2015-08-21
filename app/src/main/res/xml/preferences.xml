@@ -47,7 +47,7 @@
 			android:summary="@string/prefs_main_list_font_size_s"
 			android:entries="@array/main_list_font_sizes"
 			android:entryValues="@array/main_list_font_sizes"
-			android:defaultValue="default"
+			android:defaultValue="@string/prefs_default"
 			android:key="mainListFontSize"/>
 	<PreferenceScreen
 			android:title="@string/prefs_colors">

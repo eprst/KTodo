@@ -90,7 +90,7 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 						TodoItemsStorage todoItemsStorage = new TodoItemsStorage(context);
 						todoItemsStorage.open();
 						TodoItem todoItem = todoItemsStorage.loadTodoItem(itemId);
-						todoItem.setDone(true);
+						todoItem.setDone(!todoItem.isDone());
 						todoItemsStorage.saveTodoItem(todoItem);
 						todoItemsStorage.close();
 						context.startService(new Intent(context, WidgetUpdateService.class));
