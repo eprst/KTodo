@@ -10,5 +10,5 @@ It has:
  * Progress
  * Due dates
  * Text notes
- * Widgets
+ * Widget
  * Import/export

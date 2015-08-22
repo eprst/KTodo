@@ -1,5 +1,7 @@
 .gradle
 gradle
+*.apk
+*.patch
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries

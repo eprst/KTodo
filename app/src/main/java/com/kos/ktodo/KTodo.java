@@ -263,12 +263,14 @@ public class KTodo extends ListActivity {
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				hideUndeleteButton(false);
+				hideSoftKeyboard(); // any way to hide it faster?
 				super.onDrawerOpened(drawerView);
 			}
 
 			@Override
 			public void onDrawerSlide(View drawerView, float slideOffset) {
 				hideUndeleteButton(false);
+				hideSoftKeyboard();
 				super.onDrawerSlide(drawerView, slideOffset);
 			}
 		};
@@ -322,7 +324,6 @@ public class KTodo extends ListActivity {
 					public Unit call(final TodoItemsSortingMode arg) {
 						sortingMode = arg;
 						getLoaderManager().restartLoader(CURRENT_TAG_ITEMS_LOADER_ID, null, currentTagItemsLoaderCallbacks);
-						updateTitle();
 						return Unit.u;
 					}
 				});

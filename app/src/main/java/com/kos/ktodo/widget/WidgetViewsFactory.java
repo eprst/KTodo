@@ -141,13 +141,14 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 	private static int getItemColor(final int defaultColor, final int completedColor,
 	                                final int dueTodayColor, final int expiredColor,
 	                                final TodoItem i) {
+		if (i.isDone()) return completedColor;
+
 		switch (Util.getDueStatus(i.getDueDate())) {
 			case EXPIRED:
 				return expiredColor;
 			case TODAY:
 				return dueTodayColor;
 			default:
-				if (i.isDone()) return completedColor;
 				return defaultColor;
 		}
 	}

@@ -13,6 +13,8 @@
 [!] market
   [ ]screenshot updates
   [ ] big image
+[ ] repeatable tasks (change due date to today+X days once task is marked as done)
+[ ] 'tap zones' when settings->'click anywhere to check' is disabled: different zones to change prio/due date in one tap
 
 known bugs:
 [?] no app icon in title on 4.1, 4.2 devices (android bug?) | try using toolbar? | can be fixed by using appcompat, but it's ugly
