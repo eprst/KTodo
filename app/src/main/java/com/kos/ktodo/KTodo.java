@@ -655,7 +655,6 @@ public class KTodo extends ListActivity {
 			listView.setSlideLeftInfo(null, null);
 		}
 
-		Float prevListFontSize = listFontSize;
 		final String _default = "default";
 		final String fontSize = prefs.getString(Preferences.MAIN_LIST_FONT_SIZE, _default);
 		if (!fontSize.equals(_default)) {
@@ -673,9 +672,7 @@ public class KTodo extends ListActivity {
 		setupVoiceRecognition();
 		setupAddButtonIcon();
 
-		// !Objects.equals(prevListFontSize, listFontSize)
-		if (!(prevListFontSize == null ? listFontSize == null : prevListFontSize.equals(listFontSize)))
-			reloadTodoItemsFromUIThread(); // for font size changes to kick in
+		reloadTodoItemsFromUIThread(); // for font size changes or 'show as days left' to kick in
 	}
 
 	private void startEditingItem(final long id) {
@@ -1300,16 +1297,15 @@ public class KTodo extends ListActivity {
 	}
 
 	private void runAsynchronously(final int title, final int message, final Runnable r) {
-		final ProgressDialog pg = ProgressDialog.show(this, getString(title), getString(message), true);
-		final Handler h = new DialogDismissingHandler(pg);
+		final ProgressDialog pg = ProgressDialog.show(this, getString(title), getString(message), true, false);
 
-		final Runnable r2 = new Runnable() {
+		new Thread() {
+			@Override
 			public void run() {
 				r.run();
-				h.sendEmptyMessage(0);
+				pg.dismiss();
 			}
-		};
-		new Thread(r2).start();
+		}.start();
 	}
 
 /*	private void startSubActivity(final Class subActivityClass, final SubActivityCallback callback, final Bundle params) {
