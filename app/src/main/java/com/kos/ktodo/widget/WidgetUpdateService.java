@@ -13,6 +13,8 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import net.jcip.annotations.GuardedBy;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -23,8 +25,10 @@ public class WidgetUpdateService extends Service implements Runnable {
 
 	private static final String TAG = "WidgetUpdateService";
 	private static final Object lock = new Object();
+	@GuardedBy("lock")
 	private static final Queue<Integer> appWidgetIds = new LinkedList<>();
 
+	@GuardedBy("lock")
 	private static boolean threadRunning = false;
 
 	public static void requestUpdate(final int[] appWidgetIds) {
@@ -61,7 +65,6 @@ public class WidgetUpdateService extends Service implements Runnable {
 		// Only start processing thread if not already running
 		synchronized (lock) {
 			if (!threadRunning) {
-				threadRunning = true;
 				new Thread(this).start();
 			}
 		}
@@ -76,9 +79,15 @@ public class WidgetUpdateService extends Service implements Runnable {
 	}
 
 	public void run() {
+		synchronized (lock) {
+			threadRunning = true;
+		}
+
+		boolean keepRunning = true;
+
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
-		while (true) {
-			settingsStorage.open();
+		settingsStorage.open();
+		while (keepRunning) {
 			final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
 			while (hasMoreUpdates()) {
 				final int widgetId = getNextUpdate();
@@ -93,7 +102,6 @@ public class WidgetUpdateService extends Service implements Runnable {
 					}
 				}
 			}
-			settingsStorage.close();
 
 			//schedule next update at noon
 			final GregorianCalendar calendar = new GregorianCalendar();
@@ -107,13 +115,14 @@ public class WidgetUpdateService extends Service implements Runnable {
 			final PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 			final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-			synchronized (lock) {
-				if (!hasMoreUpdates()) {
-					threadRunning = false;
-					stopSelf();
-					break;
-				}
-			}
+
+			keepRunning = hasMoreUpdates();
+		}
+		settingsStorage.close();
+
+		synchronized (lock) {
+			stopSelf();
+			threadRunning = false;
 		}
 	}
 

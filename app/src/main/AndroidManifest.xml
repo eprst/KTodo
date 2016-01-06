@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.kos.ktodo">
+<manifest package="com.kos.ktodo"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          android:installLocation="internalOnly">
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<!--<uses-permission android:name="android.permission.RECORD_AUDIO"/>-->
 	<application
 		android:allowBackup="true"
@@ -51,6 +53,12 @@
 			</intent-filter>
 			<meta-data android:name="android.appwidget.provider"
 			           android:resource="@xml/appwidget"/>
+		</receiver>
+
+		<receiver android:name=".widget.WidgetUpdateServiceAutostart">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
 		</receiver>
 
 		<service
