@@ -1,0 +1,9 @@
+* text=auto
+
+*.java text
+*.xml text
+*.bat text
+*.pro text
+
+*.png binary
+*.psd binary
