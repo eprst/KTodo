@@ -143,4 +143,7 @@
 	<string name="prefs_use_voice_input">Use voice input</string>
 	<string name="prefs_use_voice_input_s">Use voice recognition input</string>
 	<string name="prefs_default">default</string>
+	<string name="missing_permission">Missing permission</string>
+	<string name="req_storage_write">Please grant storage write permission</string>
+	<string name="req_storage_read">Please grant storage read permission</string>
 </resources>

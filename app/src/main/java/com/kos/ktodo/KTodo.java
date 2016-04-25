@@ -1,10 +1,10 @@
 package com.kos.ktodo;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
@@ -28,10 +28,12 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Message;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -80,9 +82,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class KTodo extends ListActivity {
+public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
 	public static final String SHOW_WIDGET_ITEM_DATA = "com.kos.ktodo.SHOW_WIDGET_ITEM_DATA";
 
@@ -90,6 +94,9 @@ public class KTodo extends ListActivity {
 	private static final boolean TRACE = false; //enables method tracing
 	private static final int HIDE_UNDELETE_AFTER = 4000; //ms
 	public static final int VOICE_RECOGNITION_REQUEST_CODE = 123422;
+
+	private static final int IMPORT_DATA_PERMISSION_REQUEST_CODE = 1;
+	private static final int EXPORT_DATA_PERMISSION_REQUEST_CODE = 2;
 
 	private final int EDIT_ITEM_CONTEXT_MENU_ITEM = Menu.FIRST;
 	private final int CHANGE_TAG_CONTEXT_MENU_ITEM = EDIT_ITEM_CONTEXT_MENU_ITEM + 1;
@@ -136,6 +143,8 @@ public class KTodo extends ListActivity {
 
 	private final TodoItemsListView.DeleteItemListener deleteItemListener;
 	private final SlideLeftListener slideLeftListener;
+
+	private Map<Integer, Runnable> permissionRequests = new HashMap<>();
 
 	//prefs
 	private Float listFontSize;
@@ -274,7 +283,7 @@ public class KTodo extends ListActivity {
 				super.onDrawerSlide(drawerView, slideOffset);
 			}
 		};
-		getDrawerLayout().setDrawerListener(drawerToggle);
+		getDrawerLayout().addDrawerListener(drawerToggle);
 
 		getTagsList().setAdapter(tagsAdapter);
 		getTagsList().setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -379,7 +388,8 @@ public class KTodo extends ListActivity {
 			});
 			getAddTaskButton().setImageDrawable(voiceDrawable);
 		} else {
-			getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark));
+			//noinspection deprecation
+			getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark)); // TODO ..,null (theme) (here and above)
 		}
 	}
 
@@ -677,42 +687,45 @@ public class KTodo extends ListActivity {
 
 	private void startEditingItem(final long id) {
 		if (todoItemsStorage != null) {
-			closeDrawer();
-			lockDrawer();
-			hideUndeleteButton(false);
-
-			actionBar.setTitle(R.string.edit_item);
 			editingItem = todoItemsStorage.loadTodoItem(id);
-			getEditSummaryWidget().setText(editingItem.summary);
-			getEditBodyWidget().setText(editingItem.body);
 
-			editingItemTagsLoaderCallbacks.addOnLoadFinishedAction(new Runnable() {
-				@Override
-				public void run() {
-					final Spinner spinner = getEditItemTagsWidget();
-					final int position = Util.getItemPosition(editingItemTagsAdapter, editingItem.tagID);
-					if (position != -1)
-						spinner.setSelection(position);
-					else
-						Log.w(TAG, "Can't find spinner position for tag " + editingItem.tagID);
-				}
-			});
+			if (editingItem != null) {
+				closeDrawer();
+				lockDrawer();
+				hideUndeleteButton(false);
 
-			getPrioSliderButton().setSelection(editingItem.prio - 1);
-			getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
-			updateDueDateButton();
-			getSlidingView().setSlideListener(new SlidingView.SlideListener() {
-				public void slidingFinished() {
-					final EditText editText = getEditBodyWidget();
-					if (editingItem != null && editingItem.caretPos != null) {
-						final Editable text = editText.getText();
-						final int savedCaretPos = editingItem.caretPos;
-						if (savedCaretPos >= 0 && savedCaretPos < text.length())
-							Selection.setSelection(text, savedCaretPos);
+				actionBar.setTitle(R.string.edit_item);
+				getEditSummaryWidget().setText(editingItem.summary);
+				getEditBodyWidget().setText(editingItem.body);
+
+				editingItemTagsLoaderCallbacks.addOnLoadFinishedAction(new Runnable() {
+					@Override
+					public void run() {
+						final Spinner spinner = getEditItemTagsWidget();
+						final int position = Util.getItemPosition(editingItemTagsAdapter, editingItem.tagID);
+						if (position != -1)
+							spinner.setSelection(position);
+						else
+							Log.w(TAG, "Can't find spinner position for tag " + editingItem.tagID);
 					}
-					editText.requestFocus();
-				}
-			});
+				});
+
+				getPrioSliderButton().setSelection(editingItem.prio - 1);
+				getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
+				updateDueDateButton();
+				getSlidingView().setSlideListener(new SlidingView.SlideListener() {
+					public void slidingFinished() {
+						final EditText editText = getEditBodyWidget();
+						if (editingItem != null && editingItem.caretPos != null) {
+							final Editable text = editText.getText();
+							final int savedCaretPos = editingItem.caretPos;
+							if (savedCaretPos >= 0 && savedCaretPos < text.length())
+								Selection.setSelection(text, savedCaretPos);
+						}
+						editText.requestFocus();
+					}
+				});
+			}
 		}
 	}
 
@@ -998,6 +1011,7 @@ public class KTodo extends ListActivity {
 		}
 	}
 
+	@SuppressLint("SetTextI18n")
 	private void setDefaultPrio(final int p) {
 		if (defaultPrio != p) {
 			defaultPrio = p;
@@ -1127,7 +1141,16 @@ public class KTodo extends ListActivity {
 		b.show();
 	}
 
-	private void exportData() { //any good reason to export/import in background? It's very quick anyways
+	private void exportData() {
+		doWithPermission(EXPORT_DATA_PERMISSION_REQUEST_CODE, Manifest.permission.WRITE_EXTERNAL_STORAGE, R.string.req_storage_write, new Runnable() {
+			@Override
+			public void run() {
+				exportDataWithPermissionsGranted();
+			}
+		});
+	}
+
+	private void exportDataWithPermissionsGranted() { //any good reason to export/import in background? It's very quick anyways
 		final LayoutInflater inf = LayoutInflater.from(this);
 		@SuppressLint("InflateParams")
 		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
@@ -1148,6 +1171,7 @@ public class KTodo extends ListActivity {
 					public void run() {
 						try {
 							XmlExporter.exportData(KTodo.this, new File(st));
+							// TODO show non-intrusive "done" message
 						} catch (final IOException e) {
 							Log.e(TAG, "error exporting data", e);
 							showErrorFromAnotherThread(e.toString());
@@ -1162,15 +1186,16 @@ public class KTodo extends ListActivity {
 		dialog.show();
 	}
 
-	private void showErrorFromAnotherThread(final String msg) {
-		handler.post(new Runnable() {
+	private void importData() {
+		doWithPermission(IMPORT_DATA_PERMISSION_REQUEST_CODE, Manifest.permission.READ_EXTERNAL_STORAGE, R.string.req_storage_read, new Runnable() {
+			@Override
 			public void run() {
-				new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setMessage(msg).show();
+				importDataWithPermissionsGranted();
 			}
 		});
 	}
 
-	private void importData() {
+	private void importDataWithPermissionsGranted() {
 		final LayoutInflater inf = LayoutInflater.from(this);
 		@SuppressLint("InflateParams")
 		final View dialogView = inf.inflate(R.layout.import_dialog, null);
@@ -1210,6 +1235,48 @@ public class KTodo extends ListActivity {
 		final AlertDialog dialog = b.create();
 		Util.setupEditTextEnterListener(editText, dialog);
 		dialog.show();
+	}
+
+	private void doWithPermission(final int permissionRequestCode, final String permissionName, int explanation, final Runnable callback) {
+		if (ContextCompat.checkSelfPermission(this, permissionName) != PackageManager.PERMISSION_GRANTED) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(this, permissionName)) {
+				final AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b.setTitle(R.string.missing_permission);
+				b.setMessage(explanation);
+				b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						permissionRequests.put(permissionRequestCode, callback);
+						ActivityCompat.requestPermissions(KTodo.this, new String[]{permissionName}, permissionRequestCode);
+					}
+				});
+				b.setCancelable(false);
+				b.create().show();
+			} else {
+				permissionRequests.put(permissionRequestCode, callback);
+				ActivityCompat.requestPermissions(this, new String[]{permissionName}, permissionRequestCode);
+			}
+		} else {
+			callback.run();
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int permissionRequestCode, @NonNull String permissions[], @NonNull int grantResults[]) {
+		if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			Runnable callback = permissionRequests.remove(permissionRequestCode);
+			if (callback != null) {
+				callback.run();
+			}
+		}
+	}
+
+	private void showErrorFromAnotherThread(final String msg) {
+		handler.post(new Runnable() {
+			public void run() {
+				new AlertDialog.Builder(KTodo.this).setTitle(R.string.error).setPositiveButton(android.R.string.ok, null).setMessage(msg).show();
+			}
+		});
 	}
 
 	private void startVoiceRecognition() {
@@ -1501,18 +1568,18 @@ public class KTodo extends ListActivity {
 		}
 	}
 
-	private static class DialogDismissingHandler extends Handler {
-		private final Dialog dialog;
-
-		private DialogDismissingHandler(final Dialog dialog) {
-			this.dialog = dialog;
-		}
-
-		@Override
-		public void handleMessage(final Message msg) {
-			super.handleMessage(msg);
-			dialog.dismiss();
-		}
-	}
+//	private static class DialogDismissingHandler extends Handler {
+//		private final Dialog dialog;
+//
+//		private DialogDismissingHandler(final Dialog dialog) {
+//			this.dialog = dialog;
+//		}
+//
+//		@Override
+//		public void handleMessage(final Message msg) {
+//			super.handleMessage(msg);
+//			dialog.dismiss();
+//		}
+//	}
 
 }

@@ -134,4 +134,7 @@
 	<string name="prefs_use_voice_input">Использовать голосовой ввод</string>
 	<string name="prefs_use_voice_input_s">Использовать разпознавание голоса для создания элементов</string>
 	<string name="prefs_default">по умолчанию</string>
+	<string name="missing_permission">Нет доступа</string>
+	<string name="req_storage_write">Дайте доступ на запись файлов пожалуйста</string>
+	<string name="req_storage_read">Дайте доступ на чтение файлов пожалуйста</string>
 </resources>
