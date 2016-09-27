@@ -39,12 +39,6 @@ public class WidgetUpdateService extends Service implements Runnable {
 		}
 	}
 
-	private static boolean hasMoreUpdates() {
-		synchronized (lock) {
-			return !appWidgetIds.isEmpty();
-		}
-	}
-
 	private static int getNextUpdate() {
 		synchronized (lock) {
 			if (appWidgetIds.peek() == null) {
@@ -83,44 +77,39 @@ public class WidgetUpdateService extends Service implements Runnable {
 			threadRunning = true;
 		}
 
-		boolean keepRunning = true;
-
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();
-		while (keepRunning) {
-			final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
-			while (hasMoreUpdates()) {
-				final int widgetId = getNextUpdate();
-				final WidgetSettings s = settingsStorage.load(widgetId);
-				//Log.i(TAG, "Updating widget " + widgetId + " " + s.configured);
-				if (!s.configured) continue;
-				final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId); // todo widget info not needed now?
-				if (widgetInfo != null) {
-					final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId, widgetInfo);
-					if (updViews != null) {
-						widgetManager.updateAppWidget(widgetId, updViews);
-					}
+		final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
+		int widgetId = getNextUpdate();
+		while (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+			final WidgetSettings s = settingsStorage.load(widgetId);
+			//Log.i(TAG, "Updating widget " + widgetId + " " + s.configured);
+			if (!s.configured) continue;
+			final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId); // todo widget info not needed now?
+			if (widgetInfo != null) {
+				final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId, widgetInfo);
+				if (updViews != null) {
+					widgetManager.updateAppWidget(widgetId, updViews);
 				}
 			}
-
-			//schedule next update at noon
-			final GregorianCalendar calendar = new GregorianCalendar();
-			calendar.setTimeInMillis(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
-			calendar.set(Calendar.HOUR, 0);
-			calendar.set(Calendar.MINUTE, 0);
-			calendar.set(Calendar.SECOND, 0);
-
-			final Intent intent = new Intent(ACTION_UPDATE_ALL);
-			intent.setClass(this, this.getClass());
-			final PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-			final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-
-			keepRunning = hasMoreUpdates();
+			widgetId = getNextUpdate();
 		}
 		settingsStorage.close();
 
+		//schedule next update at noon
+		final GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTimeInMillis(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
+		calendar.set(Calendar.HOUR, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+
+		final Intent intent = new Intent(ACTION_UPDATE_ALL);
+		intent.setClass(this, this.getClass());
+		final PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
 		synchronized (lock) {
+			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 			stopSelf();
 			threadRunning = false;
 		}

@@ -170,6 +170,11 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 			}
 		};
 		slideLeftListener = new SlideLeftListener() {
+			@Override
+			public boolean canSlideLeft() {
+				return !isDrawerOpen();
+			}
+
 			public void slideLeftStarted(final long id) {
 				hideSoftKeyboard();
 				startEditingItem(id);
@@ -690,8 +695,6 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 			editingItem = todoItemsStorage.loadTodoItem(id);
 
 			if (editingItem != null) {
-				closeDrawer();
-				lockDrawer();
 				hideUndeleteButton(false);
 
 				actionBar.setTitle(R.string.edit_item);
@@ -713,7 +716,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				getPrioSliderButton().setSelection(editingItem.prio - 1);
 				getProgressSliderButton().setSelection(editingItem.getProgress() / 10);
 				updateDueDateButton();
-				getSlidingView().setSlideListener(new SlidingView.SlideListener() {
+				getSlidingView().setListener(new SlidingView.Listener() {
 					public void slidingFinished() {
 						final EditText editText = getEditBodyWidget();
 						if (editingItem != null && editingItem.caretPos != null) {
@@ -723,6 +726,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 								Selection.setSelection(text, savedCaretPos);
 						}
 						editText.requestFocus();
+						lockDrawer();
 					}
 				});
 			}

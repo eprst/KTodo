@@ -240,10 +240,9 @@ public class TodoItemsListView extends ListView {
 		if (slideLeftView == null) return false;
 		if (slideLeftView.getScrollX() != slideLeftView.getWidth()) return false;
 		slideLeftView.switchLeft();
-		slideLeftView.setSlideListener(new SlidingView.SlideListener() {
+		slideLeftView.setListener(new SlidingView.Listener() {
 			public void slidingFinished() {
 				slideLeftListener.onSlideBack();
-				slideLeftView.setSlideListener(null);
 			}
 		});
 		return true;
@@ -251,7 +250,7 @@ public class TodoItemsListView extends ListView {
 
 	@Override
 	public boolean onTrackballEvent(final MotionEvent event) {
-		if (event.getX() > 0 && slideLeftListener != null) {
+		if (event.getX() > 0 && slideLeftListener != null && slideLeftListener.canSlideLeft()) {
 			slideLeftListener.slideLeftStarted(getSelectedItemId());
 			slideLeftView.switchRight();
 			return true;
@@ -381,7 +380,7 @@ public class TodoItemsListView extends ListView {
 			case DRAGGING_ITEM:
 				dragVelocityTracker.addMovement(ev, false);
 				off = x - dragPointX + coordOffsetX;
-				if (off < 0 && slideLeftListener != null) {
+				if (off < 0 && slideLeftListener != null && slideLeftListener.canSlideLeft()) {
 					setState(State.DRAGGING_VIEW_LEFT);
 					slideLeftListener.slideLeftStarted(getItemIdAtPosition(dragItemNum));
 				} else {
@@ -421,7 +420,9 @@ public class TodoItemsListView extends ListView {
 //						processed = true;
 					} else if (state == State.PRESSED_ON_ITEM &&
 					           deltaXFromDown < -scaledTouchSlop &&
-					           slideLeftListener != null && itemNum != AdapterView.INVALID_POSITION) {
+					           slideLeftListener != null &&
+					           slideLeftListener.canSlideLeft() &&
+					           itemNum != AdapterView.INVALID_POSITION) {
 						setState(State.DRAGGING_VIEW_LEFT);
 						dragPointX = x;
 						slideLeftListener.slideLeftStarted(getItemIdAtPosition(itemNum));

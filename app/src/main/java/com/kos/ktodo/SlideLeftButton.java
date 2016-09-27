@@ -128,6 +128,11 @@ public class SlideLeftButton extends Button {
 			return true;
 		}
 
+		if (!slideLeftListener.canSlideLeft()) {
+			sliding = false;
+			return false;
+		}
+
 		if (itemID == null) {
 			performClick(); //this call can change itemID!
 			if (itemID == null) {
@@ -146,7 +151,6 @@ public class SlideLeftButton extends Button {
 		if (sliding || !slidingView.isOnLeft())
 			return false;
 		dragPointX = (int) ev.getRawX();
-		sliding = true;
 		dragVelocityTracker.clear();
 		itemID = null;
 		sliding = true;

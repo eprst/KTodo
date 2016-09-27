@@ -2,7 +2,6 @@ package com.kos.ktodo;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
@@ -11,7 +10,7 @@ import android.widget.Scroller;
 public class SlidingView extends FrameLayout {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "SlidingView";
-	private SlideListener slideListener;
+	private Listener listener;
 	private final Scroller scroller;
 	private boolean fixAfterOrientationChanged;
 
@@ -29,8 +28,8 @@ public class SlidingView extends FrameLayout {
 		});
 	}
 
-	public void setSlideListener(final SlideListener slideListener) {
-		this.slideListener = slideListener;
+	public void setListener(final Listener listener) {
+		this.listener = listener;
 	}
 
 	public void slideLeft() {
@@ -73,9 +72,9 @@ public class SlidingView extends FrameLayout {
 		if (scroller.computeScrollOffset()) {
 			scrollTo(scroller.getCurrX(), 0);
 //			postInvalidate();
-		} else if (slideListener != null) {
-			slideListener.slidingFinished();
-			slideListener = null;
+		} else if (listener != null) {
+			listener.slidingFinished();
+			listener = null;
 		}
 	}
 
@@ -86,7 +85,7 @@ public class SlidingView extends FrameLayout {
 		getChildAt(1).layout(l + w, t, r + w, b);
 	}
 
-	public interface SlideListener {
+	public interface Listener {
 		void slidingFinished();
 	}
 }

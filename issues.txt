@@ -28,10 +28,3 @@ next release
 [ ] google now pagelet? | API not available yet
 
 changelog for new release
-[v] scrollable resizable widget
-[v] option to disable voice input
-[v] option to leave virtual keyboard visible after entering a new item : only after pressing 'Done', not checkmark button
-[v] decrease throw gravity (make configurable)
-[v] categories on the right drawer
-[v] settings on the right drawer
-[v] 'today' meta-tag

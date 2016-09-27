@@ -6,6 +6,7 @@ package com.kos.ktodo;
  * @author <a href="mailto:konstantin.sobolev@gmail.com" title="">Konstantin Sobolev</a>
  */
 public interface SlideLeftListener {
+	boolean canSlideLeft();
 	/**
 	 * Sliding has started.
 	 *
