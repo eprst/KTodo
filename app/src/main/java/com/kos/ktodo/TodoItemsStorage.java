@@ -24,7 +24,7 @@ public class TodoItemsStorage {
 			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE,
 			TODO_CARET_POSITION};
 
-	private SQLiteDatabase db;
+	private SQLiteDatabase db = null;
 	private final DBHelper helper;
 	private final Context context;
 //	private SQLiteStatement toggleDoneStmt1;
@@ -48,6 +48,11 @@ public class TodoItemsStorage {
 
 	public void close() {
 		helper.close();
+		db = null;
+	}
+
+	public boolean isOpen() {
+		return db != null;
 	}
 
 	private void notifyChange() {

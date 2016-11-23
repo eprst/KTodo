@@ -8,8 +8,8 @@ android {
         applicationId "com.kos.ktodo"
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 30
-        versionName "2.1"
+        versionCode 31
+        versionName "2.2"
     }
     lintOptions {
         abortOnError false

@@ -21,7 +21,7 @@ public class TagsStorage {
 	private static final String TAG = "TagsStorage";
 	public static final Uri CHANGE_NOTIFICATION_URI = Uri.parse("content://ktodo_tags");
 
-	private SQLiteDatabase db;
+	private SQLiteDatabase db = null;
 	private final DBHelper helper;
 	private final Context context;
 
@@ -34,8 +34,13 @@ public class TagsStorage {
 		db = helper.getWritableDatabase();
 	}
 
+	public boolean isOpen() {
+		return db != null;
+	}
+
 	public void close() {
 		helper.close();
+		db = null;
 	}
 
 	private void notifyChange() {

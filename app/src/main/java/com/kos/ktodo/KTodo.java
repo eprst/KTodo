@@ -870,6 +870,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 	@Override
 	protected void onDestroy() {
+		super.onDestroy();
 		final LoaderManager loaderManager = getLoaderManager();
 		loaderManager.destroyLoader(CURRENT_TAG_ITEMS_LOADER_ID);
 		loaderManager.destroyLoader(ALL_TAGS_LOADER_ID);
@@ -883,12 +884,11 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 		getApplicationContext().getContentResolver().unregisterContentObserver(contentObserver);
 
-		super.onDestroy();
 		if (TRACE) Debug.stopMethodTracing();
 	}
 
 	private void onDataChanged() {
-		if (!allTagsLoaderCallbacks.getTagsStorage().hasTag(KTodo.this.currentTagId)) {
+		if (!tagsStorage.hasTag(KTodo.this.currentTagId)) {
 			// current tag has been removed, switch to 'all tags'
 			setCurrentTag(DBHelper.ALL_TAGS_METATAG_ID, true);
 		}
