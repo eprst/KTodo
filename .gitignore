@@ -2,9 +2,8 @@
 gradle
 *.apk
 *.patch
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-/.idea/.name
+local.properties
+.idea
 .DS_Store
-/build
+build
+*/*.iml

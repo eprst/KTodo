@@ -23,7 +23,7 @@
 		<activity android:name=".KTodo"
 		          android:launchMode="singleTop"
 		          android:windowSoftInputMode="stateHidden|adjustResize"
-		          android:configChanges="keyboardHidden|orientation">
+		          android:configChanges="keyboardHidden|orientation|screenSize">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 				<action android:name="com.kos.ktodo.SHOW_WIDGET_DATA"/>
