@@ -208,7 +208,7 @@ public class EditTags extends ListActivity {
 	}
 
 	private void addTag() {
-		final EditText et = (EditText) findViewById(R.id.add_tag_text);
+		final EditText et = findViewById(R.id.add_tag_text);
 		final String st = et.getText().toString();
 		if (st.length() > 0) {
 			if (tagsStorage.hasTag(st)) {
@@ -232,7 +232,7 @@ public class EditTags extends ListActivity {
 		final LayoutInflater inf = LayoutInflater.from(this);
 		final View textEntryView = inf.inflate(R.layout.alert_text_entry, getMyListView());
 		final String currentName = tagsStorage.getTag(id);
-		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
+		final EditText editText = textEntryView.findViewById(R.id.text_entry);
 		editText.setMaxLines(1);
 		editText.setText(currentName);
 

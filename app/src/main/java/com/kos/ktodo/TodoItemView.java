@@ -1,5 +1,6 @@
 package com.kos.ktodo;
 
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,13 +13,10 @@ import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.widget.CheckedTextView;
-
 import com.kos.ktodo.preferences.Preferences;
-
 import org.jetbrains.annotations.NotNull;
 
-public class TodoItemView extends CheckedTextView {
+public class TodoItemView extends android.support.v7.widget.AppCompatCheckedTextView {
 	private static final String[] PRIO_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
 
 	private String prio;
@@ -53,6 +51,7 @@ public class TodoItemView extends CheckedTextView {
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
 		final TypedArray ta_tiv = context.obtainStyledAttributes(attrs, R.styleable.TodoItemView);
+		@SuppressLint("CustomViewStyleable")
 		final TypedArray ta_prio = context.obtainStyledAttributes(attrs, R.styleable.PrioColor);
 
 		final int prio1Color = prefs.getInt(Preferences.PRIO1_COLOR, ta_prio.getColor(R.styleable.PrioColor_prio1Color, context.getResources().getColor(R.color.prio_1)));

@@ -1,5 +1,12 @@
 package com.kos.ktodo;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -41,6 +48,7 @@ import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -66,25 +74,16 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
 import com.kos.ktodo.menu.MenuAdapter;
 import com.kos.ktodo.menu.MenuItemModel;
 import com.kos.ktodo.preferences.Preferences;
-import com.kos.ktodo.widget.WidgetUpdateService;
 import com.kos.ktodo.widget.WidgetSettingsStorage;
-
+import com.kos.ktodo.widget.WidgetUpdateService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 	public static final String SHOW_WIDGET_DATA = "com.kos.ktodo.SHOW_WIDGET_DATA";
@@ -144,7 +143,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 	private final TodoItemsListView.DeleteItemListener deleteItemListener;
 	private final SlideLeftListener slideLeftListener;
 
-	private Map<Integer, Runnable> permissionRequests = new HashMap<>();
+	private SparseArray<Runnable> permissionRequests = new SparseArray<>();
 
 	//prefs
 	private Float listFontSize;
@@ -192,7 +191,8 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 	private void hideSoftKeyboard() {
 		final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(getSlidingView().getWindowToken(), 0);
+		if (imm != null)
+			imm.hideSoftInputFromWindow(getSlidingView().getWindowToken(), 0);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		// add leftPadding to the logo
 		Resources resources = getResources();
 		int leftPadding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, resources.getDisplayMetrics());
-		ImageView view = (ImageView) findViewById(android.R.id.home);
+		ImageView view = findViewById(android.R.id.home);
 		view.setPadding(leftPadding, 0, 0, 0);
 
 		setupActionBarMenu();
@@ -414,13 +414,19 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 //	}
 
 	private void runIntent(final Intent intent) {
-		switch (intent.getAction()) {
-			case SHOW_WIDGET_ITEM_DATA:
-				// do we have to switch current tag?
-				Long itemId = Long.parseLong(intent.getData().getLastPathSegment());
-				editItem(itemId);
-				break;
-			// SHOW_WIDGET_DATA is processed in onCreate by selecting correct initial currentTag
+		String action = intent.getAction();
+		if (action != null) {
+			switch (intent.getAction()) {
+				case SHOW_WIDGET_ITEM_DATA:
+					// do we have to switch current tag?
+					Uri data = intent.getData();
+					if (data != null) {
+						Long itemId = Long.parseLong(data.getLastPathSegment());
+						editItem(itemId);
+					}
+					break;
+				// SHOW_WIDGET_DATA is processed in onCreate by selecting correct initial currentTag
+			}
 		}
 	}
 
@@ -437,17 +443,22 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 	private Integer extractTagIdFromIntent(final Intent intent) {
 		if (intent != null) {
 			int widgetId = -1;
-			switch (intent.getAction()) {
-				case SHOW_WIDGET_DATA:
-					widgetId = (int) ContentUris.parseId(intent.getData());
-					break;
-				case SHOW_WIDGET_ITEM_DATA:
-					Uri data = intent.getData();
-					List<String> pathSegments = data.getPathSegments();
-					if (pathSegments.size() == 3) {
-						widgetId = Integer.parseInt(pathSegments.get(1));
-					}
-					break;
+			String action = intent.getAction();
+			if (action != null) {
+				switch (action) {
+					case SHOW_WIDGET_DATA:
+						widgetId = (int) ContentUris.parseId(intent.getData());
+						break;
+					case SHOW_WIDGET_ITEM_DATA:
+						Uri data = intent.getData();
+						if (data != null) {
+							List<String> pathSegments = data.getPathSegments();
+							if (pathSegments.size() == 3) {
+								widgetId = Integer.parseInt(pathSegments.get(1));
+							}
+						}
+						break;
+				}
 			}
 			if (widgetId != -1) {
 				final WidgetSettingsStorage wss = new WidgetSettingsStorage(this);
@@ -763,7 +774,6 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 			todoItemsStorage.saveTodoItem(editingItem);
 		}
 	}
-
 
 	private void reloadTodoItemsFromUIThread() {
 		// otherwise this happens: Can't create handler inside thread that has not called Looper.prepare()
@@ -1087,12 +1097,12 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_progress_title);
 				b.setItems(new CharSequence[]{"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"},
-						new DialogInterface.OnClickListener() {
-							public void onClick(final DialogInterface dialog, final int which) {
-								todoItem.setProgress(which * 10);
-								todoItemsStorage.saveTodoItem(todoItem);
-							}
-						});
+				           new DialogInterface.OnClickListener() {
+					           public void onClick(final DialogInterface dialog, final int which) {
+						           todoItem.setProgress(which * 10);
+						           todoItemsStorage.saveTodoItem(todoItem);
+					           }
+				           });
 				b.show();
 				return true;
 			case CHANGE_DUE_DATE_CONTEXT_MENU_ITEM:
@@ -1113,7 +1123,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_tag_title);
 				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID,
-						DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
+				                                                         DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
 				final ListAdapter adapter = Util.createTagsAdapter(this, cursor, android.R.layout.simple_dropdown_item_1line);
 
 				b.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -1156,11 +1166,10 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 	private void exportDataWithPermissionsGranted() { //any good reason to export/import in background? It's very quick anyways
 		final LayoutInflater inf = LayoutInflater.from(this);
-		@SuppressLint("InflateParams")
-		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
+		@SuppressLint("InflateParams")        final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
 		final File currentPath = new File(Environment.getExternalStorageDirectory(), "ktodo.xml");
 		final String currentName = currentPath.getAbsolutePath(); //todo use real Save As dialog
-		final EditText editText = (EditText) textEntryView.findViewById(R.id.text_entry);
+		final EditText editText = textEntryView.findViewById(R.id.text_entry);
 		editText.setText(currentName);
 
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
@@ -1201,13 +1210,12 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 	private void importDataWithPermissionsGranted() {
 		final LayoutInflater inf = LayoutInflater.from(this);
-		@SuppressLint("InflateParams")
-		final View dialogView = inf.inflate(R.layout.import_dialog, null);
+		@SuppressLint("InflateParams")        final View dialogView = inf.inflate(R.layout.import_dialog, null);
 		final File currentPath = new File(Environment.getExternalStorageDirectory(), "ktodo.xml");
 		final String currentName = currentPath.getAbsolutePath(); //todo use real Open dialog
-		final EditText editText = (EditText) dialogView.findViewById(R.id.text_entry);
+		final EditText editText = dialogView.findViewById(R.id.text_entry);
 		editText.setText(currentName);
-		final CheckBox wipe = (CheckBox) dialogView.findViewById(R.id.wipe_checkbox);
+		final CheckBox wipe = dialogView.findViewById(R.id.wipe_checkbox);
 
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string._import);
@@ -1268,7 +1276,8 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 	@Override
 	public void onRequestPermissionsResult(int permissionRequestCode, @NonNull String permissions[], @NonNull int grantResults[]) {
 		if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			Runnable callback = permissionRequests.remove(permissionRequestCode);
+			Runnable callback = permissionRequests.get(permissionRequestCode);
+			permissionRequests.remove(permissionRequestCode);
 			if (callback != null) {
 				callback.run();
 			}
@@ -1585,5 +1594,4 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 //			dialog.dismiss();
 //		}
 //	}
-
 }

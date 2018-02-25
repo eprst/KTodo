@@ -10,11 +10,12 @@
 
 package com.kos.ktodo.widget;
 
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.widget.TextView;
 import com.kos.ktodo.R;
 import com.kos.ktodo.TodoItemBackgroundDrawable;
 
@@ -25,13 +26,14 @@ import com.kos.ktodo.TodoItemBackgroundDrawable;
  * @author <a href="mailto:kos@supportwizard.com" title="">Konstantin Sobolev</a>
  * @version $Revision$
  */
-public class WidgetTextView extends TextView {
+public class WidgetTextView extends android.support.v7.widget.AppCompatTextView {
 	private final int[] prioToColor;
 	private TodoItemBackgroundDrawable bg;
 
 	public WidgetTextView(final Context context, final AttributeSet attrs) {
 		super(context, attrs);
 		final TypedArray ta_wtv = context.obtainStyledAttributes(attrs, R.styleable.WidgetTextView);
+		@SuppressLint("CustomViewStyleable")
 		final TypedArray ta_prio = context.obtainStyledAttributes(attrs, R.styleable.PrioColor);
 
 		prioToColor = new int[]{
@@ -48,6 +50,7 @@ public class WidgetTextView extends TextView {
 		bg.setPercent(0);
 		setBackground(bg);
 		ta_wtv.recycle();
+		ta_prio.recycle();
 	}
 
 	public void setPrio(final int prio) {

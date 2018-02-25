@@ -1,21 +1,22 @@
 package com.kos.ktodo;
 
+
+import java.util.ArrayList;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.Button;
-
-import java.util.ArrayList;
 
 /**
  * A button that can be used slide the view left. Should be a View mixin actually..
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com" title="">Konstantin Sobolev</a>
  */
-public class SlideLeftButton extends Button {
+public class SlideLeftButton extends android.support.v7.widget.AppCompatButton {
 	private static final String TAG = "SlideLeftButton";
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
@@ -36,6 +37,7 @@ public class SlideLeftButton extends Button {
 		super(context, attrs);
 
 		final TypedArray ta_slide = context.obtainStyledAttributes(attrs, R.styleable.SlideLeftButton);
+		@SuppressLint("CustomViewStyleable")
 		final TypedArray ta_throw = context.obtainStyledAttributes(attrs, R.styleable.Throwable);
 		maxThrowVelocity = ta_throw.getInt(R.styleable.Throwable_maxThrowVelocity, 1500);
 		waitForSlide = ta_slide.getInt(R.styleable.SlideLeftButton_waitForSlide, 300);
@@ -63,6 +65,7 @@ public class SlideLeftButton extends Button {
 		this.slideLeftListener = slideLeftListener;
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public synchronized boolean onTouchEvent(final MotionEvent ev) {
 		if (replaying || slidingView == null)
