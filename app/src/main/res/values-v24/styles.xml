@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="KTodoTheme" parent="android:Theme.Holo">
+		<item name="android:contextPopupMenuStyle">@style/KTodoPopupMenuStyle</item>
+	</style>
+
+	<style name="KTodoPopupMenuStyle" parent="@android:style/Widget.Holo.PopupMenu">
+		<item name="android:overlapAnchor">true</item>
+	</style>
+</resources>

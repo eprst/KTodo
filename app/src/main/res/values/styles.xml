@@ -1,4 +1,5 @@
 <resources>
+	<style name="KTodoTheme" parent="android:Theme.Holo"/>
 
 	<style name="ToolButton" parent="android:Widget.Holo.Button.Borderless">
 		<!--<item name="android:background">@android:drawable/btn_default_holo_dark</item>-->
