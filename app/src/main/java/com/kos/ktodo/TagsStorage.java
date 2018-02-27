@@ -30,7 +30,7 @@ public class TagsStorage {
 		helper = DBHelper.getInstance(context);
 	}
 
-	public void open() {
+	public synchronized void open() {
 		db = helper.getWritableDatabase();
 	}
 
@@ -38,7 +38,7 @@ public class TagsStorage {
 		return db != null;
 	}
 
-	public void close() {
+	public synchronized void close() {
 		helper.close();
 		db = null;
 	}
@@ -47,7 +47,7 @@ public class TagsStorage {
 		context.getContentResolver().notifyChange(CHANGE_NOTIFICATION_URI, null);
 	}
 
-	public long addTag(final String tag) {
+	public synchronized long addTag(final String tag) {
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, tag);
 		final long res = db.insert(TAG_TABLE_NAME, null, cv);
@@ -55,7 +55,7 @@ public class TagsStorage {
 		return res;
 	}
 
-	public boolean renameTag(final String oldName, final String newName) {
+	public synchronized boolean renameTag(final String oldName, final String newName) {
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, newName);
 		final boolean res = db.update(TAG_TABLE_NAME, cv, TAG_TAG + "=" + oldName, null) > 0;
@@ -63,7 +63,7 @@ public class TagsStorage {
 		return res;
 	}
 
-	public boolean renameTag(final long id, final String newName) {
+	public synchronized boolean renameTag(final long id, final String newName) {
 		final ContentValues cv = new ContentValues();
 		cv.put(TAG_TAG, newName);
 		final boolean res = db.update(TAG_TABLE_NAME, cv, TAG_ID + "=" + id, null) > 0;
@@ -75,13 +75,13 @@ public class TagsStorage {
 //		return db.delete(TABLE_NAME, TAG_NAME + "=" + tag, null) > 0;
 //	}
 
-	public boolean deleteTag(final long id) {
+	public synchronized boolean deleteTag(final long id) {
 		final boolean res = db.delete(TAG_TABLE_NAME, TAG_ID + "=" + id, null) > 0;
 		notifyChange();
 		return res;
 	}
 
-	public void deleteAllTags() {
+	public synchronized void deleteAllTags() {
 		db.delete(TAG_TABLE_NAME,
 				TAG_ID + "<>" + DBHelper.ALL_TAGS_METATAG_ID + " AND " +
 				DBHelper.TAG_ID + "<>" + DBHelper.TODAY_METATAG_ID + " AND " +
@@ -90,11 +90,11 @@ public class TagsStorage {
 		notifyChange();
 	}
 
-	public Cursor getAllTagsCursor() {
+	public synchronized Cursor getAllTagsCursor() {
 		return db.query(TAG_TABLE_NAME, new String[]{TAG_ID, TAG_TAG}, null, null, null, null, TAG_ORDER + " ASC");
 	}
 
-	public Cursor getAllTagsExceptCursor(final long... except) {
+	public synchronized Cursor getAllTagsExceptCursor(final long... except) {
 		final StringBuilder where = new StringBuilder();
 		for (final long e : except) {
 			if (where.length() != 0)
@@ -105,21 +105,21 @@ public class TagsStorage {
 				where.toString(), null, null, null, TAG_ORDER + " ASC");
 	}
 
-	public boolean hasTag(final String tag) {
+	public synchronized boolean hasTag(final String tag) {
 		final Cursor cursor = db.query(TAG_TABLE_NAME, new String[]{TAG_ID}, TAG_TAG + "=\"" + tag + "\"", null, null, null, null);
 		final boolean res = cursor.getCount() > 0;
 		cursor.close();
 		return res;
 	}
 
-	public boolean hasTag(final long id) {
+	public synchronized boolean hasTag(final long id) {
 		final Cursor cursor = db.query(TAG_TABLE_NAME, new String[]{TAG_ID}, TAG_ID + "=" + id, null, null, null, null);
 		final boolean res = cursor.getCount() > 0;
 		cursor.close();
 		return res;
 	}
 
-	public String getTag(final long id) {
+	public synchronized String getTag(final long id) {
 		final Cursor cursor = db.query(TAG_TABLE_NAME, new String[]{TAG_TAG}, TAG_ID + "=" + id, null, null, null, null);
 		final String res = cursor.moveToFirst() ? cursor.getString(0) : null;
 		cursor.close();
