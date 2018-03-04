@@ -1,102 +1,114 @@
 package com.kos.ktodo.widget;
 
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.IBinder;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
+import com.kos.ktodo.R;
 
-import net.jcip.annotations.GuardedBy;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.LinkedList;
-import java.util.Queue;
-
-public class WidgetUpdateService extends Service implements Runnable {
+public class WidgetUpdateService extends IntentService {
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
+	public static final String ACTION_UPDATE_WIDGETS = "com.kos.ktodo.widget.UPDATE_WIDGET";
+	public static final String WIDGET_IDS_EXTRA = "com.kos.ktodo.widget.WIDGET_IDS";
 
 	private static final String TAG = "WidgetUpdateService";
-	private static final Object lock = new Object();
-	@GuardedBy("lock")
-	private static final Queue<Integer> appWidgetIds = new LinkedList<>();
 
-	@GuardedBy("lock")
-	private static boolean threadRunning = false;
-
-	public static void requestUpdate(final int[] appWidgetIds) {
-		//Log.i(TAG, "requestUpdate: " + appWidgetIds.length);
-		synchronized (lock) {
-			for (final int widgetId : appWidgetIds)
-				WidgetUpdateService.appWidgetIds.add(widgetId);
-		}
+	public WidgetUpdateService() {
+		super(WidgetUpdateService.class.getName());
 	}
 
-	private static int getNextUpdate() {
-		synchronized (lock) {
-			if (appWidgetIds.peek() == null) {
-				return AppWidgetManager.INVALID_APPWIDGET_ID;
-			} else {
-				return appWidgetIds.poll();
-			}
-		}
+	public static void requestUpdate(final Context context, final int[] appWidgetIds) {
+		Intent intent = new Intent();
+		intent.setAction(ACTION_UPDATE_WIDGETS);
+		intent.putExtra(WIDGET_IDS_EXTRA, appWidgetIds);
+		intent.setClass(context, WidgetUpdateService.class);
+
+		context.startService(intent);
+	}
+
+	public static void requestUpdateAll(final Context context) {
+		Intent intent = new Intent();
+		intent.setAction(ACTION_UPDATE_ALL);
+		intent.setClass(context, WidgetUpdateService.class);
+
+		context.startService(intent);
 	}
 
 	@Override
-	public int onStartCommand(final Intent intent, final int flags, final int startId) {
-		// If requested, trigger update of all widgets
-		if (intent != null && ACTION_UPDATE_ALL.equals(intent.getAction())) {
-			requestUpdateAll(this);
-		}
-
-		// Only start processing thread if not already running
-		synchronized (lock) {
-			if (!threadRunning) {
-				new Thread(this).start();
-			}
-		}
-
-		return super.onStartCommand(intent, flags, startId);
-	}
-
-	public static void requestUpdateAll(final Context ctx) {
-//		Log.i(WidgetUpdateService.class.getName(), "requestUpdateAll");
-		final AppWidgetManager manager = AppWidgetManager.getInstance(ctx);
-		requestUpdate(manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidgetProvider.class)));
-	}
-
-	public void run() {
-		synchronized (lock) {
-			threadRunning = true;
-		}
-
-		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
-		settingsStorage.open();
-		final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
-		int widgetId = getNextUpdate();
-		while (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-			final WidgetSettings s = settingsStorage.load(widgetId);
-			//Log.i(TAG, "Updating widget " + widgetId + " " + s.configured);
-			if (!s.configured) continue;
-			final AppWidgetProviderInfo widgetInfo = widgetManager.getAppWidgetInfo(widgetId); // todo widget info not needed now?
-			if (widgetInfo != null) {
-				final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId, widgetInfo);
-				if (updViews != null) {
-					widgetManager.updateAppWidget(widgetId, updViews);
+	protected void onHandleIntent(@Nullable Intent intent) {
+		if (intent != null) {
+			if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
+				updateAll(this);
+			} else if (ACTION_UPDATE_WIDGETS.equals(intent.getAction())) {
+				int[] widgetIds = intent.getIntArrayExtra(WIDGET_IDS_EXTRA);
+				for (int widgetId : widgetIds) {
+					if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+						updateWidget(widgetId);
+					}
 				}
 			}
-			widgetId = getNextUpdate();
 		}
-		settingsStorage.close();
+	}
 
-		//schedule next update at noon
+	private void updateAll(final Context ctx) {
+		final AppWidgetManager manager = AppWidgetManager.getInstance(ctx);
+		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
+		int[] widgetIds = manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidgetProvider.class));
+		settingsStorage.open();
+		try {
+			for (int widgetId : widgetIds) {
+				updateWidget(settingsStorage, widgetId);
+			}
+		} finally {
+			settingsStorage.close();
+		}
+		scheduleMidnightUpdate();
+	}
+
+	private void updateWidget(int widgetId) {
+		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
+		settingsStorage.open();
+		try {
+			updateWidget(settingsStorage, widgetId);
+		} finally {
+			settingsStorage.close();
+		}
+		scheduleMidnightUpdate();
+	}
+
+	// todo this should take a batch of IDs
+	private void updateWidget(WidgetSettingsStorage settingsStorage, final int widgetId) {
+		final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
+		final WidgetSettings s = settingsStorage.load(widgetId);
+		if (s.configured) {
+			Log.i(TAG, "Updating widget " + widgetId);
+			widgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.widget_list);
+			final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId);
+			if (updViews != null) {
+				widgetManager.partiallyUpdateAppWidget(widgetId, updViews);
+			}
+		}
+	}
+
+	private void scheduleMidnightUpdate() {
+		// todo use android.app.job.JobScheduler once we switch to Oreo
+		// or, instead, use android:updatePeriodMillis in widget metadata?
+
+		//schedule next update at midnight
 		final GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTimeInMillis(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
 		calendar.set(Calendar.HOUR, 0);
@@ -108,15 +120,8 @@ public class WidgetUpdateService extends Service implements Runnable {
 		final PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-		synchronized (lock) {
+		if (alarmMgr != null) {
 			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-			stopSelf();
-			threadRunning = false;
 		}
-	}
-
-	@Override
-	public IBinder onBind(final Intent intent) {
-		return null;
 	}
 }

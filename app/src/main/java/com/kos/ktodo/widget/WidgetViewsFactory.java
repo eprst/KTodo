@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory {
+	private static final String TAG = "WidgetViewsFactory";
 	private final Context context;
 	private final int widgetId;
 
@@ -33,9 +35,10 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 	@Nullable
 	private List<TodoItem> items;
 
-	public WidgetViewsFactory(Context context, Intent intent) {
+	WidgetViewsFactory(Context context, Intent intent) {
 		this.context = context;
 		this.widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+		Log.i(WidgetViewsFactory.class.getName(), "widget view factory created for " + widgetId);
 	}
 
 	@Override
@@ -48,6 +51,7 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 
 	@Override
 	public void onDataSetChanged() {
+		Log.i(TAG, "data set changed");
 		if (widgetSettingsStorage != null &&
 				todoItemsStorage != null &&
 				widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {

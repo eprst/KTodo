@@ -111,7 +111,7 @@ public class WidgetConfigureActivity extends Activity {
 	}
 
 	private void initHideCompleted() {
-		final CheckBox cb = (CheckBox) findViewById(R.id.conf_hide_completed);
+		final CheckBox cb = findViewById(R.id.conf_hide_completed);
 		cb.setChecked(settings.hideCompleted);
 		cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
@@ -121,8 +121,8 @@ public class WidgetConfigureActivity extends Activity {
 	}
 
 	private void initDueIn() {
-		final CheckBox cb = (CheckBox) findViewById(R.id.conf_show_only_due_x);
-		final Spinner dd = (Spinner) findViewById(R.id.conf_days_spinner);
+		final CheckBox cb = findViewById(R.id.conf_show_only_due_x);
+		final Spinner dd = findViewById(R.id.conf_days_spinner);
 
 		final ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
 				android.R.layout.simple_spinner_item, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7});
@@ -154,7 +154,7 @@ public class WidgetConfigureActivity extends Activity {
 	}
 
 	private void initDue() {
-		final CheckBox cb = (CheckBox) findViewById(R.id.conf_show_only_due);
+		final CheckBox cb = findViewById(R.id.conf_show_only_due);
 		cb.setChecked(settings.showOnlyDue);
 		cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
@@ -164,7 +164,7 @@ public class WidgetConfigureActivity extends Activity {
 	}
 
 	private void initSortingSpinner() {
-		final Spinner s = (Spinner) findViewById(R.id.conf_sorting);
+		final Spinner s = findViewById(R.id.conf_sorting);
 		String[] items = {
 				getString(TodoItemsSortingMode.PRIO_DUE_SUMMARY.getNameResId()),
 				getString(TodoItemsSortingMode.DUE_PRIO_SUMMARY.getNameResId()),
@@ -195,13 +195,12 @@ public class WidgetConfigureActivity extends Activity {
 		findViewById(R.id.conf_ok).setOnClickListener(new View.OnClickListener() {
 			public void onClick(final View v) {
 				settings.configured = true;
-				final CheckBox cb = (CheckBox) findViewById(R.id.conf_show_only_due_x);
+				final CheckBox cb = findViewById(R.id.conf_show_only_due_x);
 				if (!cb.isChecked())
 					settings.showOnlyDueIn = -1;
 				Log.i(TAG, "Configuration done for widget " + settings.widgetID + ", saving and updating");
 				settingsStorage.save(settings);
-				WidgetUpdateService.requestUpdate(new int[]{settings.widgetID});
-				startService(new Intent(WidgetConfigureActivity.this, WidgetUpdateService.class));
+				WidgetUpdateService.requestUpdate(WidgetConfigureActivity.this, new int[]{settings.widgetID});
 				setConfigureResult(Activity.RESULT_OK);
 				finish();
 			}
