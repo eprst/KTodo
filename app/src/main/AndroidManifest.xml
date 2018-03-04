@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:tools="http://schemas.android.com/tools"
-    package="com.kos.ktodo"
           xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.kos.ktodo"
           android:installLocation="internalOnly">
+
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.WAKE_LOCK"/> <!-- to update widget at midnight. remove after switching to JobScheduler -->
+	<uses-permission android:name="android.permission.WITE_EXTERNAL_STORAGE"/>
+
 	<application
-		android:allowBackup="true"
-		android:backupAgent="com.kos.ktodo.MyBackupAgent"
-		android:icon="@drawable/icon"
-		android:label="@string/app_name"
-		android:theme="@style/KTodoTheme"
-        android:fullBackupContent="true"
-        tools:ignore="GoogleAppIndexingWarning">
+			android:allowBackup="true"
+			android:backupAgent="com.kos.ktodo.MyBackupAgent"
+			android:icon="@drawable/icon"
+			android:label="@string/app_name"
+			android:theme="@style/KTodoTheme"
+			android:fullBackupContent="true"
+			tools:ignore="GoogleAppIndexingWarning">
 
 		<meta-data
-			android:name="com.google.android.backup.api_key"
-			android:value="AEdPqrEAAAAIEBz6YvAP7vPDajfXEpDWoYAwRrANAakiO3xJCw" />
+				android:name="com.google.android.backup.api_key"
+				android:value="AEdPqrEAAAAIEBz6YvAP7vPDajfXEpDWoYAwRrANAakiO3xJCw"/>
 
 		<activity android:name=".KTodo"
 		          android:launchMode="singleTop"
@@ -54,18 +57,17 @@
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
 			</intent-filter>
-			<meta-data android:name="android.appwidget.provider"
-			           android:resource="@xml/appwidget"/>
+			<meta-data android:name="android.appwidget.provider" android:resource="@xml/appwidget"/>
 		</receiver>
 
-		<receiver android:name=".widget.WidgetUpdateServiceAutostart">
+		<receiver android:name=".widget.WidgetUpdateReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+				<action android:name="com.kos.ktodo.widget.UPDATE_ALL"/>
 			</intent-filter>
 		</receiver>
 
-		<service
-			android:name=".widget.WidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
+		<service android:name=".widget.WidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
 		<service android:name=".widget.WidgetUpdateService"/>
 	</application>
 </manifest>

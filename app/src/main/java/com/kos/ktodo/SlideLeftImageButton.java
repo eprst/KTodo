@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com" title="">Konstantin Sobolev</a>
  */
-public class SlideLeftImageButton extends ImageButton {
+public class SlideLeftImageButton extends android.support.v7.widget.AppCompatImageButton {
 	private static final String TAG = "SlideLeftButton";
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();

@@ -557,7 +557,9 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				undelete();
 			}
 		});
-		getUndeleteButton().getBackground().setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
+		Drawable background = getUndeleteButton().getBackground();
+		if (background != null)
+			background.setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
 	}
 
 	private void setupSecondScreenWidgets() {

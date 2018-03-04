@@ -12,6 +12,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.text.format.DateUtils;
 import android.widget.RemoteViews;
 import com.kos.ktodo.R;
@@ -48,6 +49,7 @@ public class WidgetUpdateService extends IntentService {
 		if (intent != null) {
 			if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
 				updateAll(this);
+				WakefulBroadcastReceiver.completeWakefulIntent(intent);
 			} else if (ACTION_UPDATE_WIDGETS.equals(intent.getAction())) {
 				int[] widgetIds = intent.getIntArrayExtra(WIDGET_IDS_EXTRA);
 				for (int widgetId : widgetIds) {
@@ -104,17 +106,20 @@ public class WidgetUpdateService extends IntentService {
 		//schedule next update at midnight
 		final GregorianCalendar calendar = new GregorianCalendar();
 		calendar.setTimeInMillis(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
+//		calendar.setTimeInMillis(System.currentTimeMillis() + 10000);
 		calendar.set(Calendar.HOUR, 0);
 		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.SECOND, 1);
 
 		final Intent intent = new Intent(ACTION_UPDATE_ALL);
-		intent.setClass(this, this.getClass());
-		final PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		intent.setClass(this, WidgetUpdateReceiver.class);
+		final PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmMgr != null) {
 			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+		// todo change to this once on Marshmallow
+//			alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
 		}
 	}
 }

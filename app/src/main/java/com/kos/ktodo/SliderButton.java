@@ -1,13 +1,16 @@
 package com.kos.ktodo;
 
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.*;
-import android.widget.Button;
-
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-public class SliderButton extends Button {
+public class SliderButton extends android.support.v7.widget.AppCompatButton {
 	private final String prefix;
 	private final String separator;
 	private final String[] values;
@@ -39,6 +42,7 @@ public class SliderButton extends Button {
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SliderButton);
 		final String valueSuffix = ta.getString(R.styleable.SliderButton_valueSuffix);
 		final String vals = ta.getString(R.styleable.SliderButton_valuesList);
+		assert vals != null;
 		values = vals.split(",");
 		final String sep = ta.getString(R.styleable.SliderButton_separator);
 		separator = sep == null ? "" : sep;
@@ -130,6 +134,7 @@ public class SliderButton extends Button {
 						dlg = b.create();
 						dlg.show();
 						final Window dwin = dlg.getWindow();
+						assert dwin != null;
 						dwin.setGravity(Gravity.TOP);
 						final WindowManager.LayoutParams lp = dwin.getAttributes();
 						lp.dimAmount = 0f;

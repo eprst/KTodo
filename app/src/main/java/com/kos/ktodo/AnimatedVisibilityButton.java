@@ -12,7 +12,7 @@ import android.widget.Button;
 /**
  * A button that plays animations when shown/hidden.
  */
-public class AnimatedVisibilityButton extends Button {
+public class AnimatedVisibilityButton extends android.support.v7.widget.AppCompatButton {
 	private final Handler h = new Handler();
 	private final Animation inAnimation;
 	private final Animation outAnimation;
