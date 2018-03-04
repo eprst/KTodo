@@ -1,34 +1,34 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+  compileSdkVersion 27
 
-    defaultConfig {
-        applicationId "com.kos.ktodo"
-        minSdkVersion 16
-        targetSdkVersion 27
-        versionCode 31
-        versionName "2.2"
+  defaultConfig {
+    applicationId "com.kos.ktodo"
+    minSdkVersion 16
+    targetSdkVersion 27
+    versionCode 31
+    versionName "2.2"
+  }
+  lintOptions {
+    abortOnError false
+  }
+  buildTypes {
+    release {
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
-    lintOptions {
-        abortOnError false
-    }
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+  }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:27.1.0'
-    compile 'com.android.support:recyclerview-v7:27.1.0'
-    compile 'com.android.support:palette-v7:27.1.0'
-    compile 'com.android.support:support-v4:27.1.0'
-    //noinspection GradleDynamicVersion
-    compile 'com.intellij:annotations:+@jar'
-    compile 'net.jcip:jcip-annotations:1.0@jar'
-    compile 'com.github.j4velin.colorpicker:colorpicker:1.20.6'
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  compile 'com.android.support:appcompat-v7:27.1.0'
+  compile 'com.android.support:recyclerview-v7:27.1.0'
+  compile 'com.android.support:palette-v7:27.1.0'
+  compile 'com.android.support:support-v4:27.1.0'
+  //noinspection GradleDynamicVersion
+  compile 'com.intellij:annotations:+@jar'
+  compile 'net.jcip:jcip-annotations:1.0@jar'
+  compile 'net.margaritov.preference.colorpicker.ColorPickerPreference:ColorPickerPreference:1.0.0'
 }
