@@ -116,7 +116,6 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 	}
 
 	public static RemoteViews buildUpdate(final Context context, final int widgetId) {
-		Log.i(TAG, "buildUpdate: " + widgetId);
 		RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
 
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(context);
@@ -152,7 +151,6 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 		intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
 
-		Log.i(TAG, "Setting remote view adapter to " + intent);
 		remoteViews.setRemoteAdapter(R.id.widget_list, intent);
 
 		final Intent configureIntent = new Intent(context, WidgetConfigureActivity.class);

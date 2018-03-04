@@ -38,7 +38,6 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 	WidgetViewsFactory(Context context, Intent intent) {
 		this.context = context;
 		this.widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-		Log.i(WidgetViewsFactory.class.getName(), "widget view factory created for " + widgetId);
 	}
 
 	@Override
@@ -51,7 +50,6 @@ public class WidgetViewsFactory implements RemoteViewsService.RemoteViewsFactory
 
 	@Override
 	public void onDataSetChanged() {
-		Log.i(TAG, "data set changed");
 		if (widgetSettingsStorage != null &&
 				todoItemsStorage != null &&
 				widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {

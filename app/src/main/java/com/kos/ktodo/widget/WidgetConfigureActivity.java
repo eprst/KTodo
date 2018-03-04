@@ -198,7 +198,6 @@ public class WidgetConfigureActivity extends Activity {
 				final CheckBox cb = findViewById(R.id.conf_show_only_due_x);
 				if (!cb.isChecked())
 					settings.showOnlyDueIn = -1;
-				Log.i(TAG, "Configuration done for widget " + settings.widgetID + ", saving and updating");
 				settingsStorage.save(settings);
 				WidgetUpdateService.requestUpdate(WidgetConfigureActivity.this, new int[]{settings.widgetID});
 				setConfigureResult(Activity.RESULT_OK);

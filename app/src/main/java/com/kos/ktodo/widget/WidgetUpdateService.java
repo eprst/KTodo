@@ -1,7 +1,6 @@
 package com.kos.ktodo.widget;
 
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -12,10 +11,8 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
-import android.util.Log;
 import android.widget.RemoteViews;
 import com.kos.ktodo.R;
 
@@ -24,8 +21,6 @@ public class WidgetUpdateService extends IntentService {
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
 	public static final String ACTION_UPDATE_WIDGETS = "com.kos.ktodo.widget.UPDATE_WIDGET";
 	public static final String WIDGET_IDS_EXTRA = "com.kos.ktodo.widget.WIDGET_IDS";
-
-	private static final String TAG = "WidgetUpdateService";
 
 	public WidgetUpdateService() {
 		super(WidgetUpdateService.class.getName());
@@ -70,9 +65,7 @@ public class WidgetUpdateService extends IntentService {
 		int[] widgetIds = manager.getAppWidgetIds(new ComponentName(ctx, KTodoWidgetProvider.class));
 		settingsStorage.open();
 		try {
-			for (int widgetId : widgetIds) {
-				updateWidget(settingsStorage, widgetId);
-			}
+			updateWidgets(settingsStorage, widgetIds);
 		} finally {
 			settingsStorage.close();
 		}
@@ -83,23 +76,23 @@ public class WidgetUpdateService extends IntentService {
 		final WidgetSettingsStorage settingsStorage = new WidgetSettingsStorage(this);
 		settingsStorage.open();
 		try {
-			updateWidget(settingsStorage, widgetId);
+			updateWidgets(settingsStorage, new int[]{widgetId});
 		} finally {
 			settingsStorage.close();
 		}
 		scheduleMidnightUpdate();
 	}
 
-	// todo this should take a batch of IDs
-	private void updateWidget(WidgetSettingsStorage settingsStorage, final int widgetId) {
+	private void updateWidgets(WidgetSettingsStorage settingsStorage, final int[] widgetIds) {
 		final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
-		final WidgetSettings s = settingsStorage.load(widgetId);
-		if (s.configured) {
-			Log.i(TAG, "Updating widget " + widgetId);
-			widgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.widget_list);
-			final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId);
-			if (updViews != null) {
-				widgetManager.partiallyUpdateAppWidget(widgetId, updViews);
+		for (int widgetId : widgetIds) {
+			final WidgetSettings s = settingsStorage.load(widgetId);
+			if (s.configured) {
+				widgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.widget_list);
+				final RemoteViews updViews = KTodoWidgetProvider.buildUpdate(this, widgetId);
+				if (updViews != null) {
+					widgetManager.partiallyUpdateAppWidget(widgetId, updViews);
+				}
 			}
 		}
 	}
