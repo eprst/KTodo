@@ -174,8 +174,6 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 		PendingIntent itemClickPendingIntent = PendingIntent.getBroadcast(context, 0, itemClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		remoteViews.setPendingIntentTemplate(R.id.widget_list, itemClickPendingIntent);
 
-		AppWidgetManager.getInstance(context).notifyAppWidgetViewDataChanged(widgetId, R.id.widget_list);
-
 		return remoteViews;
 	}
 }
