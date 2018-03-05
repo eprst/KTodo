@@ -216,7 +216,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
 		editingItemTagsAdapter = Util.createTagsAdapter(this, null, android.R.layout.simple_spinner_item);
-		editingItemTagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		editingItemTagsAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 		getEditItemTagsWidget().setAdapter(editingItemTagsAdapter);
 
 		setupDrawer();
@@ -559,7 +559,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		});
 		Drawable background = getUndeleteButton().getBackground();
 		if (background != null)
-			background.setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
+		background.setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
 	}
 
 	private void setupSecondScreenWidgets() {

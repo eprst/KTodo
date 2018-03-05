@@ -1,5 +1,6 @@
 package com.kos.ktodo.widget;
 
+
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentUris;
@@ -10,7 +11,6 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,6 +26,7 @@ import com.kos.ktodo.R;
 import com.kos.ktodo.TagsStorage;
 import com.kos.ktodo.TodoItemsSortingMode;
 import com.kos.ktodo.Util;
+
 
 public class WidgetConfigureActivity extends Activity {
 	@SuppressWarnings("UnusedDeclaration")
@@ -54,7 +55,7 @@ public class WidgetConfigureActivity extends Activity {
 		settingsStorage.open();
 
 		tagsAdapter = Util.createTagsAdapter(this, null, android.R.layout.simple_spinner_item);
-		tagsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		tagsAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 
 		settings = settingsStorage.load(appWidgetId); // TODO this should be done using Loaders too
 
@@ -95,6 +96,12 @@ public class WidgetConfigureActivity extends Activity {
 
 	private void initItemOnClickActionSelector() {
 		final Spinner spinner = getItemOnClickActionWidget();
+
+		ArrayAdapter<CharSequence> adapter =
+				ArrayAdapter.createFromResource(this, R.array.widget_item_on_click_options, android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+
 		spinner.setSelection(settings.itemOnClickAction.ordinal());
 
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -124,9 +131,10 @@ public class WidgetConfigureActivity extends Activity {
 		final CheckBox cb = findViewById(R.id.conf_show_only_due_x);
 		final Spinner dd = findViewById(R.id.conf_days_spinner);
 
-		final ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this,
-				android.R.layout.simple_spinner_item, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7});
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		final ArrayAdapter<Integer> adapter =
+				new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new Integer[]{0, 1, 2, 3, 4, 5, 6, 7});
+
+		adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 		dd.setAdapter(adapter);
 
 		cb.setChecked(settings.showOnlyDueIn != -1);
@@ -174,7 +182,7 @@ public class WidgetConfigureActivity extends Activity {
 				getString(TodoItemsSortingMode.SUMMARY_DUE_PRIO.getNameResId())
 		};
 		ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, items);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
 		s.setAdapter(adapter);
 		s.setSelection(settings.sortingMode.ordinal());
 

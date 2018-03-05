@@ -129,7 +129,7 @@
 	<string name="widget">KTodo</string>
 	<string name="widget_loading_item">Loading…</string>
 	<string name="widget_on_item_click">On item click…</string>
-	
+
 	<string-array name="widget_item_on_click_options">
 		<item>Do nothing</item>
 		<item>Mark as done</item>
