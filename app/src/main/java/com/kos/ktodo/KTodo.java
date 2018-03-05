@@ -559,7 +559,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		});
 		Drawable background = getUndeleteButton().getBackground();
 		if (background != null)
-		background.setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
+			background.setColorFilter(0xFFCAFF4C, PorterDuff.Mode.MULTIPLY); //add green tint
 	}
 
 	private void setupSecondScreenWidgets() {
@@ -1390,27 +1390,6 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		}.start();
 	}
 
-/*	private void startSubActivity(final Class subActivityClass, final SubActivityCallback callback, final Bundle params) {
-		final int i = rnd.nextInt();
-		subCallbacks.put(i, callback);
-		final Intent intent = new Intent(this, subActivityClass);
-		if (params != null)
-			intent.getExtras().putAll(params);
-		startActivityForResult(intent, i);
-	}
-
-	@Override
-	protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		final SubActivityCallback callback = subCallbacks.remove(requestCode);
-		if (callback != null && resultCode == Activity.RESULT_OK)
-			callback.onResultOK(data);
-	}*/
-
-	private TodoItemsListView getTodoItemsListView() {
-		return (TodoItemsListView) getListView();
-	}
-
 	private DrawerLayout getDrawerLayout() {
 		return (DrawerLayout) findViewById(R.id.drawer_layout);
 	}
@@ -1483,10 +1462,6 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		return (Button) findViewById(R.id.due_date_txt_button);
 	}
 
-/*	private interface SubActivityCallback {
-		void onResultOK(final Intent data);
-	}*/
-
 	private class AllTagsLoaderCallbacks extends CursorAdapterManagingLoaderCallbacks {
 		private final Context ctx;
 		private TagsStorage loaderTagsStorage;
@@ -1500,20 +1475,11 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
-				@Override
-				public Cursor createCursor() {
-					return loaderTagsStorage.getAllTagsCursor();
-				}
-			};
+			return new AllTagsLoader(ctx, loaderTagsStorage);
 		}
 
-		public void shutdown() {
+		void shutdown() {
 			loaderTagsStorage.close();
-		}
-
-		public TagsStorage getTagsStorage() {
-			return loaderTagsStorage;
 		}
 	}
 
@@ -1529,16 +1495,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-			return new CustomCursorLoader(ctx, TodoItemsStorage.CHANGE_NOTIFICATION_URI) {
-
-				@Override
-				public Cursor createCursor() {
-					if (hidingCompleted)
-						return todoItemsStorage.getByTagCursorExcludingCompleted(getCurrentTagID(), sortingMode);
-					else
-						return todoItemsStorage.getByTagCursor(getCurrentTagID(), sortingMode);
-				}
-			};
+			return new CurrentTagItemsLoader(ctx, todoItemsStorage, getCurrentTagID(), hidingCompleted, sortingMode);
 		}
 
 		@Override
@@ -1551,7 +1508,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 			if (todoAdapter != null) todoAdapter.swapCursor(null);
 		}
 
-		public void shutdown() {
+		void shutdown() {
 			todoItemsStorage.close();
 		}
 	}
@@ -1569,31 +1526,48 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
-
-				@Override
-				public Cursor createCursor() {
-					return loaderTagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
-				}
-			};
+			return new TagsCursorLoader(ctx, loaderTagStorage);
 		}
 
-		public void shutdown() {
+		void shutdown() {
 			loaderTagStorage.close();
 		}
 	}
 
-//	private static class DialogDismissingHandler extends Handler {
-//		private final Dialog dialog;
-//
-//		private DialogDismissingHandler(final Dialog dialog) {
-//			this.dialog = dialog;
-//		}
-//
-//		@Override
-//		public void handleMessage(final Message msg) {
-//			super.handleMessage(msg);
-//			dialog.dismiss();
-//		}
-//	}
+	private static class CurrentTagItemsLoader extends CustomCursorLoader {
+		private final TodoItemsStorage todoItemsStorage;
+		private final long currentTagId;
+		private final boolean hidingCompleted;
+		private final TodoItemsSortingMode sortingMode;
+
+		private CurrentTagItemsLoader(Context ctx, TodoItemsStorage todoItemsStorage, long currentTagId, boolean hidingCompleted, TodoItemsSortingMode sortingMode) {
+			super(ctx, TodoItemsStorage.CHANGE_NOTIFICATION_URI);
+			this.todoItemsStorage = todoItemsStorage;
+			this.currentTagId = currentTagId;
+			this.hidingCompleted = hidingCompleted;
+			this.sortingMode = sortingMode;
+		}
+
+		@Override
+		public Cursor createCursor() {
+			if (hidingCompleted)
+				return todoItemsStorage.getByTagCursorExcludingCompleted(currentTagId, sortingMode);
+			else
+				return todoItemsStorage.getByTagCursor(currentTagId, sortingMode);
+		}
+	}
+
+	private static class TagsCursorLoader extends CustomCursorLoader {
+		private final TagsStorage tagStorage;
+
+		TagsCursorLoader(Context context, TagsStorage tagStorage) {
+			super(context, TagsStorage.CHANGE_NOTIFICATION_URI);
+			this.tagStorage = tagStorage;
+		}
+
+		@Override
+		public Cursor createCursor() {
+			return tagStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
+		}
+	}
 }

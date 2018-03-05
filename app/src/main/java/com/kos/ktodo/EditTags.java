@@ -1,5 +1,6 @@
 package com.kos.ktodo;
 
+
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
@@ -20,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
 
 /**
  * Edit tags activity.
@@ -105,7 +107,6 @@ public class EditTags extends ListActivity {
 //		return super.onKeyDown(keyCode, event);
 //	}
 
-
 	@Override
 	public void onDetachedFromWindow() {
 		if (dialog != null && dialog.isShowing())
@@ -187,7 +188,7 @@ public class EditTags extends ListActivity {
 		final AlertDialog.Builder b = new AlertDialog.Builder(this);
 		b.setTitle(R.string.select_tag_title);
 		final Cursor c = tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID,
-				DBHelper.UNFILED_METATAG_ID, DBHelper.TODAY_METATAG_ID, id);
+		                                                    DBHelper.UNFILED_METATAG_ID, DBHelper.TODAY_METATAG_ID, id);
 		final ListAdapter adapter = new SimpleCursorAdapter(
 				this, android.R.layout.select_dialog_item,
 				c, new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1}, 0);
@@ -283,13 +284,21 @@ public class EditTags extends ListActivity {
 
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
-				@Override
-				public Cursor createCursor() {
-					return tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID,
-							DBHelper.UNFILED_METATAG_ID, DBHelper.TODAY_METATAG_ID);
-				}
-			};
+			return new TagsCursorLoader(ctx, tagsStorage);
+		}
+	}
+
+	private static class TagsCursorLoader extends CustomCursorLoader {
+		private final TagsStorage tagsStorage;
+
+		private TagsCursorLoader(Context ctx, TagsStorage tagsStorage) {
+			super(ctx, TagsStorage.CHANGE_NOTIFICATION_URI);
+			this.tagsStorage = tagsStorage;
+		}
+
+		@Override
+		public Cursor createCursor() {
+			return tagsStorage.getAllTagsExceptCursor(DBHelper.ALL_TAGS_METATAG_ID, DBHelper.UNFILED_METATAG_ID, DBHelper.TODAY_METATAG_ID);
 		}
 	}
 }

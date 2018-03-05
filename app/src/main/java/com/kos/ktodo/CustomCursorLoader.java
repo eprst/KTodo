@@ -10,7 +10,7 @@ public abstract class CustomCursorLoader extends CursorLoader {
 	private final Uri notificationUri;
 	private final ContentObserver observer;
 
-	public CustomCursorLoader(final Context context, final Uri notificationUri) {
+	protected CustomCursorLoader(final Context context, final Uri notificationUri) {
 		super(context);
 		this.notificationUri = notificationUri;
 		observer = new ForceLoadContentObserver();

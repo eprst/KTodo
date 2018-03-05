@@ -19,9 +19,8 @@ import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
-
+import com.kos.ktodo.AllTagsLoader;
 import com.kos.ktodo.CursorAdapterManagingLoaderCallbacks;
-import com.kos.ktodo.CustomCursorLoader;
 import com.kos.ktodo.R;
 import com.kos.ktodo.TagsStorage;
 import com.kos.ktodo.TodoItemsSortingMode;
@@ -255,13 +254,7 @@ public class WidgetConfigureActivity extends Activity {
 
 		@Override
 		public Loader<Cursor> onCreateLoader(final int id, final Bundle args) {
-			return new CustomCursorLoader(ctx, TagsStorage.CHANGE_NOTIFICATION_URI) {
-
-				@Override
-				public Cursor createCursor() {
-					return tagsStorage.getAllTagsCursor();
-				}
-			};
+			return new AllTagsLoader(ctx, tagsStorage);
 		}
 
 		@Override
@@ -271,7 +264,7 @@ public class WidgetConfigureActivity extends Activity {
 			initTagsSelector();
 		}
 
-		public void shutdown() {
+		void shutdown() {
 			tagsStorage.close();
 		}
 	}
