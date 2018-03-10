@@ -69,5 +69,8 @@
 
 		<service android:name=".widget.WidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
 		<service android:name=".widget.WidgetUpdateService"/>
+
+		<provider android:authorities="com.kos.ktodo.items" android:name=".TodoItemsStorage" android:exported="false"/>
+		<provider android:authorities="com.kos.ktodo.tags" android:name=".TagsStorage" android:exported="false"/>
 	</application>
 </manifest>

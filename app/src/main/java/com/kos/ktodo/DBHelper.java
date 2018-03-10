@@ -61,9 +61,9 @@ public class DBHelper extends SQLiteOpenHelper {
 	                                                TODO_SUMMARY + " text not null, " +
 	                                                TODO_PRIO + " integer default 1 not null, " +
 	                                                TODO_PROGRESS + " integer default 0 not null, " +
-	                                                TODO_DUE_DATE + " integer null, " +
-	                                                TODO_BODY + " text null, " +
-	                                                TODO_CARET_POSITION + " integer default 0 null);";
+	                                                TODO_DUE_DATE + " integer, " +
+	                                                TODO_BODY + " text, " +
+	                                                TODO_CARET_POSITION + " integer default 0);";
 
 	private static final String CREATE_WIDGET_TABLE = "create table if not exists " + WIDGET_TABLE_NAME +
 	                                                  " (" + WIDGET_ID + " integer primary key autoincrement, " +
@@ -147,14 +147,14 @@ public class DBHelper extends SQLiteOpenHelper {
 	public void onUpgrade(final SQLiteDatabase sqLiteDatabase, final int oldv, final int newv) {
 		Log.i(TAG, "onUpgrade: " + oldv + " -> " + newv);
 		if (oldv == 1)
-			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer null;");
+			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_DUE_DATE + " integer;");
 		if (oldv <= 2)
 			sqLiteDatabase.execSQL(CREATE_WIDGET_TABLE);
 		if (oldv == 3)
 			sqLiteDatabase.execSQL("alter table " + WIDGET_TABLE_NAME + " add " + WIDGET_SORTING_MODE +
 			                       " integer default " + TodoItemsSortingMode.PRIO_DUE_SUMMARY.ordinal() + " not null");
 		if (oldv <= 4)
-			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_CARET_POSITION + " integer default 0 null;");
+			sqLiteDatabase.execSQL("alter table " + TODO_TABLE_NAME + " add " + TODO_CARET_POSITION + " integer default 0;");
 		if (oldv < 7)
 			needToRecreateAllItems = true;
 		if (oldv < 8)
@@ -169,11 +169,11 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public boolean isNeedToRecreateAllItems() {
+	boolean isNeedToRecreateAllItems() {
 		return needToRecreateAllItems;
 	}
 
-	public void resetNeedToRecreateAllItems() {
+	void resetNeedToRecreateAllItems() {
 		this.needToRecreateAllItems = false;
 	}
 

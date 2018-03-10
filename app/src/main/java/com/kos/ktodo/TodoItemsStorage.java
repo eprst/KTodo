@@ -1,45 +1,75 @@
 package com.kos.ktodo;
 
+
+import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Calendar;
 
 import static com.kos.ktodo.DBHelper.*;
+
 
 /**
  * TodoItems storage.
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-public class TodoItemsStorage {
+@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
+public class TodoItemsStorage extends ContentProvider {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "TodoItemsStorage";
-	public static final Uri CHANGE_NOTIFICATION_URI = Uri.parse("content://ktodo_items");
+
+	public static final String AUTHORITY = "com.kos.ktodo.items";
+	public static final Uri CHANGE_NOTIFICATION_URI = new Uri.Builder().scheme("content").authority(AUTHORITY).build();
+
+	private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+	private static final int ITEMS = 1;
+	private static final int ITEM = 2;
+
+	static {
+		URI_MATCHER.addURI(AUTHORITY, "", ITEMS);
+		URI_MATCHER.addURI(AUTHORITY, "/#", ITEM);
+	}
 
 	private static final String[] ALL_COLUMNS = {
-			TODO_ID, TODO_TAG_ID, TODO_DONE, TODO_SUMMARY, TODO_BODY, TODO_PRIO, TODO_PROGRESS, TODO_DUE_DATE,
-			TODO_CARET_POSITION};
+			TODO_ID, TODO_TAG_ID, TODO_DONE,
+			TODO_SUMMARY, TODO_BODY, TODO_PRIO,
+			TODO_PROGRESS, TODO_DUE_DATE, TODO_CARET_POSITION
+	};
 
-	private SQLiteDatabase db = null;
-	private final DBHelper helper;
+	private DBHelper helper;
 	private final Context context;
-//	private SQLiteStatement toggleDoneStmt1;
-//	private SQLiteStatement toggleDoneStmt2;
 
 	public TodoItemsStorage(final Context context) {
 		this.context = context;
-		helper = DBHelper.getInstance(context);
+	}
+
+	public TodoItemsStorage() {
+		this(null);
+	}
+
+	// todo remove
+	private Context context() {
+		return context == null ? getContext() : context;
+	}
+
+	private SQLiteDatabase readableDb() {
+		return helper.getReadableDatabase();
+	}
+
+	private SQLiteDatabase writableDb() {
+		return helper.getWritableDatabase();
 	}
 
 	public void open() {
-		db = helper.getWritableDatabase();
-//		toggleDoneStmt1 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_DONE + " = NOT " + TODO_DONE + " WHERE " + TODO_ID + "=?");
-//		toggleDoneStmt2 = db.compileStatement("UPDATE " + TODO_TABLE_NAME + " SET " + TODO_PROGRESS + " = 0 " + " WHERE " +
-//		                                      TODO_ID + "=? AND " + TODO_PROGRESS + " = 100 AND " + TODO_DONE + " = 0");
+		helper = DBHelper.getInstance(context());
 		if (helper.isNeedToRecreateAllItems()) {
 			recreateAllItems();
 			helper.resetNeedToRecreateAllItems();
@@ -48,20 +78,15 @@ public class TodoItemsStorage {
 
 	public void close() {
 		helper.close();
-		db = null;
-	}
-
-	public boolean isOpen() {
-		return db != null;
 	}
 
 	private void notifyChange() {
-		context.getContentResolver().notifyChange(CHANGE_NOTIFICATION_URI, null);
+		context().getContentResolver().notifyChange(CHANGE_NOTIFICATION_URI, null);
 	}
 
 	public TodoItem addTodoItem(final TodoItem item) {
 		final ContentValues cv = fillValues(item);
-		final long id = db.insert(TODO_TABLE_NAME, null, cv);
+		final long id = writableDb().insert(TODO_TABLE_NAME, null, cv);
 		final TodoItem res = new TodoItem(id, item.tagID, item.isDone(), item.summary, item.body, item.prio, item.getProgress(), item.getDueDate(), item.caretPos);
 		notifyChange();
 		return res;
@@ -87,45 +112,37 @@ public class TodoItemsStorage {
 
 	public boolean saveTodoItem(final TodoItem item) {
 		final ContentValues cv = fillValues(item);
-		final boolean res = db.update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
+		final boolean res = writableDb().update(TODO_TABLE_NAME, cv, TODO_ID + "=" + item.id, null) > 0;
 		if (res) notifyChange();
 		return res;
 	}
 
-//	public void toggleDone(final long id) {
-//		modifiedDB = true;
-//		toggleDoneStmt1.bindLong(1, id);
-//		toggleDoneStmt1.execute();
-//		toggleDoneStmt2.bindLong(1, id);
-//		toggleDoneStmt2.execute();
-//	}
-
 	public void moveTodoItems(final long fromTag, final long toTag) {
 		final ContentValues cv = new ContentValues();
 		cv.put(TODO_TAG_ID, toTag);
-		db.update(TODO_TABLE_NAME, cv, TODO_TAG_ID + "=" + fromTag, null);
+		writableDb().update(TODO_TABLE_NAME, cv, TODO_TAG_ID + "=" + fromTag, null);
 		notifyChange();
 	}
 
 	public boolean deleteTodoItem(final long id) {
-		final boolean res = db.delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
+		final boolean res = writableDb().delete(TODO_TABLE_NAME, TODO_ID + "=" + id, null) > 0;
 		if (res) notifyChange();
 		return res;
 	}
 
 	public void deleteAllTodoItems() {
-		db.delete(TODO_TABLE_NAME, null, null);
+		writableDb().delete(TODO_TABLE_NAME, null, null);
 		notifyChange();
 	}
 
 	public int deleteByTag(final long tagID) {
-		final int res = db.delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
+		final int res = writableDb().delete(TODO_TABLE_NAME, TODO_TAG_ID + "=" + tagID, null);
 		if (res > 0) notifyChange();
 		return res;
 	}
 
 	public Cursor getByTagCursor(final long tagID, final TodoItemsSortingMode sortingMode) {
-		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, getTagConstraint(tagID), null, null, null, sortingMode.getOrderBy());
+		return readableDb().query(TODO_TABLE_NAME, ALL_COLUMNS, getTagConstraint(tagID), null, null, null, sortingMode.getOrderBy());
 	}
 
 	public Cursor getByTagCursorExcludingCompleted(final long tagID, final TodoItemsSortingMode sortingMode) {
@@ -133,7 +150,7 @@ public class TodoItemsStorage {
 		final String doneConstraint = TODO_DONE + " = 0";
 		final String constraint = tagConstraint == null ? doneConstraint :
 				tagConstraint + " AND " + doneConstraint;
-		return db.query(TODO_TABLE_NAME, ALL_COLUMNS, constraint, null, null, null, sortingMode.getOrderBy());
+		return readableDb().query(TODO_TABLE_NAME, ALL_COLUMNS, constraint, null, null, null, sortingMode.getOrderBy());
 	}
 
 	private String getTagConstraint(final long tagID) {
@@ -147,7 +164,7 @@ public class TodoItemsStorage {
 	}
 
 	public TodoItem loadTodoItem(final long id) {
-		final Cursor cursor = db.query(TODO_TABLE_NAME, ALL_COLUMNS, TODO_ID + "=" + id, null, null, null, TODO_PRIO);
+		final Cursor cursor = readableDb().query(TODO_TABLE_NAME, ALL_COLUMNS, TODO_ID + "=" + id, null, null, null, TODO_PRIO);
 		TodoItem res = null;
 		if (cursor.moveToFirst())
 			res = loadTodoItemFromCursor(cursor);
@@ -170,7 +187,7 @@ public class TodoItemsStorage {
 	}
 
 	public void recreateAllItems() {
-		final Cursor cursor = db.query(TODO_TABLE_NAME, ALL_COLUMNS, null, null, null, null, null);
+		final Cursor cursor = writableDb().query(TODO_TABLE_NAME, ALL_COLUMNS, null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			final TodoItem item = loadTodoItemFromCursor(cursor);
@@ -178,5 +195,41 @@ public class TodoItemsStorage {
 			cursor.moveToNext();
 		}
 		cursor.close();
+	}
+
+	// content provider stuff
+	// todo implement it actually
+
+	@Override
+	public boolean onCreate() {
+		return true;
+	}
+
+	@Nullable
+	@Override
+	public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public String getType(@NonNull Uri uri) {
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+		return null;
+	}
+
+	@Override
+	public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+		return 0;
+	}
+
+	@Override
+	public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+		return 0;
 	}
 }
