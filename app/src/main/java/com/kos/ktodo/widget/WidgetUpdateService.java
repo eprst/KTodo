@@ -1,9 +1,6 @@
 package com.kos.ktodo.widget;
 
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
@@ -13,9 +10,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.text.format.DateUtils;
+import android.util.Log;
 import android.widget.RemoteViews;
 import com.kos.ktodo.R;
+import org.joda.time.DateTime;
 
 
 public class WidgetUpdateService extends IntentService {
@@ -104,12 +102,9 @@ public class WidgetUpdateService extends IntentService {
 		// or, instead, use android:updatePeriodMillis in widget metadata?
 
 		//schedule next update at midnight
-		final GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTimeInMillis(System.currentTimeMillis() + DateUtils.DAY_IN_MILLIS);
-//		calendar.setTimeInMillis(System.currentTimeMillis() + 10000);
-		calendar.set(Calendar.HOUR, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 1);
+		// todo switch to Java 8 LocalDateTime on Oreo
+		DateTime today = new DateTime().withTimeAtStartOfDay();
+		DateTime tomorrow = today.plusDays(1);
 
 		final Intent intent = new Intent(ACTION_UPDATE_ALL);
 		intent.setClass(this, WidgetUpdateReceiver.class);
@@ -117,9 +112,11 @@ public class WidgetUpdateService extends IntentService {
 		final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmMgr != null) {
-			alarmMgr.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+			alarmMgr.set(AlarmManager.RTC_WAKEUP, tomorrow.getMillis(), pendingIntent);
 		// todo change to this once on Marshmallow
 //			alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
+			Log.i(getClass().getName(), "Scheduled next widgets update at " + tomorrow);
 		}
 	}
 }

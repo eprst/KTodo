@@ -1,11 +1,11 @@
 package com.kos.ktodo;
 
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +18,19 @@ import android.widget.TextView;
 import com.kos.ktodo.preferences.Preferences;
 
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * Various utils.
@@ -68,39 +74,22 @@ public class Util {
 		if (dueInDays < 0)
 			return DueStatus.EXPIRED;
 		return DueStatus.FUTURE;
-//		if (dueDate == null) return DueStatus.NONE;
-//		final Calendar due = Calendar.getInstance();
-//		due.setTimeInMillis(dueDate);
-//		final Calendar now = Calendar.getInstance();
-//		if (due.get(Calendar.YEAR) < now.get(Calendar.YEAR)) return DueStatus.EXPIRED;
-//		if (due.get(Calendar.YEAR) > now.get(Calendar.YEAR)) return DueStatus.FUTURE;
-//		if (due.get(Calendar.MONTH) < now.get(Calendar.MONTH)) return DueStatus.EXPIRED;
-//		if (due.get(Calendar.MONTH) > now.get(Calendar.MONTH)) return DueStatus.FUTURE;
-//		if (due.get(Calendar.DAY_OF_MONTH) < now.get(Calendar.DAY_OF_MONTH)) return DueStatus.EXPIRED;
-//		if (due.get(Calendar.DAY_OF_MONTH) > now.get(Calendar.DAY_OF_MONTH)) return DueStatus.FUTURE;
-//		return DueStatus.TODAY;
 	}
 
 	public static Integer getDueInDays(final Long dueDate) {
 		if (dueDate == null) return null;
-		final Calendar due = Calendar.getInstance();
-		due.setTimeInMillis(dueDate);
-		killTime(due);
-		final Calendar now = Calendar.getInstance();
-		killTime(now);
-		final long millisDiff = due.getTimeInMillis() - now.getTimeInMillis();
-		final long daysDiff = millisDiff / DateUtils.DAY_IN_MILLIS;
-		return (int) daysDiff;
+
+		// todo switch to Java 8 LocalDateTime on Oreo
+
+		DateTime due = new DateTime(dueDate).withTimeAtStartOfDay();
+		DateTime now = new DateTime().withTimeAtStartOfDay();
+
+		Days days = Days.daysBetween(now, due);
+
+		return days.getDays();
 	}
 
-	public static void killTime(final Calendar due) {
-		due.set(Calendar.HOUR_OF_DAY, 0);
-		due.set(Calendar.MINUTE, 0);
-		due.set(Calendar.SECOND, 0);
-		due.set(Calendar.MILLISECOND, 0);
-	}
-
-	public static String showDueDate(final Context ctx, final Long dueDate) {
+	static String showDueDate(final Context ctx, final Long dueDate) {
 		if (dueDate == null) return null;
 
 		final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -178,9 +167,9 @@ public class Util {
 
 	public static SimpleCursorAdapter createTagsAdapter(final Context ctx, final Cursor cursor, final int layout) {
 		return new SimpleCursorAdapter(ctx, layout,
-				cursor,
-				new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1},
-				0) {
+		                               cursor,
+		                               new String[]{DBHelper.TAG_TAG}, new int[]{android.R.id.text1},
+		                               0) {
 			private int tagIDIndex = -1;
 
 			@Override

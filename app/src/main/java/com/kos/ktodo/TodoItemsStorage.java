@@ -10,8 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import java.util.Calendar;
+import org.joda.time.DateTime;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -156,10 +155,9 @@ public class TodoItemsStorage extends ContentProvider {
 	private String getTagConstraint(final long tagID) {
 		if (tagID == DBHelper.ALL_TAGS_METATAG_ID) return null;
 		else if (tagID == DBHelper.TODAY_METATAG_ID) {
-			final Calendar today = Calendar.getInstance();
-			Util.killTime(today);
-			long tomorrowMillis = today.getTimeInMillis() + 24 * 60 * 60 * 1000L;
-			return TODO_DUE_DATE + "<" + tomorrowMillis;
+			DateTime today = new DateTime().withTimeAtStartOfDay();
+			DateTime tomorrow = today.plusDays(1);
+			return TODO_DUE_DATE + "<" + tomorrow.getMillis();
 		} else return TODO_TAG_ID + "=" + tagID;
 	}
 

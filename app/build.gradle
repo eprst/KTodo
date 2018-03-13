@@ -6,7 +6,7 @@ android {
   defaultConfig {
     applicationId "com.kos.ktodo"
     minSdkVersion 16
-    targetSdkVersion 27
+    targetSdkVersion 25
     versionCode 33
     versionName "2.4"
   }
@@ -30,5 +30,6 @@ dependencies {
   //noinspection GradleDynamicVersion
   compile 'com.intellij:annotations:+@jar'
   compile 'net.jcip:jcip-annotations:1.0@jar'
+  compile 'joda-time:joda-time:2.9.9'
   compile 'net.margaritov.preference.colorpicker.ColorPickerPreference:ColorPickerPreference:1.0.0'
 }
