@@ -1,35 +1,33 @@
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 27
+    compileSdkVersion 27
+    buildToolsVersion '28.0.2'
 
-  defaultConfig {
-    applicationId "com.kos.ktodo"
-    minSdkVersion 16
-    targetSdkVersion 25
-    versionCode 33
-    versionName "2.4"
-  }
-  lintOptions {
-    abortOnError false
-  }
-  buildTypes {
-    release {
-      minifyEnabled true
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    defaultConfig {
+        applicationId "com.kos.ktodo"
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 31
+        versionName "2.2"
     }
-  }
+    lintOptions {
+        abortOnError false
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
 }
 
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
-  compile 'com.android.support:appcompat-v7:27.1.0'
-  compile 'com.android.support:recyclerview-v7:27.1.0'
-  compile 'com.android.support:palette-v7:27.1.0'
-  compile 'com.android.support:support-v4:27.1.0'
-  //noinspection GradleDynamicVersion
-  compile 'com.intellij:annotations:+@jar'
-  compile 'net.jcip:jcip-annotations:1.0@jar'
-  compile 'joda-time:joda-time:2.9.9'
-  compile 'net.margaritov.preference.colorpicker.ColorPickerPreference:ColorPickerPreference:1.0.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // compile 'com.android.support:appcompat-v7:24.2.1'
+    // compile 'com.android.support:support-v4:24.2.1'
+    //noinspection GradleDynamicVersion
+    implementation 'com.intellij:annotations:+@jar'
+    implementation 'net.jcip:jcip-annotations:1.0@jar'
+    implementation project(":ColorPickerPreference")
 }
