@@ -4,8 +4,9 @@ java.keystore
 gradle
 *.apk
 *.patch
-local.properties
-.idea
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/.name
 .DS_Store
-build
-*/*.iml
+/build
