@@ -8,9 +8,13 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import org.joda.time.DateTime;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import static com.kos.ktodo.DBHelper.*;
 
@@ -20,7 +24,7 @@ import static com.kos.ktodo.DBHelper.*;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
+@SuppressWarnings({"UnusedReturnValue"})
 public class TodoItemsStorage extends ContentProvider {
 	@SuppressWarnings("UnusedDeclaration")
 	private static final String TAG = "TodoItemsStorage";
@@ -155,9 +159,12 @@ public class TodoItemsStorage extends ContentProvider {
 	private String getTagConstraint(final long tagID) {
 		if (tagID == DBHelper.ALL_TAGS_METATAG_ID) return null;
 		else if (tagID == DBHelper.TODAY_METATAG_ID) {
-			DateTime today = new DateTime().withTimeAtStartOfDay();
-			DateTime tomorrow = today.plusDays(1);
-			return TODO_DUE_DATE + "<" + tomorrow.getMillis();
+            LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
+            long tomorrowMillis = tomorrow.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli();
+            return TODO_DUE_DATE + "<" + tomorrowMillis;
+			// DateTime today = new DateTime().withTimeAtStartOfDay();
+			// DateTime tomorrow = today.plusDays(1);
+			// return TODO_DUE_DATE + "<" + tomorrow.getMillis();
 		} else return TODO_TAG_ID + "=" + tagID;
 	}
 
@@ -205,29 +212,29 @@ public class TodoItemsStorage extends ContentProvider {
 
 	@Nullable
 	@Override
-	public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+	public Cursor query(@NotNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		return null;
 	}
 
 	@Nullable
 	@Override
-	public String getType(@NonNull Uri uri) {
+	public String getType(@NotNull Uri uri) {
 		return null;
 	}
 
 	@Nullable
 	@Override
-	public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+	public Uri insert(@NotNull Uri uri, @Nullable ContentValues values) {
 		return null;
 	}
 
 	@Override
-	public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+	public int delete(@NotNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 		return 0;
 	}
 
 	@Override
-	public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+	public int update(@NotNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
 		return 0;
 	}
 }

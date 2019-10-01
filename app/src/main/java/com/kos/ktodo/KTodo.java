@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -38,7 +39,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -685,6 +685,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 		final String _default = "default";
 		final String fontSize = prefs.getString(Preferences.MAIN_LIST_FONT_SIZE, _default);
+		assert fontSize != null;
 		if (!fontSize.equals(_default)) {
 			try {
 				listFontSize = Float.parseFloat(fontSize);
@@ -1276,7 +1277,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int permissionRequestCode, @NonNull String permissions[], @NonNull int grantResults[]) {
+	public void onRequestPermissionsResult(int permissionRequestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
 		if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			Runnable callback = permissionRequests.get(permissionRequestCode);
 			permissionRequests.remove(permissionRequestCode);
@@ -1363,7 +1364,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 //							addTodoItem(matches.get(which));
 //						}
 //					});
-					b.setItems(matches.toArray(new CharSequence[matches.size()]), new DialogInterface.OnClickListener() {
+					b.setItems(matches.toArray(new CharSequence[0]), new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(final DialogInterface dialog, final int which) {
 							dialog.dismiss();
