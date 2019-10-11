@@ -68,7 +68,7 @@
 		</receiver>
 
 		<service android:name=".widget.WidgetService" android:permission="android.permission.BIND_REMOTEVIEWS"/>
-		<service android:name=".widget.WidgetUpdateService"/>
+		<service android:name=".widget.WidgetUpdateService" android:permission="android.permission.BIND_JOB_SERVICE"/>
 
 		<provider android:authorities="com.kos.ktodo.items" android:name=".TodoItemsStorage" android:exported="false"/>
 		<provider android:authorities="com.kos.ktodo.tags" android:name=".TagsStorage" android:exported="false"/>

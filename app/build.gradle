@@ -16,8 +16,8 @@ android {
         applicationId "com.kos.ktodo"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 33
-        versionName "2.4"
+        versionCode 34
+        versionName "2.4.1"
     }
     lintOptions {
         abortOnError false

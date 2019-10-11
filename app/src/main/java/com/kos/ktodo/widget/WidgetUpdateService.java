@@ -8,7 +8,9 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.JobIntentService;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -16,14 +18,10 @@ import com.kos.ktodo.R;
 import org.joda.time.DateTime;
 
 
-public class WidgetUpdateService extends IntentService {
+public class WidgetUpdateService extends JobIntentService {
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
 	public static final String ACTION_UPDATE_WIDGETS = "com.kos.ktodo.widget.UPDATE_WIDGET";
 	public static final String WIDGET_IDS_EXTRA = "com.kos.ktodo.widget.WIDGET_IDS";
-
-	public WidgetUpdateService() {
-		super(WidgetUpdateService.class.getName());
-	}
 
 	public static void requestUpdate(final Context context, final int[] appWidgetIds) {
 		Intent intent = new Intent();
@@ -43,11 +41,15 @@ public class WidgetUpdateService extends IntentService {
 	}
 
 	@Override
+	protected void onHandleWork(@NonNull Intent intent) {
+		onHandleIntent(intent);
+	}
+
 	protected void onHandleIntent(@Nullable Intent intent) {
 		if (intent != null) {
 			if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
 				updateAll(this);
-				WakefulBroadcastReceiver.completeWakefulIntent(intent);
+				// WakefulBroadcastReceiver.completeWakefulIntent(intent);
 			} else if (ACTION_UPDATE_WIDGETS.equals(intent.getAction())) {
 				int[] widgetIds = intent.getIntArrayExtra(WIDGET_IDS_EXTRA);
 				for (int widgetId : widgetIds) {
