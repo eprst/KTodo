@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -74,6 +73,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import com.kos.ktodo.impex.XmlExporter;
 import com.kos.ktodo.impex.XmlImporter;
 import com.kos.ktodo.menu.MenuAdapter;
@@ -81,6 +81,7 @@ import com.kos.ktodo.menu.MenuItemModel;
 import com.kos.ktodo.preferences.Preferences;
 import com.kos.ktodo.widget.WidgetSettingsStorage;
 import com.kos.ktodo.widget.WidgetUpdateService;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -346,10 +347,10 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				startActivity(new Intent(KTodo.this, EditTags.class));
 				break;
 			case 3:
-				exportData();
+				exportData(getBaseContext());
 				break;
 			case 4:
-				importData();
+				importData(getBaseContext());
 				break;
 			case 5:
 				startActivity(new Intent(getBaseContext(), Preferences.class));
@@ -387,13 +388,11 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 						getAddTaskButton().setImageDrawable(voiceDrawable);
 					else
 						//requires API 21
-						//noinspection deprecation
 						getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark));
 				}
 			});
 			getAddTaskButton().setImageDrawable(voiceDrawable);
 		} else {
-			//noinspection deprecation
 			getAddTaskButton().setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_mark)); // TODO ..,null (theme) (here and above)
 		}
 	}
@@ -1100,12 +1099,12 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_progress_title);
 				b.setItems(new CharSequence[]{"0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"},
-				           new DialogInterface.OnClickListener() {
-					           public void onClick(final DialogInterface dialog, final int which) {
-						           todoItem.setProgress(which * 10);
-						           todoItemsStorage.saveTodoItem(todoItem);
-					           }
-				           });
+						new DialogInterface.OnClickListener() {
+							public void onClick(final DialogInterface dialog, final int which) {
+								todoItem.setProgress(which * 10);
+								todoItemsStorage.saveTodoItem(todoItem);
+							}
+						});
 				b.show();
 				return true;
 			case CHANGE_DUE_DATE_CONTEXT_MENU_ITEM:
@@ -1126,7 +1125,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.select_tag_title);
 				final Cursor cursor = tagsStorage.getAllTagsExceptCursor(todoItem.tagID,
-				                                                         DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
+						DBHelper.ALL_TAGS_METATAG_ID, DBHelper.TODAY_METATAG_ID);
 				final ListAdapter adapter = Util.createTagsAdapter(this, cursor, android.R.layout.simple_dropdown_item_1line);
 
 				b.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -1158,8 +1157,8 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		b.show();
 	}
 
-	private void exportData() {
-		doWithPermission(EXPORT_DATA_PERMISSION_REQUEST_CODE, Manifest.permission.WRITE_EXTERNAL_STORAGE, R.string.req_storage_write, new Runnable() {
+	private void exportData(final Context context) {
+		doWithPermission(context, EXPORT_DATA_PERMISSION_REQUEST_CODE, Manifest.permission.WRITE_EXTERNAL_STORAGE, R.string.req_storage_write, new Runnable() {
 			@Override
 			public void run() {
 				exportDataWithPermissionsGranted();
@@ -1169,7 +1168,8 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 	private void exportDataWithPermissionsGranted() { //any good reason to export/import in background? It's very quick anyways
 		final LayoutInflater inf = LayoutInflater.from(this);
-		@SuppressLint("InflateParams")        final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
+		@SuppressLint("InflateParams")
+		final View textEntryView = inf.inflate(R.layout.alert_text_entry, null);
 		final File currentPath = new File(Environment.getExternalStorageDirectory(), "ktodo.xml");
 		final String currentName = currentPath.getAbsolutePath(); //todo use real Save As dialog
 		final EditText editText = textEntryView.findViewById(R.id.text_entry);
@@ -1202,8 +1202,8 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		dialog.show();
 	}
 
-	private void importData() {
-		doWithPermission(IMPORT_DATA_PERMISSION_REQUEST_CODE, Manifest.permission.READ_EXTERNAL_STORAGE, R.string.req_storage_read, new Runnable() {
+	private void importData(final Context context) {
+		doWithPermission(context, IMPORT_DATA_PERMISSION_REQUEST_CODE, Manifest.permission.READ_EXTERNAL_STORAGE, R.string.req_storage_read, new Runnable() {
 			@Override
 			public void run() {
 				importDataWithPermissionsGranted();
@@ -1213,7 +1213,7 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 
 	private void importDataWithPermissionsGranted() {
 		final LayoutInflater inf = LayoutInflater.from(this);
-		@SuppressLint("InflateParams")        final View dialogView = inf.inflate(R.layout.import_dialog, null);
+		@SuppressLint("InflateParams") final View dialogView = inf.inflate(R.layout.import_dialog, null);
 		final File currentPath = new File(Environment.getExternalStorageDirectory(), "ktodo.xml");
 		final String currentName = currentPath.getAbsolutePath(); //todo use real Open dialog
 		final EditText editText = dialogView.findViewById(R.id.text_entry);
@@ -1252,8 +1252,9 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 		dialog.show();
 	}
 
-	private void doWithPermission(final int permissionRequestCode, final String permissionName, int explanation, final Runnable callback) {
-		if (ContextCompat.checkSelfPermission(this, permissionName) != PackageManager.PERMISSION_GRANTED) {
+	private void doWithPermission(final Context context, final int permissionRequestCode, final String permissionName, int explanation, final Runnable callback) {
+		int permissionCheckResult = ContextCompat.checkSelfPermission(this, permissionName);
+		if (permissionCheckResult != PackageManager.PERMISSION_GRANTED) {
 			if (ActivityCompat.shouldShowRequestPermissionRationale(this, permissionName)) {
 				final AlertDialog.Builder b = new AlertDialog.Builder(this);
 				b.setTitle(R.string.missing_permission);
@@ -1268,8 +1269,19 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				b.setCancelable(false);
 				b.create().show();
 			} else {
-				permissionRequests.put(permissionRequestCode, callback);
-				ActivityCompat.requestPermissions(this, new String[]{permissionName}, permissionRequestCode);
+				final AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b.setTitle(R.string.missing_permission);
+				b.setMessage(explanation);
+				b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						intent.setData(Uri.parse("package:" + context.getPackageName()));
+						startActivity(intent);
+					}
+				});
+				b.setCancelable(false);
+				b.create().show();
 			}
 		} else {
 			callback.run();
@@ -1315,7 +1327,6 @@ public class KTodo extends ListActivity implements ActivityCompat.OnRequestPermi
 				voiceRecognitionIntent = null;
 			else
 				//requires API 21
-				//noinspection deprecation
 				voiceDrawable = getResources().getDrawable(android.R.drawable.ic_btn_speak_now);
 		}
 	}

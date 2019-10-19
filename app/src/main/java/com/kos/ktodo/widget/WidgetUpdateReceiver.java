@@ -5,28 +5,29 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import static com.kos.ktodo.widget.WidgetUpdateService.ACTION_UPDATE_ALL;
 
 
 public class WidgetUpdateReceiver extends BroadcastReceiver {
-    private final int JOB_ID = 837662934;
-    @Override
-    public void onReceive(Context context, Intent intent) {
 
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
-                ACTION_UPDATE_ALL.equals(intent.getAction())) {
+	@Override
+	public void onReceive(Context context, Intent intent) {
 
-            Intent updateAllIntent = new Intent(context, WidgetUpdateService.class);
-            updateAllIntent.setAction(ACTION_UPDATE_ALL);
+		if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) ||
+				Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()) ||
+				ACTION_UPDATE_ALL.equals(intent.getAction())) {
 
-//			 todo replace with JobScheduler once we're on Oreo
-//			WakefulBroadcastReceiver.startWakefulService(context, updateAllIntent);
+			Log.i("WidgetUpdateReceiver", "KSS: onReceive: " + intent.getAction());
+			Intent updateAllIntent = new Intent(context, WidgetUpdateService.class);
+			updateAllIntent.setAction(ACTION_UPDATE_ALL);
 
-
-            ComponentName comp = new ComponentName(context.getPackageName(),
-                    WidgetUpdateService.class.getName());
-            WidgetUpdateService.enqueueWork(context, comp, JOB_ID, intent);
-        }
-    }
+//            ComponentName comp = new ComponentName(
+//                    context.getPackageName(),
+//                    WidgetUpdateService.class.getName()
+//            );
+			WidgetUpdateService.enqueueWork(context, WidgetUpdateService.class, WidgetUpdateService.JOB_ID, intent);
+		}
+	}
 }

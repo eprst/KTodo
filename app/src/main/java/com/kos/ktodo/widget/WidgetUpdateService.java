@@ -2,42 +2,49 @@ package com.kos.ktodo.widget;
 
 
 import android.app.AlarmManager;
-import android.app.IntentService;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.JobIntentService;
-import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.widget.RemoteViews;
+
 import com.kos.ktodo.R;
+
 import org.joda.time.DateTime;
 
 
 public class WidgetUpdateService extends JobIntentService {
+	private static final String TAG = "WidgetUpdateService";
+	public static final int JOB_ID = 837662934;
 	public static final String ACTION_UPDATE_ALL = "com.kos.ktodo.widget.UPDATE_ALL";
 	public static final String ACTION_UPDATE_WIDGETS = "com.kos.ktodo.widget.UPDATE_WIDGET";
 	public static final String WIDGET_IDS_EXTRA = "com.kos.ktodo.widget.WIDGET_IDS";
 
 	public static void requestUpdate(final Context context, final int[] appWidgetIds) {
-		Intent intent = new Intent();
+		Log.i(TAG, "KSS: requestUpdate: " + appWidgetIds.length);
+		Intent intent = new Intent(context, WidgetUpdateService.class);
 		intent.setAction(ACTION_UPDATE_WIDGETS);
 		intent.putExtra(WIDGET_IDS_EXTRA, appWidgetIds);
-		intent.setClass(context, WidgetUpdateService.class);
+//		intent.setClass(context, WidgetUpdateService.class);
 
-		context.startService(intent);
+		//context.startService(intent);
+		enqueueWork(context, WidgetUpdateService.class, JOB_ID, intent);
 	}
 
 	public static void requestUpdateAll(final Context context) {
-		Intent intent = new Intent();
+		Log.i(TAG, "KSS: requestUpdateAll ");
+		Intent intent = new Intent(context, WidgetUpdateService.class);
 		intent.setAction(ACTION_UPDATE_ALL);
-		intent.setClass(context, WidgetUpdateService.class);
+//		intent.setClass(context, WidgetUpdateService.class);
 
-		context.startService(intent);
+//		context.startService(intent);
+		enqueueWork(context, WidgetUpdateService.class, JOB_ID, intent);
 	}
 
 	@Override
@@ -46,10 +53,10 @@ public class WidgetUpdateService extends JobIntentService {
 	}
 
 	protected void onHandleIntent(@Nullable Intent intent) {
+		Log.i("WidgetUpdateService", "KSS: onHandleIntent: " + intent);
 		if (intent != null) {
 			if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
 				updateAll(this);
-				// WakefulBroadcastReceiver.completeWakefulIntent(intent);
 			} else if (ACTION_UPDATE_WIDGETS.equals(intent.getAction())) {
 				int[] widgetIds = intent.getIntArrayExtra(WIDGET_IDS_EXTRA);
 				for (int widgetId : widgetIds) {
@@ -86,6 +93,7 @@ public class WidgetUpdateService extends JobIntentService {
 	}
 
 	private void updateWidgets(WidgetSettingsStorage settingsStorage, final int[] widgetIds) {
+		Log.i("WidgetUpdateService", "KSS: updateWidgets");
 		final AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
 		for (int widgetId : widgetIds) {
 			final WidgetSettings s = settingsStorage.load(widgetId);
@@ -107,6 +115,8 @@ public class WidgetUpdateService extends JobIntentService {
 		// todo switch to Java 8 LocalDateTime on Oreo
 		DateTime today = new DateTime().withTimeAtStartOfDay();
 		DateTime tomorrow = today.plusDays(1);
+//		DateTime today = new DateTime();
+//		DateTime tomorrow = today.plusMinutes(1);
 
 		final Intent intent = new Intent(ACTION_UPDATE_ALL);
 		intent.setClass(this, WidgetUpdateReceiver.class);
@@ -114,9 +124,13 @@ public class WidgetUpdateService extends JobIntentService {
 		final AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
 		if (alarmMgr != null) {
-			alarmMgr.set(AlarmManager.RTC_WAKEUP, tomorrow.getMillis(), pendingIntent);
-		// todo change to this once on Marshmallow
-//			alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+				alarmMgr.set(AlarmManager.RTC_WAKEUP, tomorrow.getMillis(), pendingIntent);
+			} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+				alarmMgr.setExact(AlarmManager.RTC_WAKEUP, tomorrow.getMillis(), pendingIntent);
+			} else {
+				alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, tomorrow.getMillis(), pendingIntent);
+			}
 
 			Log.i(getClass().getName(), "Scheduled next widgets update at " + tomorrow);
 		}

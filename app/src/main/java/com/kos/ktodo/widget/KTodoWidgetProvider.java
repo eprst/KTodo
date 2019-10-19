@@ -11,8 +11,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
+
 import com.kos.ktodo.DBHelper;
 import com.kos.ktodo.KTodo;
 import com.kos.ktodo.LastModifiedState;
@@ -20,6 +22,7 @@ import com.kos.ktodo.R;
 import com.kos.ktodo.TagsStorage;
 import com.kos.ktodo.TodoItem;
 import com.kos.ktodo.TodoItemsStorage;
+
 import org.jetbrains.annotations.NotNull;
 
 public class KTodoWidgetProvider extends AppWidgetProvider {
@@ -34,6 +37,8 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 
 	@Override
 	public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+		Log.i(TAG, "KSS: onUpdate: " + (appWidgetIds == null ? "null" : appWidgetIds.length));
+
 		// widget update flow:
 		// KTodoWidgetProvider.onUpdate // this method
 		// WidgetUpdateService.requestUpdate(context,ids)
@@ -59,6 +64,7 @@ public class KTodoWidgetProvider extends AppWidgetProvider {
 
 	@Override
 	public void onReceive(@NotNull Context context, @NotNull Intent intent) {
+		Log.i(TAG, "KSS: onReceive: " + intent);
 		if (ON_ITEM_CLICK.equals(intent.getAction())) {
 			final int invalid = Integer.MIN_VALUE;
 
