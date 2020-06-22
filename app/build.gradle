@@ -3,19 +3,19 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         release {
-            storeFile file('W:\\workspace\\KTodo\\java.keystore')
+            storeFile file('java.keystore')
             storePassword 'enter keystore passw0rd111'
             keyAlias = 'droid'
             keyPassword 'enter keystore passw0rd111'
         }
     }
-    compileSdkVersion 28
+    compileSdkVersion 30
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.kos.ktodo"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 36
         versionName "2.4.3"
     }
@@ -38,6 +38,6 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation 'org.jetbrains:annotations:17.0.0@jar'
     implementation 'net.jcip:jcip-annotations:1.0@jar'
-    implementation 'joda-time:joda-time:2.10.4@jar'
+    implementation 'joda-time:joda-time:2.10.6@jar'
     implementation project(":ColorPickerPreference")
 }

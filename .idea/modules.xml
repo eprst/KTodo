@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/libs/ColorPickerPreference/ColorPickerPreference/ColorPickerPreference.iml" filepath="$PROJECT_DIR$/app/libs/ColorPickerPreference/ColorPickerPreference/ColorPickerPreference.iml" />
-      <module fileurl="file://$PROJECT_DIR$/KTodo.iml" filepath="$PROJECT_DIR$/KTodo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/libs/ColorPickerPreference/ColorPickerPreference/ColorPickerPreference.iml" filepath="$PROJECT_DIR$/app/libs/ColorPickerPreference/ColorPickerPreference/ColorPickerPreference.iml" group="KTodo/ColorPickerPreference" />
+      <module fileurl="file://$PROJECT_DIR$/KTodo.iml" filepath="$PROJECT_DIR$/KTodo.iml" group="KTodo" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="KTodo/app" />
     </modules>
   </component>
 </project>
