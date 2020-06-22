@@ -9,13 +9,13 @@ android {
             keyPassword 'enter keystore passw0rd111'
         }
     }
-    compileSdkVersion 30
+    compileSdkVersion 29
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.kos.ktodo"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 29
         versionCode 36
         versionName "2.4.3"
     }
@@ -33,8 +33,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    // compile 'com.android.support:support-v4:24.2.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.preference:preference:1.1.1'
     //noinspection GradleDynamicVersion
     implementation 'org.jetbrains:annotations:17.0.0@jar'
     implementation 'net.jcip:jcip-annotations:1.0@jar'

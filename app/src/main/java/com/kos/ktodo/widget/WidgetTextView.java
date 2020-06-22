@@ -26,7 +26,7 @@ import com.kos.ktodo.TodoItemBackgroundDrawable;
  * @author <a href="mailto:kos@supportwizard.com" title="">Konstantin Sobolev</a>
  * @version $Revision$
  */
-public class WidgetTextView extends android.support.v7.widget.AppCompatTextView {
+public class WidgetTextView extends androidx.appcompat.widget.AppCompatTextView {
 	private final int[] prioToColor;
 	private TodoItemBackgroundDrawable bg;
 

@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com">Konstantin Sobolev</a>
  */
-public class SliderButton extends android.support.v7.widget.AppCompatButton {
+public class SliderButton extends androidx.appcompat.widget.AppCompatButton {
 	private final String prefix;
 	private final String separator;
 	private final String[] values;

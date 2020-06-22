@@ -16,7 +16,7 @@ import android.util.AttributeSet;
 import com.kos.ktodo.preferences.Preferences;
 import org.jetbrains.annotations.NotNull;
 
-public class TodoItemView extends android.support.v7.widget.AppCompatCheckedTextView {
+public class TodoItemView extends androidx.appcompat.widget.AppCompatCheckedTextView {
 	private static final String[] PRIO_TO_STRING = new String[]{"0", "1", "2", "3", "4", "5"};
 
 	private String prio;

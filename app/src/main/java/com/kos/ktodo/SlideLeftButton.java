@@ -16,7 +16,7 @@ import android.view.MotionEvent;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com" title="">Konstantin Sobolev</a>
  */
-public class SlideLeftButton extends android.support.v7.widget.AppCompatButton {
+public class SlideLeftButton extends androidx.appcompat.widget.AppCompatButton {
 	private static final String TAG = "SlideLeftButton";
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();

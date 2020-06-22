@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.ImageButton;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author <a href="mailto:konstantin.sobolev@gmail.com" title="">Konstantin Sobolev</a>
  */
-public class SlideLeftImageButton extends android.support.v7.widget.AppCompatImageButton {
+public class SlideLeftImageButton extends androidx.appcompat.widget.AppCompatImageButton {
 	private static final String TAG = "SlideLeftButton";
 	private final ArrayList<MotionEvent> intercepted = new ArrayList<>();
 	private final RawVelocityTracker dragVelocityTracker = new RawVelocityTracker();
