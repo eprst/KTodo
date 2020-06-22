@@ -17,6 +17,7 @@
 			android:label="@string/app_name"
 			android:theme="@style/KTodoTheme"
 			android:fullBackupContent="true"
+			android:requestLegacyExternalStorage="true"
 			tools:ignore="GoogleAppIndexingWarning">
 
 		<meta-data

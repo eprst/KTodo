@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId "com.kos.ktodo"
-        minSdkVersion 16
+        minSdkVersion 29
         targetSdkVersion 29
         versionCode 36
         versionName "2.4.3"
